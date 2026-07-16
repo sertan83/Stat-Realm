@@ -1,0 +1,512 @@
+@import "tailwindcss";
+
+:root {
+  --background: #120a2a;
+  --background-end: #1b1038;
+  --foreground: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-statrealm-purple: #120a2a;
+  --color-statrealm-red: #c8102e;
+  --color-statrealm-accent: #e2363c;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: linear-gradient(
+    180deg,
+    #0f0820 0%,
+    #120a2a 24%,
+    #181040 52%,
+    #1b1038 78%,
+    #160d30 100%
+  );
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.statrealm-bg-base {
+  background:
+    radial-gradient(
+      ellipse 120% 80% at 12% 8%,
+      rgb(52 42 118 / 22%) 0%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 95% 70% at 88% 12%,
+      rgb(118 42 88 / 18%) 0%,
+      transparent 50%
+    ),
+    linear-gradient(
+      155deg,
+      #0d061c 0%,
+      #120a2a 16%,
+      #16103a 34%,
+      #1a1044 50%,
+      #22104a 64%,
+      #1b1038 80%,
+      #140c28 100%
+    );
+}
+
+.statrealm-bg-glow {
+  filter: blur(560px);
+  will-change: transform;
+}
+
+.statrealm-bg-glow-top-left {
+  background: radial-gradient(
+    circle,
+    rgb(72 98 220 / 21%) 0%,
+    rgb(88 62 214 / 18%) 34%,
+    rgb(76 29 149 / 14%) 58%,
+    transparent 76%
+  );
+  animation: statrealm-glow-drift-a 52s ease-in-out infinite;
+}
+
+.statrealm-bg-glow-top-right {
+  background: radial-gradient(
+    circle,
+    rgb(214 72 132 / 20%) 0%,
+    rgb(186 58 158 / 17%) 36%,
+    rgb(157 78 221 / 14%) 60%,
+    transparent 78%
+  );
+  animation: statrealm-glow-drift-b 64s ease-in-out infinite;
+}
+
+.statrealm-bg-glow-hero {
+  left: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(118 82 230 / 20%) 0%,
+    rgb(107 47 214 / 17%) 40%,
+    rgb(76 29 149 / 12%) 62%,
+    transparent 82%
+  );
+  filter: blur(620px);
+  animation: statrealm-glow-drift-c 48s ease-in-out infinite;
+}
+
+.statrealm-bg-glow-mid-left {
+  background: radial-gradient(
+    circle,
+    rgb(58 82 196 / 17%) 0%,
+    rgb(107 47 214 / 14%) 48%,
+    transparent 76%
+  );
+  filter: blur(500px);
+  animation: statrealm-glow-drift-d 72s ease-in-out infinite;
+}
+
+.statrealm-bg-glow-mid-right {
+  background: radial-gradient(
+    circle,
+    rgb(196 68 118 / 18%) 0%,
+    rgb(157 78 221 / 15%) 46%,
+    transparent 74%
+  );
+  filter: blur(540px);
+  animation: statrealm-glow-drift-e 58s ease-in-out infinite;
+}
+
+.statrealm-bg-glow-lower {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(92 58 196 / 16%) 0%,
+    rgb(76 29 149 / 13%) 50%,
+    transparent 78%
+  );
+  filter: blur(580px);
+  animation: statrealm-glow-drift-f 80s ease-in-out infinite;
+}
+
+.statrealm-bg-blob {
+  filter: blur(460px);
+  will-change: transform;
+}
+
+.statrealm-bg-blob-one {
+  background: radial-gradient(
+    circle,
+    rgb(88 72 214 / 16%) 0%,
+    rgb(76 29 149 / 12%) 42%,
+    transparent 72%
+  );
+  animation: statrealm-blob-drift-a 56s ease-in-out infinite;
+}
+
+.statrealm-bg-blob-two {
+  background: radial-gradient(
+    circle,
+    rgb(214 88 128 / 15%) 0%,
+    rgb(186 58 158 / 12%) 44%,
+    transparent 74%
+  );
+  animation: statrealm-blob-drift-b 44s ease-in-out infinite;
+}
+
+.statrealm-bg-blob-three {
+  background: radial-gradient(
+    circle,
+    rgb(72 98 220 / 14%) 0%,
+    rgb(107 47 214 / 11%) 46%,
+    transparent 72%
+  );
+  animation: statrealm-blob-drift-c 68s ease-in-out infinite;
+}
+
+.statrealm-bg-blob-four {
+  background: radial-gradient(
+    circle,
+    rgb(118 58 196 / 15%) 0%,
+    rgb(92 42 148 / 12%) 48%,
+    transparent 74%
+  );
+  animation: statrealm-blob-drift-d 76s ease-in-out infinite;
+}
+
+.statrealm-bg-grid {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 5%) 1px, transparent 1px);
+  background-size: 120px 120px;
+  mask-image: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 92%) 0%,
+    rgb(0 0 0 / 68%) 50%,
+    rgb(0 0 0 / 42%) 100%
+  );
+}
+
+.statrealm-bg-noise {
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+.statrealm-bg-vignette {
+  background: radial-gradient(
+    ellipse 88% 78% at 50% 42%,
+    transparent 28%,
+    rgb(8 4 18 / 38%) 68%,
+    rgb(4 2 10 / 72%) 100%
+  );
+}
+
+.statrealm-ambient-glow {
+  filter: blur(120px);
+  will-change: transform;
+}
+
+.statrealm-ambient-blue {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(72 118 230 / 20%) 0%,
+    rgb(58 92 214 / 16%) 38%,
+    rgb(76 29 149 / 10%) 62%,
+    transparent 82%
+  );
+  animation: statrealm-ambient-drift-a 60s ease-in-out infinite;
+}
+
+.statrealm-ambient-purple {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(118 82 230 / 19%) 0%,
+    rgb(107 47 214 / 16%) 40%,
+    rgb(76 29 149 / 11%) 64%,
+    transparent 84%
+  );
+}
+
+.statrealm-ambient-centered.statrealm-ambient-purple {
+  animation: statrealm-ambient-drift-b 54s ease-in-out infinite;
+}
+
+.statrealm-ambient-purple:not(.statrealm-ambient-centered) {
+  animation: statrealm-ambient-drift-a 54s ease-in-out infinite;
+}
+
+.statrealm-ambient-magenta {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(214 72 142 / 19%) 0%,
+    rgb(186 58 158 / 16%) 42%,
+    transparent 82%
+  );
+  animation: statrealm-ambient-drift-c 66s ease-in-out infinite;
+}
+
+.statrealm-ambient-red-purple {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(214 68 98 / 20%) 0%,
+    rgb(186 58 158 / 17%) 36%,
+    rgb(118 42 168 / 13%) 62%,
+    transparent 84%
+  );
+  animation: statrealm-ambient-drift-d 58s ease-in-out infinite;
+}
+
+.statrealm-ambient-indigo {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(82 72 214 / 18%) 0%,
+    rgb(76 29 149 / 15%) 44%,
+    rgb(58 42 118 / 10%) 68%,
+    transparent 86%
+  );
+  animation: statrealm-ambient-drift-e 74s ease-in-out infinite;
+}
+
+.statrealm-hero-title-glow {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(138 98 235 / 22%) 0%,
+    rgb(107 47 214 / 18%) 32%,
+    rgb(76 29 149 / 10%) 56%,
+    transparent 80%
+  );
+  filter: blur(140px);
+  animation: statrealm-hero-title-drift 46s ease-in-out infinite;
+}
+
+@keyframes statrealm-glow-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(5%, 4%, 0) scale(1.07);
+  }
+}
+
+@keyframes statrealm-glow-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-4%, 3%, 0) scale(1.06);
+  }
+}
+
+@keyframes statrealm-glow-drift-c {
+  0%,
+  100% {
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-47%, 3%, 0) scale(1.05);
+  }
+}
+
+@keyframes statrealm-glow-drift-d {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.04);
+  }
+}
+
+@keyframes statrealm-glow-drift-e {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-3%, 2%, 0) scale(1.05);
+  }
+}
+
+@keyframes statrealm-glow-drift-f {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(2%, -2%, 0) scale(1.03);
+  }
+}
+
+@keyframes statrealm-blob-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.04);
+  }
+}
+
+@keyframes statrealm-blob-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-4%, 3%, 0) scale(1.05);
+  }
+}
+
+@keyframes statrealm-blob-drift-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(2%, 3%, 0) scale(1.03);
+  }
+}
+
+@keyframes statrealm-blob-drift-d {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-3%, -2%, 0) scale(1.04);
+  }
+}
+
+@keyframes statrealm-ambient-drift-a {
+  0%,
+  100% {
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-48%, 2%, 0) scale(1.04);
+  }
+}
+
+@keyframes statrealm-ambient-drift-b {
+  0%,
+  100% {
+    transform: translate3d(-50%, -50%, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-52%, -48%, 0) scale(1.03);
+  }
+}
+
+@keyframes statrealm-ambient-drift-c {
+  0%,
+  100% {
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-47%, -2%, 0) scale(1.05);
+  }
+}
+
+@keyframes statrealm-ambient-drift-d {
+  0%,
+  100% {
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-49%, 3%, 0) scale(1.04);
+  }
+}
+
+@keyframes statrealm-ambient-drift-e {
+  0%,
+  100% {
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-51%, -3%, 0) scale(1.03);
+  }
+}
+
+@keyframes statrealm-hero-title-drift {
+  0%,
+  100% {
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-48%, 2%, 0) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statrealm-bg-glow,
+  .statrealm-bg-blob,
+  .statrealm-ambient-glow,
+  .statrealm-hero-title-glow {
+    animation: none;
+  }
+}
+
+@keyframes statrealm-account-dropdown-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.statrealm-account-dropdown {
+  animation: statrealm-account-dropdown-in 150ms ease-out;
+  transform-origin: top right;
+}
+
+@keyframes statrealm-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes statrealm-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.statrealm-modal-backdrop {
+  animation: statrealm-modal-backdrop-in 200ms ease-out;
+}
+
+.statrealm-modal-panel {
+  animation: statrealm-modal-in 200ms ease-out;
+  transform-origin: center;
+}

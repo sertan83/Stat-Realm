@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
+  <defs>
+    <linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#feda75" />
+      <stop offset="25%" stop-color="#fa7e1e" />
+      <stop offset="50%" stop-color="#d62976" />
+      <stop offset="75%" stop-color="#962fbf" />
+      <stop offset="100%" stop-color="#4f5bd5" />
+    </linearGradient>
+  </defs>
+  <rect width="24" height="24" rx="6" fill="url(#instagram-gradient)" />
+  <circle cx="12" cy="12" r="4.25" fill="none" stroke="#fff" stroke-width="1.75" />
+  <circle cx="17.2" cy="6.8" r="1.2" fill="#fff" />
+  <rect
+    x="4.75"
+    y="4.75"
+    width="14.5"
+    height="14.5"
+    rx="4.25"
+    fill="none"
+    stroke="#fff"
+    stroke-width="1.75"
+  />
+</svg>
