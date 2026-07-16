@@ -1,7 +1,5 @@
 import "server-only";
 
-import { mkdir, readFile, rename, writeFile } from "fs/promises";
-import path from "path";
 import type {
   CommunityAggregates,
   MostOwnedAggregate,
@@ -13,27 +11,14 @@ import type {
   UserLibraryGame,
 } from "@/lib/db/types";
 import {
+  readPersistedDb,
+  writePersistedDb,
+} from "@/lib/db/persistence";
+import {
   normalizeUserStats,
 } from "@/lib/user/synced-statistics";
 
-const DB_PATH = path.join(process.cwd(), ".data", "statrealm-db.json");
 const TOP_COMMUNITY_RANKINGS = 10;
-
-let writeQueue: Promise<unknown> = Promise.resolve();
-
-function createEmptyDb(): StatRealmDb {
-  return {
-    users: {},
-    libraries: {},
-    achievementHistories: {},
-    profileAnalytics: {},
-    aggregates: {
-      mostPlayed: [],
-      mostOwned: [],
-      updatedAt: null,
-    },
-  };
-}
 
 function normalizeStoredAchievementHistory(
   achievement: Partial<StoredUnlockedAchievement> &
@@ -160,11 +145,9 @@ function normalizeStoredLibraryGame(
 }
 
 async function readDbFile(): Promise<StatRealmDb> {
-  try {
-    const raw = await readFile(DB_PATH, "utf8");
-    const parsed = JSON.parse(raw) as Partial<StatRealmDb>;
+  const parsed = await readPersistedDb();
 
-    return {
+  return {
       users: Object.fromEntries(
         Object.entries(parsed.users ?? {}).map(([steamId, user]) => [
           steamId,
@@ -223,26 +206,13 @@ async function readDbFile(): Promise<StatRealmDb> {
         updatedAt: parsed.aggregates?.updatedAt ?? null,
       },
     };
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
-      return createEmptyDb();
-    }
-
-    throw error;
-  }
 }
 
 async function writeDbFile(db: StatRealmDb) {
-  await mkdir(path.dirname(DB_PATH), { recursive: true });
-  const tempPath = `${DB_PATH}.tmp`;
-  await writeFile(tempPath, JSON.stringify(db, null, 2), "utf8");
-  await rename(tempPath, DB_PATH);
+  await writePersistedDb(db);
 }
+
+let writeQueue: Promise<unknown> = Promise.resolve();
 
 function withDbLock<T>(operation: () => Promise<T>): Promise<T> {
   const next = writeQueue.then(operation, operation);

@@ -5,6 +5,7 @@ import path from "path";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import { isCacheableSteamImageUrl } from "@/lib/steam/image-url-utils";
 import { pickPrimaryStoreArtworkUrl } from "@/lib/steam/store-artwork";
+import { isFilesystemPersistenceEnabled } from "@/lib/storage/runtime";
 import type { SteamImageCandidate } from "@/types/steam-images";
 
 const CACHE_PATH = path.join(process.cwd(), ".data", "game-image-cache.json");
@@ -28,7 +29,7 @@ function getCacheKey(appId: number, role: GameImageRole) {
 }
 
 async function hydrateCacheFromDisk() {
-  if (cacheHydrated) {
+  if (!isFilesystemPersistenceEnabled() || cacheHydrated) {
     return;
   }
 
@@ -63,6 +64,10 @@ async function hydrateCacheFromDisk() {
 }
 
 function schedulePersistToDisk() {
+  if (!isFilesystemPersistenceEnabled()) {
+    return;
+  }
+
   persistQueue = persistQueue
     .then(async () => {
       await mkdir(path.dirname(CACHE_PATH), { recursive: true });
