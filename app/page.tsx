@@ -7,6 +7,8 @@ import { SeeYourStatisticsCta } from "@/components/landing/SeeYourStatisticsCta"
 import { Navbar } from "@/components/Navbar";
 import { getCommunityLandingData } from "@/lib/community/rankings";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const [session, communityData] = await Promise.all([
     auth(),

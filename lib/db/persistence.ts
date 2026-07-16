@@ -3,9 +3,10 @@ import "server-only";
 import { mkdir, readFile, rename, writeFile } from "fs/promises";
 import path from "path";
 import {
-  hasKvPersistenceConfig,
+  getKvRestConfig,
   isFilesystemPersistenceEnabled,
   isVercelRuntime,
+  type KvRestConfig,
 } from "@/lib/storage/runtime";
 import type { StatRealmDb } from "@/lib/db/types";
 
@@ -38,33 +39,30 @@ export function createEmptyDb(): StatRealmDb {
 }
 
 function warnAboutEphemeralDbOnce() {
-  if (warnedAboutEphemeralDb || !isVercelRuntime() || hasKvPersistenceConfig()) {
+  if (warnedAboutEphemeralDb || !isVercelRuntime() || getKvRestConfig()) {
     return;
   }
 
   warnedAboutEphemeralDb = true;
   console.warn(
-    "[StatRealm] Running on Vercel without KV_REST_API_URL/KV_REST_API_TOKEN. Database changes are kept in memory only for the current serverless instance.",
+    "[StatRealm] Running on Vercel without KV/Upstash REST credentials. Synced users are kept in memory only for the current serverless instance and will not appear on the community leaderboard after logout.",
   );
 }
 
-async function readDbFromKv(): Promise<StatRealmDb | null> {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    return null;
-  }
-
+async function readDbFromKv(config: KvRestConfig): Promise<StatRealmDb | null> {
   try {
-    const response = await fetch(`${url}/get/${DB_KV_KEY}`, {
+    const response = await fetch(`${config.url}/get/${DB_KV_KEY}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${config.token}`,
       },
       cache: "no-store",
     });
 
     if (!response.ok) {
+      console.error(
+        "[StatRealm] KV read failed",
+        { status: response.status },
+      );
       return null;
     }
 
@@ -80,18 +78,11 @@ async function readDbFromKv(): Promise<StatRealmDb | null> {
   }
 }
 
-async function writeDbToKv(db: StatRealmDb) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    return;
-  }
-
-  const response = await fetch(`${url}/set/${DB_KV_KEY}`, {
+async function writeDbToKv(config: KvRestConfig, db: StatRealmDb) {
+  const response = await fetch(`${config.url}/set/${DB_KV_KEY}`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${config.token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(db),
@@ -129,28 +120,35 @@ async function writeDbToFile(db: StatRealmDb) {
 }
 
 export async function readPersistedDb(): Promise<StatRealmDb> {
+  const kvConfig = getKvRestConfig();
+
+  if (kvConfig) {
+    const db = await readDbFromKv(kvConfig);
+    const resolved = db ?? createEmptyDb();
+    const globalState = getGlobalDbState();
+    globalState.__statrealmDb = resolved;
+    globalState.__statrealmDbHydrated = true;
+    return resolved;
+  }
+
+  if (isFilesystemPersistenceEnabled()) {
+    const db = await readDbFromFile();
+    const resolved = db ?? createEmptyDb();
+    const globalState = getGlobalDbState();
+    globalState.__statrealmDb = resolved;
+    globalState.__statrealmDbHydrated = true;
+    return resolved;
+  }
+
   const globalState = getGlobalDbState();
 
-  if (globalState.__statrealmDbHydrated && globalState.__statrealmDb) {
-    return globalState.__statrealmDb;
+  if (!globalState.__statrealmDbHydrated || !globalState.__statrealmDb) {
+    globalState.__statrealmDb = createEmptyDb();
+    globalState.__statrealmDbHydrated = true;
+    warnAboutEphemeralDbOnce();
   }
 
-  let db: StatRealmDb | null = null;
-
-  if (hasKvPersistenceConfig()) {
-    db = await readDbFromKv();
-  }
-
-  if (!db && isFilesystemPersistenceEnabled()) {
-    db = await readDbFromFile();
-  }
-
-  const resolved = db ?? createEmptyDb();
-  globalState.__statrealmDb = resolved;
-  globalState.__statrealmDbHydrated = true;
-  warnAboutEphemeralDbOnce();
-
-  return resolved;
+  return globalState.__statrealmDb;
 }
 
 export async function writePersistedDb(db: StatRealmDb) {
@@ -158,10 +156,11 @@ export async function writePersistedDb(db: StatRealmDb) {
   globalState.__statrealmDb = db;
   globalState.__statrealmDbHydrated = true;
 
+  const kvConfig = getKvRestConfig();
   const persistenceTasks: Promise<void>[] = [];
 
-  if (hasKvPersistenceConfig()) {
-    persistenceTasks.push(writeDbToKv(db));
+  if (kvConfig) {
+    persistenceTasks.push(writeDbToKv(kvConfig, db));
   }
 
   if (isFilesystemPersistenceEnabled()) {
