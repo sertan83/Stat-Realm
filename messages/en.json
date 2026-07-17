@@ -19,6 +19,9 @@
     "language": "Language",
     "languages": {
       "en": "English",
+      "es": "Español",
+      "it": "Italiano",
+      "ru": "Русский",
       "tr": "Türkçe"
     }
   },
