@@ -148,7 +148,7 @@ export function RecentPlayerCard({ player, className }: RecentPlayerCardProps) {
                 {player.username}
               </p>
               <p className="mt-1 text-xs text-white/55">
-                {formatJoinedAgo(player.lastSyncedAt, t)}
+                {formatJoinedAgo(player.lastLoginAt, t)}
               </p>
             </div>
           </div>

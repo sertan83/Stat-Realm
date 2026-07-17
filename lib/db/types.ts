@@ -57,6 +57,7 @@ export type StatRealmUser = {
   profileUrl: string;
   registeredAt: string;
   lastSyncedAt: string;
+  lastLoginAt: string;
   stats: StatRealmUserStats;
 };
 

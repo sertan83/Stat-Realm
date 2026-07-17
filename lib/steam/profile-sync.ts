@@ -71,22 +71,26 @@ export function userNeedsProfileRefresh(user: StatRealmUser) {
 async function applySteamProfileToDatabase(
   steamId: string,
   profile: SteamProfile,
+  options?: { recordLogin?: boolean },
 ) {
   const fields = steamProfileToStoredFields(profile);
   const existingUser = await getStatRealmUser(steamId);
 
-  await upsertStatRealmUser({
-    steamId,
-    displayName: fields.displayName,
-    avatar: fields.avatar,
-    avatarMedium: fields.avatarMedium,
-    avatarUrl: fields.avatarUrl,
-    profileUrl: fields.profileUrl,
-    stats: {
-      ...(existingUser?.stats ?? createEmptyUserStats()),
-      countryCode: fields.countryCode,
+  await upsertStatRealmUser(
+    {
+      steamId,
+      displayName: fields.displayName,
+      avatar: fields.avatar,
+      avatarMedium: fields.avatarMedium,
+      avatarUrl: fields.avatarUrl,
+      profileUrl: fields.profileUrl,
+      stats: {
+        ...(existingUser?.stats ?? createEmptyUserStats()),
+        countryCode: fields.countryCode,
+      },
     },
-  });
+    { recordLogin: options?.recordLogin === true },
+  );
 }
 
 export async function refreshSteamProfilesFromApi(steamIds: string[]) {
@@ -116,9 +120,12 @@ export async function refreshSteamProfilesFromApi(steamIds: string[]) {
   );
 }
 
-export async function syncSteamUserProfile(steamId: string) {
+export async function syncSteamUserProfile(
+  steamId: string,
+  options?: { recordLogin?: boolean },
+) {
   const profile = await getSteamProfile(steamId);
-  await applySteamProfileToDatabase(steamId, profile);
+  await applySteamProfileToDatabase(steamId, profile, options);
   return profile;
 }
 

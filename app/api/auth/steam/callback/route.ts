@@ -45,10 +45,11 @@ export async function GET(request: NextRequest) {
   invalidateGenreCache(steamId);
 
   try {
-    const profile = await syncSteamUserProfile(steamId);
+    const profile = await syncSteamUserProfile(steamId, { recordLogin: true });
     await syncUserSteamLibrary(steamId, {
       profile,
       forceAchievementRefresh: true,
+      recordLogin: true,
     });
   } catch (error) {
     console.error("[StatRealm] Failed to sync Steam library on sign-in", {

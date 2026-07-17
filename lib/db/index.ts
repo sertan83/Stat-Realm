@@ -121,6 +121,11 @@ function normalizeStoredUser(
       `https://steamcommunity.com/profiles/${user.steamId}`,
     registeredAt: user.registeredAt ?? new Date().toISOString(),
     lastSyncedAt: user.lastSyncedAt ?? new Date().toISOString(),
+    lastLoginAt:
+      user.lastLoginAt ??
+      user.lastSyncedAt ??
+      user.registeredAt ??
+      new Date().toISOString(),
     stats: normalizeUserStats(user.stats),
   };
 }
@@ -322,7 +327,7 @@ export async function getAllUsersWithLibraries(): Promise<{
 }
 
 export type UserSyncSnapshotCommit = {
-  user: Omit<StatRealmUser, "registeredAt" | "lastSyncedAt">;
+  user: Omit<StatRealmUser, "registeredAt" | "lastSyncedAt" | "lastLoginAt">;
   library: UserLibraryGame[];
   achievementHistory?: StoredUnlockedAchievement[];
   profileAnalytics?: {
@@ -330,6 +335,7 @@ export type UserSyncSnapshotCommit = {
     completionOverview?: StoredProfileAnalytics["completionOverview"];
   };
   replaceAchievementHistory?: boolean;
+  recordLogin?: boolean;
 };
 
 function normalizeAchievementHistoryList(
@@ -360,6 +366,12 @@ export async function commitUserSyncSnapshot(
       stats: normalizeUserStats(commit.user.stats),
       registeredAt: existingUser?.registeredAt ?? now,
       lastSyncedAt: now,
+      lastLoginAt:
+        commit.recordLogin || !existingUser
+          ? now
+          : (existingUser.lastLoginAt ??
+            existingUser.lastSyncedAt ??
+            existingUser.registeredAt),
     };
 
     db.libraries[steamId] = commit.library.map((game) =>
@@ -503,7 +515,8 @@ export async function getUserLibrary(
 }
 
 export async function upsertStatRealmUser(
-  user: Omit<StatRealmUser, "registeredAt" | "lastSyncedAt">,
+  user: Omit<StatRealmUser, "registeredAt" | "lastSyncedAt" | "lastLoginAt">,
+  options?: { recordLogin?: boolean },
 ) {
   await withDbLock(async () => {
     const db = await readDbFile();
@@ -518,6 +531,12 @@ export async function upsertStatRealmUser(
       stats: normalizeUserStats(user.stats),
       registeredAt: existingUser?.registeredAt ?? now,
       lastSyncedAt: now,
+      lastLoginAt:
+        options?.recordLogin || !existingUser
+          ? now
+          : (existingUser.lastLoginAt ??
+            existingUser.lastSyncedAt ??
+            existingUser.registeredAt),
     };
 
     await writeDbFile(db);

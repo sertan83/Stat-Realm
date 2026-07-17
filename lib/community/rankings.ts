@@ -6,6 +6,7 @@ import {
   getRegisteredUserCount,
   readCommunityAggregates,
 } from "@/lib/db";
+import type { StatRealmUser } from "@/lib/db/types";
 import {
   ensureStatRealmUserProfileFresh,
   ensureStatRealmUsersHaveFreshProfiles,
@@ -25,7 +26,7 @@ export type LandingRecentPlayer = {
   steamId: string;
   username: string;
   avatarUrl: string;
-  lastSyncedAt: string;
+  lastLoginAt: string;
   steamLevel: number | null;
   totalPlaytimeMinutes: number;
   isOnline: boolean;
@@ -40,19 +41,20 @@ export async function getCommunityRankings() {
   };
 }
 
-export async function getMostRecentSyncedPlayer(): Promise<LandingRecentPlayer | null> {
+function compareLastLoginAt(left: StatRealmUser, right: StatRealmUser) {
+  return (
+    new Date(right.lastLoginAt).getTime() - new Date(left.lastLoginAt).getTime()
+  );
+}
+
+export async function getMostRecentLoggedInPlayer(): Promise<LandingRecentPlayer | null> {
   const users = await getAllStatRealmUsers();
 
   if (users.length === 0) {
     return null;
   }
 
-  const mostRecentUser = [...users].sort(
-    (left, right) =>
-      new Date(right.lastSyncedAt).getTime() -
-      new Date(left.lastSyncedAt).getTime(),
-  )[0];
-
+  const mostRecentUser = [...users].sort(compareLastLoginAt)[0];
   const user =
     (await ensureStatRealmUserProfileFresh(mostRecentUser.steamId)) ??
     mostRecentUser;
@@ -71,7 +73,7 @@ export async function getMostRecentSyncedPlayer(): Promise<LandingRecentPlayer |
     steamId: user.steamId,
     username: resolveUserDisplayName(user),
     avatarUrl: resolveUserAvatarUrl(user),
-    lastSyncedAt: user.lastSyncedAt,
+    lastLoginAt: user.lastLoginAt,
     steamLevel: user.stats.steamLevel,
     totalPlaytimeMinutes: user.stats.totalPlaytimeMinutes,
     isOnline,
@@ -116,7 +118,7 @@ export async function getCommunityLandingData() {
       readCommunityAggregates(),
       getRegisteredUserCount(),
       getTopCommunityLeaderboardPlayers(3),
-      getMostRecentSyncedPlayer(),
+      getMostRecentLoggedInPlayer(),
     ]);
 
   return {

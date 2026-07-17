@@ -89,6 +89,7 @@ export async function syncUserSteamLibrary(
     profile?: SteamProfile | null;
     gameCount?: number;
     forceAchievementRefresh?: boolean;
+    recordLogin?: boolean;
   },
 ) {
   const ownedLibraryResult =
@@ -151,6 +152,7 @@ export async function syncUserSteamLibrary(
     achievementHistory,
     profileAnalytics: buildSyncSnapshotProfileAnalytics(achievementSummary),
     replaceAchievementHistory: achievementSummary.historySyncCompleted,
+    recordLogin: options?.recordLogin === true,
   });
 
   return {
