@@ -8,8 +8,7 @@ import type {
   LeaderboardPlayer,
 } from "@/types/leaderboard";
 
-const leaderboardControlClassName =
-  "h-11 w-full rounded-lg border border-white/10 bg-white/5 px-4 text-sm text-white outline-none backdrop-blur-md transition focus:border-white/25";
+import { Select } from "@/components/ui/Select";
 
 const globalRankOptions: LeaderboardGlobalRank[] = [
   "Total Playtime",
@@ -90,28 +89,21 @@ export function LeaderboardFeaturedPlayer({
           </h2>
         </div>
 
-        <label className="w-full sm:max-w-xs">
+        <div className="w-full sm:max-w-xs">
           <span className="mb-2 block text-xs font-medium tracking-wide text-white/45 uppercase">
             {t("rankBy")}
           </span>
-          <select
+          <Select
             value={rankBy}
-            onChange={(event) =>
-              onRankByChange(event.target.value as LeaderboardGlobalRank)
+            onValueChange={(value) =>
+              onRankByChange(value as LeaderboardGlobalRank)
             }
-            className={`${leaderboardControlClassName} [color-scheme:dark]`}
-          >
-            {globalRankOptions.map((item) => (
-              <option
-                key={item}
-                value={item}
-                className="bg-[#140B2D] text-white"
-              >
-                {tRanks(rankByTranslationKeys[item])}
-              </option>
-            ))}
-          </select>
-        </label>
+            options={globalRankOptions.map((item) => ({
+              value: item,
+              label: tRanks(rankByTranslationKeys[item]),
+            }))}
+          />
+        </div>
       </div>
 
       <Link
