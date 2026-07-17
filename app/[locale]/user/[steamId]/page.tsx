@@ -11,7 +11,10 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { PlaytimeAnalytics } from "@/components/dashboard/PlaytimeAnalytics";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
+import { ProfileFriendsPanel } from "@/components/profile/ProfileFriendsPanel";
+import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { loadPublicProfileDashboard } from "@/lib/user/public-profile-dashboard";
+import { loadPublicProfileFriends } from "@/lib/user/public-profile-friends";
 
 const STEAM_ID_PATTERN = /^\d{17}$/;
 
@@ -53,8 +56,9 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
     notFound();
   }
 
-  const [profile, tPersona] = await Promise.all([
+  const [profile, friendsResult, tPersona] = await Promise.all([
     loadPublicProfileDashboard(steamId, locale),
+    loadPublicProfileFriends(steamId),
     getTranslations("personaStates"),
   ]);
 
@@ -77,24 +81,31 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
             isOnline={false}
           />
 
-          <DashboardStats metrics={profile.metrics} />
+          <ProfileTabs
+            overview={
+              <>
+                <DashboardStats metrics={profile.metrics} />
 
-          <RecentlyPlayed games={profile.recentlyPlayed} />
+                <RecentlyPlayed games={profile.recentlyPlayed} />
 
-          <div className="grid gap-12 lg:grid-cols-2">
-            <MostPlayedGames games={profile.mostPlayed} />
-            <RecentAchievements
-              achievements={profile.achievements}
-              showEmptyState={profile.showAchievementEmptyState}
-            />
-          </div>
+                <div className="grid gap-12 lg:grid-cols-2">
+                  <MostPlayedGames games={profile.mostPlayed} />
+                  <RecentAchievements
+                    achievements={profile.achievements}
+                    showEmptyState={profile.showAchievementEmptyState}
+                  />
+                </div>
 
-          <PlaytimeAnalytics
-            genres={profile.genres}
-            completion={profile.completion}
+                <PlaytimeAnalytics
+                  genres={profile.genres}
+                  completion={profile.completion}
+                />
+
+                <QuickActions profileUrl={profile.profileUrl} />
+              </>
+            }
+            friends={<ProfileFriendsPanel friendsResult={friendsResult} />}
           />
-
-          <QuickActions profileUrl={profile.profileUrl} />
         </div>
       </main>
     </div>

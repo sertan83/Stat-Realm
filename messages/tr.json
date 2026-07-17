@@ -325,5 +325,35 @@
     "mostPopularDifficulty": "En Popüler Zorluk",
     "averageCompletionRate": "Ortalama Tamamlama Oranı",
     "mostCommonPlaystyle": "En Yaygın Oyun Tarzı"
+  },
+  "profileFriends": {
+    "tabsLabel": "Profil bölümleri",
+    "tabs": {
+      "overview": "Genel Bakış",
+      "friends": "Arkadaşlar"
+    },
+    "title": "Arkadaşlar",
+    "subtitle": "Steam'de {count} herkese açık arkadaş",
+    "sectionLabel": "Steam arkadaşları",
+    "searchLabel": "Arkadaş ara",
+    "searchPlaceholder": "Arkadaş adına göre ara...",
+    "sortLabel": "Arkadaşları sırala",
+    "sortName": "İsim",
+    "sortOnlineFirst": "Önce Çevrimiçi",
+    "sortRecentlyOnline": "Son Çevrimiçi",
+    "statusOnline": "Çevrimiçi",
+    "statusAway": "Uzakta",
+    "statusOffline": "Çevrimdışı",
+    "statusInGame": "Oyunda · {game}",
+    "viewProfile": "Profili Görüntüle",
+    "notOnStatRealm": "Henüz StatRealm'de değil.",
+    "emptyPrivateTitle": "Arkadaş listesi gizli",
+    "emptyPrivateDescription": "Bu oyuncu Steam arkadaş listesini gizli tutmayı tercih etmiş.",
+    "emptyUnavailableTitle": "Arkadaş listesi kullanılamıyor",
+    "emptyUnavailableDescription": "Bu oyuncunun Steam arkadaşları şu anda yüklenemedi. Lütfen daha sonra tekrar dene.",
+    "emptyNoFriendsTitle": "Gösterilecek herkese açık arkadaş yok",
+    "emptyNoFriendsDescription": "Bu oyuncunun Steam arkadaşlarından hiçbirinin StatRealm'de görünen herkese açık profili yok.",
+    "emptySearchTitle": "Aramanla eşleşen arkadaş yok",
+    "emptySearchDescription": "Farklı bir ad dene veya tüm herkese açık arkadaşları görmek için aramayı temizle."
   }
 }

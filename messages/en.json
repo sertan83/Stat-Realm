@@ -325,5 +325,35 @@
     "mostPopularDifficulty": "Most Popular Difficulty",
     "averageCompletionRate": "Average Completion Rate",
     "mostCommonPlaystyle": "Most Common Playstyle"
+  },
+  "profileFriends": {
+    "tabsLabel": "Profile sections",
+    "tabs": {
+      "overview": "Overview",
+      "friends": "Friends"
+    },
+    "title": "Friends",
+    "subtitle": "{count} public friends on Steam",
+    "sectionLabel": "Steam friends",
+    "searchLabel": "Search friends",
+    "searchPlaceholder": "Search friends by name...",
+    "sortLabel": "Sort friends",
+    "sortName": "Name",
+    "sortOnlineFirst": "Online First",
+    "sortRecentlyOnline": "Recently Online",
+    "statusOnline": "Online",
+    "statusAway": "Away",
+    "statusOffline": "Offline",
+    "statusInGame": "In-Game · {game}",
+    "viewProfile": "View Profile",
+    "notOnStatRealm": "Not on StatRealm yet.",
+    "emptyPrivateTitle": "Friends list is private",
+    "emptyPrivateDescription": "This player has chosen to keep their Steam friends list private.",
+    "emptyUnavailableTitle": "Friends list unavailable",
+    "emptyUnavailableDescription": "We couldn't load this player's Steam friends right now. Please try again later.",
+    "emptyNoFriendsTitle": "No public friends to show",
+    "emptyNoFriendsDescription": "None of this player's Steam friends have public profiles visible to StatRealm.",
+    "emptySearchTitle": "No friends matched your search",
+    "emptySearchDescription": "Try a different name or clear the search box to see all public friends."
   }
 }

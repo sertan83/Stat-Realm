@@ -325,5 +325,35 @@
     "mostPopularDifficulty": "Самая популярная сложность",
     "averageCompletionRate": "Средний процент прохождения",
     "mostCommonPlaystyle": "Самый распространённый стиль игры"
+  },
+  "profileFriends": {
+    "tabsLabel": "Разделы профиля",
+    "tabs": {
+      "overview": "Обзор",
+      "friends": "Друзья"
+    },
+    "title": "Друзья",
+    "subtitle": "{count} публичных друзей в Steam",
+    "sectionLabel": "Друзья Steam",
+    "searchLabel": "Поиск друзей",
+    "searchPlaceholder": "Поиск друзей по имени...",
+    "sortLabel": "Сортировка друзей",
+    "sortName": "Имя",
+    "sortOnlineFirst": "Сначала онлайн",
+    "sortRecentlyOnline": "Недавно онлайн",
+    "statusOnline": "В сети",
+    "statusAway": "Отошёл",
+    "statusOffline": "Не в сети",
+    "statusInGame": "В игре · {game}",
+    "viewProfile": "Открыть профиль",
+    "notOnStatRealm": "Пока не на StatRealm.",
+    "emptyPrivateTitle": "Список друзей скрыт",
+    "emptyPrivateDescription": "Этот игрок скрыл свой список друзей Steam.",
+    "emptyUnavailableTitle": "Список друзей недоступен",
+    "emptyUnavailableDescription": "Сейчас не удалось загрузить друзей Steam этого игрока. Попробуйте позже.",
+    "emptyNoFriendsTitle": "Нет публичных друзей для отображения",
+    "emptyNoFriendsDescription": "Ни у одного друга Steam этого игрока нет публичного профиля, видимого в StatRealm.",
+    "emptySearchTitle": "Друзья по запросу не найдены",
+    "emptySearchDescription": "Попробуйте другое имя или очистите поиск, чтобы увидеть всех публичных друзей."
   }
 }
