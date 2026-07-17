@@ -15,6 +15,7 @@ import {
   writePersistedDb,
 } from "@/lib/db/persistence";
 import {
+  createEmptyUserStats,
   normalizeUserStats,
 } from "@/lib/user/synced-statistics";
 
@@ -122,10 +123,9 @@ function normalizeStoredUser(
     registeredAt: user.registeredAt ?? new Date().toISOString(),
     lastSyncedAt: user.lastSyncedAt ?? new Date().toISOString(),
     lastLoginAt:
-      user.lastLoginAt ??
-      user.lastSyncedAt ??
-      user.registeredAt ??
-      new Date().toISOString(),
+      typeof user.lastLoginAt === "string" && user.lastLoginAt.length > 0
+        ? user.lastLoginAt
+        : null,
     stats: normalizeUserStats(user.stats),
   };
 }
@@ -314,6 +314,53 @@ export async function getAllStatRealmUsers(): Promise<StatRealmUser[]> {
   return Object.values(db.users);
 }
 
+export async function getMostRecentLoggedInUser(): Promise<StatRealmUser | null> {
+  const users = (await getAllStatRealmUsers()).filter(
+    (user): user is StatRealmUser & { lastLoginAt: string } =>
+      typeof user.lastLoginAt === "string" && user.lastLoginAt.length > 0,
+  );
+
+  if (users.length === 0) {
+    return null;
+  }
+
+  return [...users].sort(
+    (left, right) =>
+      new Date(right.lastLoginAt).getTime() -
+      new Date(left.lastLoginAt).getTime(),
+  )[0];
+}
+
+export async function recordStatRealmSteamLogin(steamId: string) {
+  await withDbLock(async () => {
+    const db = await readDbFile();
+    const now = new Date().toISOString();
+    const existingUser = db.users[steamId];
+
+    if (existingUser) {
+      db.users[steamId] = {
+        ...existingUser,
+        lastLoginAt: now,
+      };
+    } else {
+      db.users[steamId] = normalizeStoredUser({
+        steamId,
+        displayName: "",
+        avatar: "",
+        avatarMedium: "",
+        avatarUrl: "",
+        profileUrl: `https://steamcommunity.com/profiles/${steamId}`,
+        registeredAt: now,
+        lastSyncedAt: now,
+        lastLoginAt: now,
+        stats: createEmptyUserStats(),
+      });
+    }
+
+    await writeDbFile(db);
+  });
+}
+
 export async function getAllUsersWithLibraries(): Promise<{
   users: StatRealmUser[];
   libraries: Record<string, UserLibraryGame[]>;
@@ -366,12 +413,9 @@ export async function commitUserSyncSnapshot(
       stats: normalizeUserStats(commit.user.stats),
       registeredAt: existingUser?.registeredAt ?? now,
       lastSyncedAt: now,
-      lastLoginAt:
-        commit.recordLogin || !existingUser
-          ? now
-          : (existingUser.lastLoginAt ??
-            existingUser.lastSyncedAt ??
-            existingUser.registeredAt),
+      lastLoginAt: commit.recordLogin
+        ? now
+        : (existingUser?.lastLoginAt ?? null),
     };
 
     db.libraries[steamId] = commit.library.map((game) =>
@@ -531,12 +575,9 @@ export async function upsertStatRealmUser(
       stats: normalizeUserStats(user.stats),
       registeredAt: existingUser?.registeredAt ?? now,
       lastSyncedAt: now,
-      lastLoginAt:
-        options?.recordLogin || !existingUser
-          ? now
-          : (existingUser.lastLoginAt ??
-            existingUser.lastSyncedAt ??
-            existingUser.registeredAt),
+      lastLoginAt: options?.recordLogin
+        ? now
+        : (existingUser?.lastLoginAt ?? null),
     };
 
     await writeDbFile(db);

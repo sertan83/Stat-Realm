@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { getSteamProfile, verifySteamProof } from "@/lib/auth/steam";
+import { recordStatRealmSteamLogin } from "@/lib/db";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -26,6 +27,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!isValid) {
           return null;
         }
+
+        await recordStatRealmSteamLogin(steamId);
 
         const profile = await getSteamProfile(steamId);
 

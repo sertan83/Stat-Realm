@@ -3,10 +3,10 @@ import "server-only";
 import { getSteamProfiles } from "@/lib/auth/steam";
 import {
   getAllStatRealmUsers,
+  getMostRecentLoggedInUser,
   getRegisteredUserCount,
   readCommunityAggregates,
 } from "@/lib/db";
-import type { StatRealmUser } from "@/lib/db/types";
 import {
   ensureStatRealmUserProfileFresh,
   ensureStatRealmUsersHaveFreshProfiles,
@@ -41,23 +41,20 @@ export async function getCommunityRankings() {
   };
 }
 
-function compareLastLoginAt(left: StatRealmUser, right: StatRealmUser) {
-  return (
-    new Date(right.lastLoginAt).getTime() - new Date(left.lastLoginAt).getTime()
-  );
-}
-
 export async function getMostRecentLoggedInPlayer(): Promise<LandingRecentPlayer | null> {
-  const users = await getAllStatRealmUsers();
+  const mostRecentUser = await getMostRecentLoggedInUser();
 
-  if (users.length === 0) {
+  if (!mostRecentUser?.lastLoginAt) {
     return null;
   }
 
-  const mostRecentUser = [...users].sort(compareLastLoginAt)[0];
   const user =
     (await ensureStatRealmUserProfileFresh(mostRecentUser.steamId)) ??
     mostRecentUser;
+
+  if (!user.lastLoginAt) {
+    return null;
+  }
 
   let isOnline = false;
 

@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/steam";
 import { invalidateAchievementLibraryCache } from "@/lib/steam/achievement-sync";
 import { invalidateGenreCache } from "@/lib/steam/genre-sync";
+import { recordStatRealmSteamLogin } from "@/lib/db";
 import { syncUserSteamLibrary } from "@/lib/steam/library-sync";
 import { syncSteamUserProfile } from "@/lib/steam/profile-sync";
 
@@ -43,6 +44,8 @@ export async function GET(request: NextRequest) {
 
   invalidateAchievementLibraryCache(steamId);
   invalidateGenreCache(steamId);
+
+  await recordStatRealmSteamLogin(steamId);
 
   try {
     const profile = await syncSteamUserProfile(steamId, { recordLogin: true });
