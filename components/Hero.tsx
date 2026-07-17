@@ -7,11 +7,15 @@ import { CommunityLeaderboard } from "@/components/CommunityLeaderboard";
 import { GameGrid } from "@/components/GameGrid";
 import { GameRankPanel } from "@/components/GameRankPanel";
 import { PlayersTrackedCard } from "@/components/PlayersTrackedCard";
+import { RecentPlayerCard } from "@/components/RecentPlayerCard";
 import { ScrollIndicator } from "@/components/ScrollIndicator";
 import { StatsRow } from "@/components/StatsRow";
 import { featuredGames } from "@/data/games";
 import { Link } from "@/i18n/navigation";
-import type { CommunityLeaderboardPlayer } from "@/lib/community/rankings";
+import type {
+  CommunityLeaderboardPlayer,
+  LandingRecentPlayer,
+} from "@/lib/community/rankings";
 import { cn } from "@/lib/utils";
 
 type HeroProps = {
@@ -20,6 +24,7 @@ type HeroProps = {
   mostOwnedGames?: string[];
   registeredUserCount?: number;
   communityLeaderboard?: CommunityLeaderboardPlayer[];
+  recentPlayer?: LandingRecentPlayer | null;
 };
 
 export function Hero({
@@ -28,6 +33,7 @@ export function Hero({
   mostOwnedGames = [],
   registeredUserCount = 0,
   communityLeaderboard = [],
+  recentPlayer = null,
 }: HeroProps) {
   const t = useTranslations("landing");
 
@@ -71,6 +77,7 @@ export function Hero({
               className="h-[380px]"
             />
             <PlayersTrackedCard count={registeredUserCount} />
+            <RecentPlayerCard player={recentPlayer} />
           </div>
 
           <div className="mx-auto w-[calc(100%-2rem)] max-w-6xl">

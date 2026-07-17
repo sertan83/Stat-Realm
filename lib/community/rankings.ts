@@ -1,11 +1,13 @@
 import "server-only";
 
+import { getSteamProfiles } from "@/lib/auth/steam";
 import {
   getAllStatRealmUsers,
   getRegisteredUserCount,
   readCommunityAggregates,
 } from "@/lib/db";
 import {
+  ensureStatRealmUserProfileFresh,
   ensureStatRealmUsersHaveFreshProfiles,
   resolveUserAvatarUrl,
   resolveUserDisplayName,
@@ -19,12 +21,60 @@ export type CommunityLeaderboardPlayer = {
   hoursPlayed: number;
 };
 
+export type LandingRecentPlayer = {
+  steamId: string;
+  username: string;
+  avatarUrl: string;
+  lastSyncedAt: string;
+  steamLevel: number | null;
+  totalPlaytimeMinutes: number;
+  isOnline: boolean;
+};
+
 export async function getCommunityRankings() {
   const aggregates = await readCommunityAggregates();
 
   return {
     mostPlayedGames: aggregates.mostPlayed.map((game) => game.name),
     mostOwnedGames: aggregates.mostOwned.map((game) => game.name),
+  };
+}
+
+export async function getMostRecentSyncedPlayer(): Promise<LandingRecentPlayer | null> {
+  const users = await getAllStatRealmUsers();
+
+  if (users.length === 0) {
+    return null;
+  }
+
+  const mostRecentUser = [...users].sort(
+    (left, right) =>
+      new Date(right.lastSyncedAt).getTime() -
+      new Date(left.lastSyncedAt).getTime(),
+  )[0];
+
+  const user =
+    (await ensureStatRealmUserProfileFresh(mostRecentUser.steamId)) ??
+    mostRecentUser;
+
+  let isOnline = false;
+
+  try {
+    const profiles = await getSteamProfiles([user.steamId]);
+    const profile = profiles.get(user.steamId);
+    isOnline = (profile?.personastate ?? 0) > 0;
+  } catch {
+    isOnline = false;
+  }
+
+  return {
+    steamId: user.steamId,
+    username: resolveUserDisplayName(user),
+    avatarUrl: resolveUserAvatarUrl(user),
+    lastSyncedAt: user.lastSyncedAt,
+    steamLevel: user.stats.steamLevel,
+    totalPlaytimeMinutes: user.stats.totalPlaytimeMinutes,
+    isOnline,
   };
 }
 
@@ -61,11 +111,12 @@ export async function getTopCommunityLeaderboardPlayers(
 }
 
 export async function getCommunityLandingData() {
-  const [aggregates, registeredUserCount, communityLeaderboard] =
+  const [aggregates, registeredUserCount, communityLeaderboard, recentPlayer] =
     await Promise.all([
       readCommunityAggregates(),
       getRegisteredUserCount(),
       getTopCommunityLeaderboardPlayers(3),
+      getMostRecentSyncedPlayer(),
     ]);
 
   return {
@@ -73,5 +124,6 @@ export async function getCommunityLandingData() {
     mostOwnedGames: aggregates.mostOwned.map((game) => game.name),
     registeredUserCount,
     communityLeaderboard,
+    recentPlayer,
   };
 }
