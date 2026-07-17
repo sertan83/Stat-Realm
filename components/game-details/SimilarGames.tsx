@@ -1,6 +1,8 @@
-import Link from "next/link";
+"use client";
+
 import { GameCard } from "@/components/GameCard";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
+import { Link } from "@/i18n/navigation";
 import type { Game } from "@/types/game";
 
 type SimilarGamesProps = {

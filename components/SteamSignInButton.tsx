@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type SteamSignInButtonProps = {
@@ -6,6 +9,8 @@ type SteamSignInButtonProps = {
 };
 
 export function SteamSignInButton({ className }: SteamSignInButtonProps) {
+  const t = useTranslations("auth");
+
   return (
     <button
       type="button"
@@ -22,7 +27,7 @@ export function SteamSignInButton({ className }: SteamSignInButtonProps) {
         unoptimized
         className="shrink-0"
       />
-      Sign in With Steam
+      {t("signInWithSteamNavbar")}
     </button>
   );
 }

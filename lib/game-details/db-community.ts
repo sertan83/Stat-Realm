@@ -6,7 +6,7 @@ import {
   resolveUserAvatarUrl,
   resolveUserDisplayName,
 } from "@/lib/steam/profile-sync";
-import { formatPlaytime } from "@/lib/steam/api";
+import { formatPlaytimeMinutes } from "@/lib/i18n/formatters";
 import {
   countryCodeToFlag,
   getCountryDisplay,
@@ -82,7 +82,13 @@ function buildGameOwners(
 
 export async function getGameDbCommunitySnapshot(
   appId: number,
+  options: {
+    unavailable?: string;
+    formatPlaytime?: (minutes: number) => string;
+  } = {},
 ): Promise<GameDbCommunitySnapshot> {
+  const unavailable = options.unavailable ?? "Unavailable";
+  const formatPlaytime = options.formatPlaytime ?? formatPlaytimeMinutes;
   const { users, libraries } = await getAllUsersWithLibraries();
   const refreshedUsers = await ensureStatRealmUsersHaveFreshProfiles(users);
 
@@ -123,8 +129,8 @@ export async function getGameDbCommunitySnapshot(
       completion:
         owner.completionPercentage !== null
           ? `${owner.completionPercentage}%`
-          : "Unavailable",
-      fastestCompletion: "Unavailable",
+          : unavailable,
+      fastestCompletion: unavailable,
     }));
 
   return {
@@ -139,7 +145,11 @@ export async function getGameDbCommunitySnapshot(
 export async function getUserGamePosition(
   appId: number,
   steamId: string,
+  options: {
+    formatPlaytime?: (minutes: number) => string;
+  } = {},
 ): Promise<GameUserPosition | null> {
+  const formatPlaytime = options.formatPlaytime ?? formatPlaytimeMinutes;
   const { users, libraries } = await getAllUsersWithLibraries();
   const refreshedUsers = await ensureStatRealmUsersHaveFreshProfiles(users);
   const owners = buildGameOwners(appId, libraries, refreshedUsers);

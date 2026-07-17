@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { LeaderboardPlayer } from "@/types/leaderboard";
 
 type LeaderboardPodiumProps = {
@@ -10,6 +13,9 @@ const podiumOrder = [1, 0, 2];
 const medals = ["🥇", "🥈", "🥉"];
 
 export function LeaderboardPodium({ players }: LeaderboardPodiumProps) {
+  const t = useTranslations("leaderboards");
+  const tCommon = useTranslations("common");
+
   const orderedPlayers =
     players.length === 3
       ? podiumOrder.map((playerIndex) => players[playerIndex])
@@ -21,7 +27,7 @@ export function LeaderboardPodium({ players }: LeaderboardPodiumProps) {
 
   return (
     <section
-      aria-label="Top three players"
+      aria-label={t("topThreePlayers")}
       className="grid grid-cols-1 items-end gap-4 md:grid-cols-3"
     >
       {orderedPlayers.map((player) => {
@@ -70,18 +76,20 @@ export function LeaderboardPodium({ players }: LeaderboardPodiumProps) {
               <span className="text-white/65">
                 <strong className="text-white">
                   {player.hoursPlayed === null
-                    ? "—"
-                    : `${player.hoursPlayed.toLocaleString()}h`}
+                    ? tCommon("emDash")
+                    : tCommon("hoursShort", { hours: player.hoursPlayed })}
                 </strong>{" "}
-                played
+                {t("played")}
               </span>
               <span className="text-white/65">
                 <strong className="text-white">
                   {player.completion === null
-                    ? "—"
-                    : `${player.completion.toFixed(1)}%`}
+                    ? tCommon("emDash")
+                    : tCommon("percentValue", {
+                        percentage: player.completion.toFixed(1),
+                      })}
                 </strong>{" "}
-                complete
+                {t("complete")}
               </span>
             </div>
           </Link>

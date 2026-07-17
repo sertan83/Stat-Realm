@@ -1,6 +1,9 @@
-import Link from "next/link";
+"use client";
+
+import { useTranslations } from "next-intl";
 import { GameCard } from "@/components/GameCard";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
+import { Link } from "@/i18n/navigation";
 import type { Game } from "@/types/game";
 
 type ExploreGameCardProps = {
@@ -8,11 +11,13 @@ type ExploreGameCardProps = {
 };
 
 export function ExploreGameCard({ game }: ExploreGameCardProps) {
+  const t = useTranslations("explore");
+
   return (
     <Link
       href={getGameDetailsHref(game)}
       className="group block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E2363C]"
-      aria-label={`Explore ${game.title}`}
+      aria-label={t("exploreGame", { name: game.title })}
     >
       <GameCard game={game} />
       <div className="px-1 pt-3">

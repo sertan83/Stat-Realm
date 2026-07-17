@@ -1,19 +1,16 @@
-import { formatPlaytime } from "@/lib/steam/api";
 import type { DetailMetric } from "@/types/game-details";
+import {
+  formatPlaytimeMinutes,
+  formatPlaytimeHoursLong,
+} from "@/lib/i18n/formatters";
 
-function formatCommunityPlaytime(minutes: number | null) {
-  if (minutes === null) {
-    return "Unavailable";
-  }
+type GameDetailsTranslator = (
+  key: string,
+  values?: Record<string, string | number>,
+) => string;
 
-  const hours = minutes / 60;
-  return hours >= 100
-    ? `${Math.round(hours).toLocaleString()} hours`
-    : `${hours.toFixed(1)} hours`;
-}
-
-function formatAchievementTotal(total: number) {
-  return total > 0 ? String(total) : "Unavailable";
+function formatAchievementTotal(total: number, unavailable: string) {
+  return total > 0 ? String(total) : unavailable;
 }
 
 export function buildStatRealmGameStatisticsFromDb({
@@ -23,6 +20,8 @@ export function buildStatRealmGameStatisticsFromDb({
   perfectGamesCount,
   achievementTotal,
   steamReviewPercentage,
+  tMetrics,
+  tCommon,
 }: {
   ownerCount: number;
   averagePlaytimeMinutes: number | null;
@@ -30,36 +29,43 @@ export function buildStatRealmGameStatisticsFromDb({
   perfectGamesCount: number;
   achievementTotal: number;
   steamReviewPercentage: string | null;
+  tMetrics: GameDetailsTranslator;
+  tCommon: GameDetailsTranslator;
 }): DetailMetric[] {
   const metrics: DetailMetric[] = [
-    { label: "Players Tracked", value: ownerCount.toLocaleString() },
     {
-      label: "Average Playtime",
+      label: tMetrics("playersTracked"),
+      value: ownerCount.toLocaleString(),
+    },
+    {
+      label: tMetrics("averagePlaytime"),
       value:
         averagePlaytimeMinutes === null
-          ? "0h"
-          : formatPlaytime(averagePlaytimeMinutes),
+          ? tCommon("hoursShort", { hours: 0 })
+          : formatPlaytimeMinutes(averagePlaytimeMinutes),
     },
     {
-      label: "Total Achievements",
-      value: formatAchievementTotal(achievementTotal),
+      label: tMetrics("totalAchievements"),
+      value: formatAchievementTotal(achievementTotal, tCommon("unavailable")),
     },
     {
-      label: "Average Completion",
+      label: tMetrics("averageCompletion"),
       value:
         averageCompletion === null
-          ? "0%"
-          : `${averageCompletion.toFixed(1)}%`,
+          ? tCommon("percentValue", { percentage: 0 })
+          : tCommon("percentValue", {
+              percentage: averageCompletion.toFixed(1),
+            }),
     },
     {
-      label: "Perfect Games",
+      label: tMetrics("perfectGames"),
       value: perfectGamesCount.toLocaleString(),
     },
   ];
 
   if (steamReviewPercentage) {
     metrics.push({
-      label: "Steam Reviews",
+      label: tMetrics("steamReviews"),
       value: steamReviewPercentage,
     });
   }
@@ -71,33 +77,60 @@ export function buildStatRealmCommunityStatisticsFromDb({
   ownerCount,
   averagePlaytimeMinutes,
   averageCompletion,
+  tMetrics,
+  tCommon,
 }: {
   ownerCount: number;
   averagePlaytimeMinutes: number | null;
   averageCompletion: number | null;
+  tMetrics: GameDetailsTranslator;
+  tCommon: GameDetailsTranslator;
 }): DetailMetric[] {
   if (ownerCount === 0) {
     return [
-      { label: "Average Playtime", value: "0h" },
-      { label: "Most Popular Difficulty", value: "Unavailable" },
-      { label: "Average Completion Rate", value: "0%" },
-      { label: "Most Common Playstyle", value: "Unavailable" },
+      {
+        label: tMetrics("averagePlaytime"),
+        value: tCommon("hoursShort", { hours: 0 }),
+      },
+      {
+        label: tMetrics("mostPopularDifficulty"),
+        value: tCommon("unavailable"),
+      },
+      {
+        label: tMetrics("averageCompletionRate"),
+        value: tCommon("percentValue", { percentage: 0 }),
+      },
+      {
+        label: tMetrics("mostCommonPlaystyle"),
+        value: tCommon("unavailable"),
+      },
     ];
   }
 
   return [
     {
-      label: "Average Playtime",
-      value: formatCommunityPlaytime(averagePlaytimeMinutes),
+      label: tMetrics("averagePlaytime"),
+      value:
+        averagePlaytimeMinutes === null
+          ? tCommon("unavailable")
+          : formatPlaytimeHoursLong(averagePlaytimeMinutes),
     },
-    { label: "Most Popular Difficulty", value: "Unavailable" },
     {
-      label: "Average Completion Rate",
+      label: tMetrics("mostPopularDifficulty"),
+      value: tCommon("unavailable"),
+    },
+    {
+      label: tMetrics("averageCompletionRate"),
       value:
         averageCompletion === null
-          ? "Unavailable"
-          : `${averageCompletion.toFixed(1)}%`,
+          ? tCommon("unavailable")
+          : tCommon("percentValue", {
+              percentage: averageCompletion.toFixed(1),
+            }),
     },
-    { label: "Most Common Playstyle", value: "Unavailable" },
+    {
+      label: tMetrics("mostCommonPlaystyle"),
+      value: tCommon("unavailable"),
+    },
   ];
 }

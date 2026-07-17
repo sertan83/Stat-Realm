@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type {
   CompletionOverview,
   GenrePlaytime,
@@ -10,16 +13,19 @@ export function PlaytimeAnalytics({
   genres: GenrePlaytime[] | null;
   completion: CompletionOverview | null;
 }) {
+  const t = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
+
   return (
     <section>
       <h2 className="text-2xl font-bold text-white sm:text-3xl">
-        Playtime Analytics
+        {t("playtimeAnalytics")}
       </h2>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <article className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
           <h3 className="text-lg font-semibold text-white">
-            Playtime by Genre
+            {t("playtimeByGenre")}
           </h3>
           <div className="mt-6 space-y-5">
             {genres ? (
@@ -38,14 +44,14 @@ export function PlaytimeAnalytics({
                 </div>
               ))
             ) : (
-              <p className="text-sm text-white/50">Unavailable</p>
+              <p className="text-sm text-white/50">{tCommon("unavailable")}</p>
             )}
           </div>
         </article>
 
         <article className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
           <h3 className="text-lg font-semibold text-white">
-            Completion Overview
+            {t("completionOverview")}
           </h3>
           {completion ? (
             <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row sm:justify-center">
@@ -59,18 +65,32 @@ export function PlaytimeAnalytics({
                   <span className="text-3xl font-bold text-white">
                     {completion.completed.toFixed(1)}%
                   </span>
-                  <span className="mt-1 text-xs text-white/45">completed</span>
+                  <span className="mt-1 text-xs text-white/45">
+                    {t("completedLabel")}
+                  </span>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <Legend color="bg-[#E2363C]" label="Completed" value={completion.completed} />
-                <Legend color="bg-[#6B2FD6]" label="In Progress" value={completion.inProgress} />
-                <Legend color="bg-white/10" label="Untouched" value={completion.untouched} />
+                <Legend
+                  color="bg-[#E2363C]"
+                  label={t("completed")}
+                  value={completion.completed}
+                />
+                <Legend
+                  color="bg-[#6B2FD6]"
+                  label={t("inProgress")}
+                  value={completion.inProgress}
+                />
+                <Legend
+                  color="bg-white/10"
+                  label={t("untouched")}
+                  value={completion.untouched}
+                />
               </div>
             </div>
           ) : (
-            <p className="mt-6 text-sm text-white/50">Unavailable</p>
+            <p className="mt-6 text-sm text-white/50">{tCommon("unavailable")}</p>
           )}
         </article>
       </div>

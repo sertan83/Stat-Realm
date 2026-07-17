@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { SteamGameImage } from "@/components/game-details/SteamGameImage";
 import { PersonalSteamSignInPrompt } from "@/components/game-details/PersonalSteamSignInPrompt";
 import { UNAVAILABLE_REVIEWS } from "@/lib/steam/store-metadata-labels";
@@ -24,6 +27,7 @@ export function GameDetailsHero({
   isAuthenticated = false,
   userProgress,
 }: GameDetailsHeroProps) {
+  const t = useTranslations("gameDetails");
   const { game } = details;
 
   return (
@@ -35,7 +39,7 @@ export function GameDetailsHero({
           candidates={bannerImageCandidates}
           appId={gameAppId}
           imageCacheRole="banner"
-          alt={`${game.title} banner`}
+          alt={t("bannerAlt", { name: game.title })}
           priority
           sizes="100vw"
           className="object-cover"
@@ -51,7 +55,7 @@ export function GameDetailsHero({
             candidates={coverImageCandidates}
             appId={gameAppId}
             imageCacheRole="cover"
-            alt={`${game.title} cover`}
+            alt={t("coverAlt", { name: game.title })}
             priority
             sizes="220px"
             className="object-cover"
@@ -75,18 +79,18 @@ export function GameDetailsHero({
               <span className="font-medium text-white">
                 {details.reviewScore}
               </span>
-              <span className="text-white/45">on Steam</span>
+              <span className="text-white/45">{t("onSteam")}</span>
             </div>
           ) : null}
 
           {isAuthenticated && userProgress ? (
             <div className="mt-3 flex flex-wrap justify-center gap-2 text-sm text-white/65 lg:justify-start">
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                Your playtime:{" "}
+                {t("yourPlaytime")}{" "}
                 <strong className="text-white">{userProgress.playtime}</strong>
               </span>
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                Your achievements:{" "}
+                {t("yourAchievements")}{" "}
                 <strong className="text-white">
                   {userProgress.achievements}
                 </strong>
@@ -103,13 +107,13 @@ export function GameDetailsHero({
               rel="noreferrer"
               className="rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
             >
-              View on Steam
+              {t("viewOnSteam")}
             </a>
             <button
               type="button"
               className="rounded-full bg-[#E2363C] px-6 py-3 text-sm font-semibold text-white shadow-[0_0_30px_rgba(226,54,60,0.3)] transition hover:bg-[#F04449]"
             >
-              Track This Game
+              {t("trackThisGame")}
             </button>
           </div>
         </div>

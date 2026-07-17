@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { StatRealmUser, StatRealmUserStats, UserLibraryGame } from "@/lib/db/types";
-import { dashboardMetrics } from "@/data/dashboard";
+import { dashboardMetricTemplates } from "@/data/dashboard";
 import {
   getCountryDisplay,
   countryCodeToFlag,
@@ -11,13 +11,18 @@ import {
   resolveUserAvatarUrl,
   resolveUserDisplayName,
 } from "@/lib/steam/profile-sync";
-import type { DashboardMetric } from "@/types/dashboard";
+import type { DashboardMetric, DashboardMetricKey } from "@/types/dashboard";
 import type {
   LeaderboardPlayer,
   SteamLeaderboardGame,
   SteamLeaderboardIdentity,
   SyncedLeaderboardStats,
 } from "@/types/leaderboard";
+
+type DashboardTranslator = (
+  key: string,
+  values?: Record<string, string | number>,
+) => string;
 
 export function createEmptyUserStats(): StatRealmUserStats {
   return {
@@ -77,99 +82,157 @@ function formatAveragePlaytime(totalMinutes: number, gameCount: number) {
   })}h`;
 }
 
+function createUnavailableMetric(
+  key: DashboardMetricKey,
+  icon: string,
+  t: DashboardTranslator,
+): DashboardMetric {
+  const unavailableDetailKeys: Partial<Record<DashboardMetricKey, string>> = {
+    totalGames: "metricDetails.steamLibraryUnavailable",
+    totalPlaytime: "metricDetails.steamPlaytimeUnavailable",
+    totalAchievements: "metricDetails.requiresFullAchievementSync",
+    achievementCompletionRate: "metricDetails.requiresFullAchievementSync",
+    perfectGames: "metricDetails.requiresFullAchievementSync",
+    averagePlaytimePerGame: "metricDetails.steamPlaytimeUnavailable",
+    averageAchievementRarity: "metricDetails.requiresGlobalAchievementData",
+    globalRank: "metricDetails.globalRankPending",
+  };
+
+  return {
+    key,
+    icon,
+    label: t(`metrics.${key}`),
+    value: t("metricDetails.unavailable"),
+    detail: t(unavailableDetailKeys[key] ?? "metricDetails.unavailable"),
+  };
+}
+
 export function buildDashboardMetricsFromSyncedStats(
   stats: StatRealmUserStats,
   hasLibraryData: boolean,
+  t: DashboardTranslator,
 ): DashboardMetric[] {
-  return dashboardMetrics.map((metric) => {
+  return dashboardMetricTemplates.map(({ key, icon }) => {
     if (!hasLibraryData) {
-      return metric;
+      return createUnavailableMetric(key, icon, t);
     }
 
-    if (metric.label === "Total Games") {
+    if (key === "totalGames") {
       return {
-        ...metric,
+        key,
+        icon,
+        label: t("metrics.totalGames"),
         value: stats.totalGames.toLocaleString(),
-        detail: "Reported by Steam",
+        detail: t("metricDetails.reportedBySteam"),
       };
     }
 
-    if (metric.label === "Total Playtime") {
+    if (key === "totalPlaytime") {
       return {
-        ...metric,
+        key,
+        icon,
+        label: t("metrics.totalPlaytime"),
         value: formatTotalPlaytime(stats.totalPlaytimeMinutes),
-        detail: "Exact sum across Steam library",
+        detail: t("metricDetails.exactSumAcrossLibrary"),
       };
     }
 
-    if (metric.label === "Average Playtime per Game") {
+    if (key === "averagePlaytimePerGame") {
       return {
-        ...metric,
+        key,
+        icon,
+        label: t("metrics.averagePlaytimePerGame"),
         value: formatAveragePlaytime(
           stats.totalPlaytimeMinutes,
           stats.totalGames,
         ),
-        detail: "Total playtime ÷ total games",
+        detail: t("metricDetails.totalPlaytimeDividedByGames"),
       };
     }
 
-    if (metric.label === "Total Achievements") {
+    if (key === "totalAchievements") {
       return stats.achievementTotalsStatus === "complete" &&
         stats.totalUnlockedAchievements !== null
         ? {
-            ...metric,
+            key,
+            icon,
+            label: t("metrics.totalAchievements"),
             value: stats.totalUnlockedAchievements.toLocaleString(),
-            detail: `${stats.totalAvailableAchievements?.toLocaleString() ?? 0} available`,
+            detail: t("metricDetails.achievementsAvailable", {
+              count: stats.totalAvailableAchievements?.toLocaleString() ?? 0,
+            }),
           }
         : {
-            ...metric,
-            detail: "Some Steam achievement data is private or unavailable",
+            key,
+            icon,
+            label: t("metrics.totalAchievements"),
+            value: t("metricDetails.unavailable"),
+            detail: t("metricDetails.achievementDataPrivate"),
           };
     }
 
-    if (metric.label === "Achievement Completion Rate") {
+    if (key === "achievementCompletionRate") {
       return stats.achievementTotalsStatus === "complete" &&
         stats.achievementCompletionRate !== null
         ? {
-            ...metric,
+            key,
+            icon,
+            label: t("metrics.achievementCompletionRate"),
             value: `${stats.achievementCompletionRate.toFixed(1)}%`,
-            detail: `${stats.totalUnlockedAchievements?.toLocaleString() ?? 0} of ${stats.totalAvailableAchievements?.toLocaleString() ?? 0} unlocked`,
+            detail: t("metricDetails.achievementsUnlocked", {
+              unlocked:
+                stats.totalUnlockedAchievements?.toLocaleString() ?? 0,
+              total: stats.totalAvailableAchievements?.toLocaleString() ?? 0,
+            }),
           }
         : {
-            ...metric,
-            detail: "Some Steam achievement data is private or unavailable",
+            key,
+            icon,
+            label: t("metrics.achievementCompletionRate"),
+            value: t("metricDetails.unavailable"),
+            detail: t("metricDetails.achievementDataPrivate"),
           };
     }
 
-    if (metric.label === "Perfect Games") {
+    if (key === "perfectGames") {
       return stats.achievementTotalsStatus === "complete" &&
         stats.perfectGames !== null
         ? {
-            ...metric,
+            key,
+            icon,
+            label: t("metrics.perfectGames"),
             value: stats.perfectGames.toLocaleString(),
-            detail: "All available achievements unlocked",
+            detail: t("metricDetails.allAchievementsUnlocked"),
           }
         : {
-            ...metric,
-            detail: "Some Steam achievement data is private or unavailable",
+            key,
+            icon,
+            label: t("metrics.perfectGames"),
+            value: t("metricDetails.unavailable"),
+            detail: t("metricDetails.achievementDataPrivate"),
           };
     }
 
-    if (metric.label === "Average Achievement Rarity") {
+    if (key === "averageAchievementRarity") {
       return stats.achievementRarityStatus === "complete" &&
         stats.averageAchievementRarity !== null
         ? {
-            ...metric,
+            key,
+            icon,
+            label: t("metrics.averageAchievementRarity"),
             value: `${stats.averageAchievementRarity.toFixed(1)}%`,
-            detail: "Across unlocked achievements",
+            detail: t("metricDetails.acrossUnlockedAchievements"),
           }
         : {
-            ...metric,
-            detail: "Some Steam achievement data is private or unavailable",
+            key,
+            icon,
+            label: t("metrics.averageAchievementRarity"),
+            value: t("metricDetails.unavailable"),
+            detail: t("metricDetails.achievementDataPrivate"),
           };
     }
 
-    return metric;
+    return createUnavailableMetric(key, icon, t);
   });
 }
 
@@ -213,14 +276,17 @@ export function buildSteamLeaderboardGamesFromLibrary(
   options: {
     catalogAliasesByAppId?: Map<number, string[]>;
     catalogCategoriesByAppId?: Map<number, string>;
+    steamGameCategoryLabel?: string;
   } = {},
 ): SteamLeaderboardGame[] {
+  const categoryLabel = options.steamGameCategoryLabel ?? "Steam Game";
+
   return library.map((game) => ({
     appId: game.appId,
     title: game.name,
     aliases: options.catalogAliasesByAppId?.get(game.appId) ?? [],
     category:
-      options.catalogCategoriesByAppId?.get(game.appId) ?? "Steam Game",
+      options.catalogCategoriesByAppId?.get(game.appId) ?? categoryLabel,
     playtimeMinutes: game.playtimeMinutes,
     playtimeTwoWeeksMinutes: game.playtimeTwoWeeksMinutes,
     achievements: game.achievementsUnlocked,
@@ -229,4 +295,3 @@ export function buildSteamLeaderboardGamesFromLibrary(
     perfectGame: game.perfectGame,
   }));
 }
-

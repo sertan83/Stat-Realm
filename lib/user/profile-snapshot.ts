@@ -6,6 +6,7 @@ import {
   formatLastPlayed,
   formatPlaytime,
 } from "@/lib/steam/api";
+import type { IntlFormatters } from "@/lib/i18n/formatters";
 import { enrichDashboardGamesWithSteamImages } from "@/lib/steam/game-images";
 import type {
   CompletionOverview,
@@ -88,18 +89,26 @@ export function buildCompletionOverviewFromLibrary(
 
 export function toDashboardGameFromLibraryGame(
   game: UserLibraryGame,
+  formatters?: IntlFormatters,
+  steamGameCategory = "Steam Game",
 ): DashboardGame {
   return {
     id: String(game.appId),
     title: game.name,
     slug: slugifyGameName(game.name),
     imageUrl: "",
-    category: "Steam Game",
-    playtime: formatPlaytime(game.playtimeMinutes),
+    category: steamGameCategory,
+    playtime: formatters
+      ? formatters.formatPlaytime(game.playtimeMinutes)
+      : formatPlaytime(game.playtimeMinutes),
     lastPlayed:
       game.lastPlayedAt !== null && game.lastPlayedAt > 0
-        ? formatLastPlayed(game.lastPlayedAt)
-        : "Unavailable",
+        ? formatters
+          ? formatters.formatLastPlayed(game.lastPlayedAt)
+          : formatLastPlayed(game.lastPlayedAt)
+        : formatters
+          ? formatters.unavailable()
+          : "Unavailable",
     completion: game.completionPercentage,
     completionStatus:
       game.achievementsTotal === 0
@@ -112,7 +121,12 @@ export function toDashboardGameFromLibraryGame(
 
 export async function buildRecentlyPlayedFromLibrary(
   library: UserLibraryGame[],
+  formatters?: IntlFormatters,
+  steamGameCategory?: string,
 ): Promise<DashboardGame[]> {
+  const mapGame = (game: UserLibraryGame) =>
+    toDashboardGameFromLibraryGame(game, formatters, steamGameCategory);
+
   const recentlyPlayed = [...library]
     .filter(
       (game) =>
@@ -124,7 +138,7 @@ export async function buildRecentlyPlayedFromLibrary(
         (second.lastPlayedAt ?? 0) - (first.lastPlayedAt ?? 0),
     )
     .slice(0, 5)
-    .map(toDashboardGameFromLibraryGame);
+    .map(mapGame);
 
   const baseGames =
     recentlyPlayed.length > 0
@@ -136,18 +150,22 @@ export async function buildRecentlyPlayedFromLibrary(
               second.playtimeTwoWeeksMinutes - first.playtimeTwoWeeksMinutes,
           )
           .slice(0, 5)
-          .map(toDashboardGameFromLibraryGame);
+          .map(mapGame);
 
   return enrichDashboardGamesWithSteamImages(baseGames);
 }
 
 export async function buildMostPlayedFromLibrary(
   library: UserLibraryGame[],
+  formatters?: IntlFormatters,
+  steamGameCategory?: string,
 ): Promise<DashboardGame[]> {
   const games = [...library]
     .sort((first, second) => second.playtimeMinutes - first.playtimeMinutes)
     .slice(0, 10)
-    .map(toDashboardGameFromLibraryGame);
+    .map((game) =>
+      toDashboardGameFromLibraryGame(game, formatters, steamGameCategory),
+    );
 
   return enrichDashboardGamesWithSteamImages(games);
 }

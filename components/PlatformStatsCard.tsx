@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { Stat } from "@/types/stat";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +10,8 @@ type PlatformStatsCardProps = {
 };
 
 export function PlatformStatsCard({ stats, className }: PlatformStatsCardProps) {
+  const t = useTranslations("landing");
+
   return (
     <article
       className={cn(
@@ -15,7 +20,7 @@ export function PlatformStatsCard({ stats, className }: PlatformStatsCardProps) 
       )}
     >
       <h3 className="text-lg font-semibold tracking-wide text-white sm:text-xl">
-        📊 Platform Stats
+        {t("platformStats")}
       </h3>
 
       <ul className="mt-5 flex flex-1 flex-col justify-center gap-3">

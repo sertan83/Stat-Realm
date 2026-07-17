@@ -1,58 +1,21 @@
 import { featuredGames } from "@/data/games";
 import type {
   DashboardGame,
-  DashboardMetric,
+  DashboardMetricKey,
 } from "@/types/dashboard";
 
-export const dashboardMetrics: DashboardMetric[] = [
-  {
-    label: "Total Games",
-    value: "Unavailable",
-    icon: "◆",
-    detail: "Steam library unavailable",
-  },
-  {
-    label: "Total Playtime",
-    value: "Unavailable",
-    icon: "◷",
-    detail: "Steam playtime unavailable",
-  },
-  {
-    label: "Total Achievements",
-    value: "Unavailable",
-    icon: "★",
-    detail: "Requires a full achievement sync",
-  },
-  {
-    label: "Achievement Completion Rate",
-    value: "Unavailable",
-    icon: "◎",
-    detail: "Requires a full achievement sync",
-  },
-  {
-    label: "Perfect Games",
-    value: "Unavailable",
-    icon: "♛",
-    detail: "Requires a full achievement sync",
-  },
-  {
-    label: "Average Playtime per Game",
-    value: "Unavailable",
-    icon: "◫",
-    detail: "Steam playtime unavailable",
-  },
-  {
-    label: "Average Achievement Rarity",
-    value: "Unavailable",
-    icon: "✦",
-    detail: "Requires global achievement data",
-  },
-  {
-    label: "Global Rank",
-    value: "Unavailable",
-    icon: "▲",
-    detail: "Will be available after StatRealm has enough users.",
-  },
+export const dashboardMetricTemplates: Array<{
+  key: DashboardMetricKey;
+  icon: string;
+}> = [
+  { key: "totalGames", icon: "◆" },
+  { key: "totalPlaytime", icon: "◷" },
+  { key: "totalAchievements", icon: "★" },
+  { key: "achievementCompletionRate", icon: "◎" },
+  { key: "perfectGames", icon: "♛" },
+  { key: "averagePlaytimePerGame", icon: "◫" },
+  { key: "averageAchievementRarity", icon: "✦" },
+  { key: "globalRank", icon: "▲" },
 ];
 
 const recentGameDetails = [
@@ -102,4 +65,3 @@ export const mostPlayedGames: DashboardGame[] = [
     completion: 58,
   },
 ];
-

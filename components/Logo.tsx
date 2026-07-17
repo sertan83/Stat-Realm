@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 type LogoProps = {
@@ -7,11 +10,13 @@ type LogoProps = {
 };
 
 export function Logo({ className }: LogoProps) {
+  const t = useTranslations("nav");
+
   return (
     <Link href="/" className={cn("inline-flex shrink-0 items-center", className)}>
       <Image
         src="/logo.svg"
-        alt="StatRealm"
+        alt={t("logoAlt")}
         width={180}
         height={32}
         priority

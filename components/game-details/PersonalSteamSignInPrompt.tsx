@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { signInWithSteam } from "@/app/actions/auth";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +14,8 @@ export function PersonalSteamSignInPrompt({
   className,
   compact = false,
 }: PersonalSteamSignInPromptProps) {
+  const t = useTranslations("auth");
+
   return (
     <div
       className={cn(
@@ -20,7 +25,7 @@ export function PersonalSteamSignInPrompt({
       )}
     >
       <p className={compact ? "text-center lg:text-left" : undefined}>
-        Sign in with Steam to view your personal game statistics.
+        {t("personalStatsPrompt")}
       </p>
       <form
         action={signInWithSteam}
@@ -38,7 +43,7 @@ export function PersonalSteamSignInPrompt({
             unoptimized
             className="shrink-0"
           />
-          Sign in with Steam
+          {t("signInWithSteam")}
         </button>
       </form>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import type { DashboardAchievement } from "@/types/dashboard";
 
@@ -28,6 +29,7 @@ export function RecentAchievements({
   achievements: DashboardAchievement[];
   showEmptyState?: boolean;
 }) {
+  const t = useTranslations("dashboard");
   const [isExpanded, setIsExpanded] = useState(false);
   const sortedAchievements = useMemo(
     () =>
@@ -43,7 +45,7 @@ export function RecentAchievements({
   return (
     <section>
       <h2 className="text-2xl font-bold text-white sm:text-3xl">
-        Recent Achievements
+        {t("recentAchievements")}
       </h2>
       <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
         {visibleAchievements.length > 0 ? (
@@ -89,9 +91,7 @@ export function RecentAchievements({
             ))}
           </ol>
         ) : showEmptyState ? (
-          <p className="text-sm text-white/50">
-            No recent achievements found.
-          </p>
+          <p className="text-sm text-white/50">{t("noRecentAchievements")}</p>
         ) : null}
 
         {sortedAchievements.length > 10 && (
@@ -102,7 +102,7 @@ export function RecentAchievements({
               onClick={() => setIsExpanded((expanded) => !expanded)}
               className="text-sm font-medium text-white/65 transition hover:text-white"
             >
-              {isExpanded ? "Show Less ←" : "View All Achievements →"}
+              {isExpanded ? t("showLess") : t("viewAllAchievements")}
             </button>
           </div>
         )}

@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+
+import { useTranslations } from "next-intl";
 import { AmbientGlow } from "@/components/AmbientGlow";
 import { BackgroundGlow } from "@/components/BackgroundGlow";
 import { CommunityLeaderboard } from "@/components/CommunityLeaderboard";
@@ -8,13 +10,11 @@ import { PlayersTrackedCard } from "@/components/PlayersTrackedCard";
 import { ScrollIndicator } from "@/components/ScrollIndicator";
 import { StatsRow } from "@/components/StatsRow";
 import { featuredGames } from "@/data/games";
-import { heroStats } from "@/data/stats";
+import { Link } from "@/i18n/navigation";
 import type { CommunityLeaderboardPlayer } from "@/lib/community/rankings";
 import { cn } from "@/lib/utils";
 
 type HeroProps = {
-  title?: string;
-  subtitle?: string;
   className?: string;
   mostPlayedGames?: string[];
   mostOwnedGames?: string[];
@@ -23,14 +23,19 @@ type HeroProps = {
 };
 
 export function Hero({
-  title = "TRACK YOUR GAMES",
-  subtitle = "Connect your Steam library and explore achievements, playtime, and progress across every title you own.",
   className,
   mostPlayedGames = [],
   mostOwnedGames = [],
   registeredUserCount = 0,
   communityLeaderboard = [],
 }: HeroProps) {
+  const t = useTranslations("landing");
+
+  const heroStats = [
+    { value: "10,000+", label: t("statGames") },
+    { value: "100,000+", label: t("statAchievements") },
+  ];
+
   return (
     <section
       className={cn(
@@ -43,11 +48,11 @@ export function Hero({
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center">
         <div className="flex w-full flex-col items-center text-center">
           <h1 className="max-w-5xl text-5xl font-bold tracking-[0.12em] text-white uppercase sm:text-6xl lg:text-7xl">
-            {title}
+            {t("heroTitle")}
           </h1>
 
           <p className="mt-8 max-w-3xl text-lg leading-relaxed text-white/65 sm:text-xl">
-            {subtitle}
+            {t("heroSubtitle")}
           </p>
 
           <StatsRow stats={heroStats} className="mt-11" />
@@ -61,7 +66,7 @@ export function Hero({
 
           <div className="absolute top-0 left-4 hidden w-[220px] flex-col gap-3 min-[1700px]:flex">
             <GameRankPanel
-              title="🔥 Most Played"
+              title={t("mostPlayed")}
               games={mostPlayedGames}
               className="h-[380px]"
             />
@@ -71,13 +76,13 @@ export function Hero({
           <div className="mx-auto w-[calc(100%-2rem)] max-w-6xl">
             <div className="mb-5 flex items-center justify-between gap-4">
               <h2 className="text-xl font-semibold tracking-wide text-white sm:text-2xl">
-                Popular Games
+                {t("popularGames")}
               </h2>
               <Link
                 href="/explore"
                 className="shrink-0 text-sm font-medium text-white/65 transition hover:text-white sm:text-base"
               >
-                View All Games →
+                {t("viewAllGames")}
               </Link>
             </div>
 
@@ -95,15 +100,12 @@ export function Hero({
           </div>
 
           <div className="absolute top-0 right-4 hidden h-[380px] w-[220px] min-[1700px]:block">
-            <GameRankPanel
-              title="👥 Most Owned"
-              games={mostOwnedGames}
-            />
+            <GameRankPanel title={t("mostOwned")} games={mostOwnedGames} />
           </div>
         </div>
 
         <p className="mt-20 text-center text-sm text-white/70 sm:text-base">
-          Every achievement tells a story.
+          {t("achievementTagline")}
         </p>
         <ScrollIndicator className="mt-12 mb-0" />
       </div>

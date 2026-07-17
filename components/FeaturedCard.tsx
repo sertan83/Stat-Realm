@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { WeeklyFeatured } from "@/data/featured";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +12,7 @@ type FeaturedCardProps = {
 };
 
 export function FeaturedCard({ featured, className }: FeaturedCardProps) {
+  const t = useTranslations("landing");
   const { game, description } = featured;
 
   return (
@@ -19,7 +23,7 @@ export function FeaturedCard({ featured, className }: FeaturedCardProps) {
       )}
     >
       <h3 className="text-lg font-semibold tracking-wide text-white sm:text-xl">
-        🔥 Featured This Week
+        {t("featuredThisWeek")}
       </h3>
 
       <div className="relative mt-4 aspect-[460/215] overflow-hidden rounded-lg ring-1 ring-white/10">
@@ -44,7 +48,7 @@ export function FeaturedCard({ featured, className }: FeaturedCardProps) {
         href="/explorer"
         className="mt-4 inline-flex w-fit items-center rounded-md border border-white/15 bg-white/10 px-3 py-1.5 text-sm font-medium text-white transition duration-[250ms] hover:scale-[1.02] hover:bg-white/15 hover:shadow-[0_0_20px_rgba(226,54,60,0.2)]"
       >
-        Explore →
+        {t("exploreArrow")}
       </Link>
     </article>
   );

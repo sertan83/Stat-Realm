@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type {
   LeaderboardGlobalRank,
   LeaderboardPlayer,
@@ -14,6 +17,12 @@ const globalRankOptions: LeaderboardGlobalRank[] = [
   "Total Achievements",
 ];
 
+const rankByTranslationKeys: Record<LeaderboardGlobalRank, string> = {
+  "Total Playtime": "totalPlaytime",
+  "Games Owned": "gamesOwned",
+  "Total Achievements": "totalAchievements",
+};
+
 type LeaderboardFeaturedPlayerProps = {
   player: LeaderboardPlayer | null;
   rankBy: LeaderboardGlobalRank;
@@ -23,31 +32,33 @@ type LeaderboardFeaturedPlayerProps = {
 function formatFeaturedStat(
   player: LeaderboardPlayer,
   rankBy: LeaderboardGlobalRank,
+  t: ReturnType<typeof useTranslations>,
+  tCommon: ReturnType<typeof useTranslations>,
 ) {
   switch (rankBy) {
     case "Games Owned":
       return {
         value:
           player.totalGames === null
-            ? "—"
+            ? tCommon("emDash")
             : player.totalGames.toLocaleString(),
-        label: "games owned",
+        label: t("gamesOwnedStat"),
       };
     case "Total Achievements":
       return {
         value:
           player.achievements === null
-            ? "—"
+            ? tCommon("emDash")
             : player.achievements.toLocaleString(),
-        label: "achievements unlocked",
+        label: t("achievementsUnlockedStat"),
       };
     default:
       return {
         value:
           player.hoursPlayed === null
-            ? "—"
+            ? tCommon("emDash")
             : `${player.hoursPlayed.toLocaleString()}h`,
-        label: "total playtime",
+        label: t("totalPlaytimeStat"),
       };
   }
 }
@@ -57,27 +68,31 @@ export function LeaderboardFeaturedPlayer({
   rankBy,
   onRankByChange,
 }: LeaderboardFeaturedPlayerProps) {
+  const t = useTranslations("leaderboards");
+  const tRanks = useTranslations("leaderboardRanks");
+  const tCommon = useTranslations("common");
+
   if (!player) {
     return null;
   }
 
-  const featuredStat = formatFeaturedStat(player, rankBy);
+  const featuredStat = formatFeaturedStat(player, rankBy, t, tCommon);
 
   return (
-    <section aria-label="Featured top player">
+    <section aria-label={t("featuredTopPlayer")}>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold tracking-[0.18em] text-[#EFA5A8] uppercase">
-            Featured Player
+            {t("featuredPlayer")}
           </p>
           <h2 className="mt-1.5 text-2xl font-bold text-white sm:text-3xl">
-            Global #1
+            {t("globalNumberOne")}
           </h2>
         </div>
 
         <label className="w-full sm:max-w-xs">
           <span className="mb-2 block text-xs font-medium tracking-wide text-white/45 uppercase">
-            Rank By
+            {t("rankBy")}
           </span>
           <select
             value={rankBy}
@@ -92,7 +107,7 @@ export function LeaderboardFeaturedPlayer({
                 value={item}
                 className="bg-[#140B2D] text-white"
               >
-                {item}
+                {tRanks(rankByTranslationKeys[item])}
               </option>
             ))}
           </select>
@@ -107,7 +122,7 @@ export function LeaderboardFeaturedPlayer({
           🥇
         </div>
         <p className="mt-2 text-xs font-semibold tracking-wider text-white/45 uppercase">
-          #1 · {rankBy}
+          {t("rankOneBy", { rankBy: tRanks(rankByTranslationKeys[rankBy]) })}
         </p>
         <div className="relative mx-auto mt-6 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#6B2FD6] to-[#E2363C] text-2xl font-bold text-white ring-2 ring-white/15">
           {player.avatarUrl ? (
@@ -134,7 +149,9 @@ export function LeaderboardFeaturedPlayer({
             {player.countryFlag} {player.country}
           </span>
           {player.steamLevel !== null ? (
-            <span>Steam Level {player.steamLevel}</span>
+            <span>
+              {t("steamLevel")} {player.steamLevel}
+            </span>
           ) : null}
         </div>
       </Link>

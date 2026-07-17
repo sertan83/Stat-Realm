@@ -1,11 +1,13 @@
 import "server-only";
 
+import { getTranslations } from "next-intl/server";
 import {
   getStatRealmUser,
   getUserAchievementHistory,
   getUserLibrary,
   getUserProfileAnalytics,
 } from "@/lib/db";
+import { createIntlFormatters } from "@/lib/i18n/formatters";
 import { toDashboardAchievements } from "@/lib/steam/achievement-history";
 import {
   resolveUserAvatarUrl,
@@ -22,12 +24,22 @@ import {
   normalizeUserStats,
 } from "@/lib/user/synced-statistics";
 
-export async function loadPublicProfileDashboard(steamId: string) {
+export async function loadPublicProfileDashboard(
+  steamId: string,
+  locale: string,
+) {
   const user = await getStatRealmUser(steamId);
 
   if (!user) {
     return null;
   }
+
+  const [tDashboard, tCommon] = await Promise.all([
+    getTranslations({ locale, namespace: "dashboard" }),
+    getTranslations({ locale, namespace: "common" }),
+  ]);
+  const formatters = createIntlFormatters(tCommon, tDashboard);
+  const steamGameCategory = tDashboard("steamGameCategory");
 
   const [library, achievementHistory, profileSnapshot] = await Promise.all([
     getUserLibrary(steamId),
@@ -35,8 +47,8 @@ export async function loadPublicProfileDashboard(steamId: string) {
     getUserProfileAnalytics(steamId),
   ]);
   const [recentlyPlayed, mostPlayed] = await Promise.all([
-    buildRecentlyPlayedFromLibrary(library),
-    buildMostPlayedFromLibrary(library),
+    buildRecentlyPlayedFromLibrary(library, formatters, steamGameCategory),
+    buildMostPlayedFromLibrary(library, formatters, steamGameCategory),
   ]);
   const syncedStats = normalizeUserStats(user.stats ?? createEmptyUserStats());
   const hasLibraryData = library.length > 0;
@@ -47,7 +59,11 @@ export async function loadPublicProfileDashboard(steamId: string) {
     avatarUrl: resolveUserAvatarUrl(user) || null,
     profileUrl: user.profileUrl,
     steamLevel: syncedStats.steamLevel,
-    metrics: buildDashboardMetricsFromSyncedStats(syncedStats, hasLibraryData),
+    metrics: buildDashboardMetricsFromSyncedStats(
+      syncedStats,
+      hasLibraryData,
+      tDashboard,
+    ),
     recentlyPlayed,
     mostPlayed,
     achievements,

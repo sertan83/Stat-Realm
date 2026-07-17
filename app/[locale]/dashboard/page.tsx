@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { Navbar } from "@/components/Navbar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import {
@@ -11,8 +12,6 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
 import { slugifyGameName } from "@/lib/slugify-game-name";
 import {
-  formatLastPlayed,
-  formatPlaytime,
   getAuthenticatedSteamProfile,
   getOwnedGamesLibrary,
   getRecentlyPlayedGames,
@@ -35,26 +34,33 @@ import {
   createEmptyUserStats,
   normalizeUserStats,
 } from "@/lib/user/synced-statistics";
+import { createIntlFormatters } from "@/lib/i18n/formatters";
 import type {
   CompletionOverview,
   DashboardGame,
 } from "@/types/dashboard";
 import { auth } from "@/auth";
 
-const personaStates = [
-  "Offline",
-  "Online",
-  "Busy",
-  "Away",
-  "Snooze",
-  "Looking to trade",
-  "Looking to play",
-];
+const PERSONA_STATE_KEYS = [
+  "offline",
+  "online",
+  "busy",
+  "away",
+  "snooze",
+  "lookingToTrade",
+  "lookingToPlay",
+] as const;
+
+type DashboardPageProps = {
+  params: Promise<{ locale: string }>;
+};
 
 function toDashboardGame(
   game: SteamOwnedGame,
   progress: SteamAchievementProgress | null,
   completionStatus: "complete" | "unsupported" | "unavailable",
+  formatters: ReturnType<typeof createIntlFormatters>,
+  steamGameCategory: string,
 ): DashboardGame {
   const title = game.name ?? `Steam App ${game.appid}`;
 
@@ -63,9 +69,9 @@ function toDashboardGame(
     title,
     slug: slugifyGameName(title),
     imageUrl: "",
-    category: "Steam Game",
-    playtime: formatPlaytime(game.playtime_forever),
-    lastPlayed: formatLastPlayed(game.rtime_last_played),
+    category: steamGameCategory,
+    playtime: formatters.formatPlaytime(game.playtime_forever),
+    lastPlayed: formatters.formatLastPlayed(game.rtime_last_played),
     completion:
       progress && progress.total > 0 ? progress.percentage : null,
     completionStatus:
@@ -73,14 +79,25 @@ function toDashboardGame(
   };
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ params }: DashboardPageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/");
+    redirect({ href: "/", locale });
   }
 
-  const steamId = session.user.steamId;
+  const [tDashboard, tCommon, tPersona] = await Promise.all([
+    getTranslations("dashboard"),
+    getTranslations("common"),
+    getTranslations("personaStates"),
+  ]);
+  const formatters = createIntlFormatters(tCommon, tDashboard);
+  const steamGameCategory = tDashboard("steamGameCategory");
+
+  const steamId = session!.user!.steamId;
   const [profileResult, ownedResult, recentResult, levelResult] =
     await Promise.allSettled([
       getAuthenticatedSteamProfile(steamId),
@@ -131,7 +148,7 @@ export default async function DashboardPage() {
           );
           return null;
         }),
-        getGenrePlaytimeSummary(steamId, ownedGames, session.expires),
+        getGenrePlaytimeSummary(steamId, ownedGames, session!.expires),
       ])
     : [null, null];
 
@@ -157,6 +174,8 @@ export default async function DashboardPage() {
               achievementSummary?.achievementStatusByAppId.get(
                 game.appid,
               ) ?? "unavailable",
+              formatters,
+              steamGameCategory,
             ),
           )
       : [];
@@ -169,6 +188,8 @@ export default async function DashboardPage() {
             achievementSummary?.achievementStatusByAppId.get(
               game.appid,
             ) ?? "unavailable",
+            formatters,
+            steamGameCategory,
           ),
         )
       : [];
@@ -233,30 +254,32 @@ export default async function DashboardPage() {
   const profileMetrics = buildDashboardMetricsFromSyncedStats(
     syncedStats,
     hasOwnedGamesData,
+    tDashboard,
   );
   const displayName = syncedUser
     ? resolveUserDisplayName(syncedUser)
-    : profile?.personaname ?? "Steam Player";
+    : profile?.personaname ?? tDashboard("steamPlayerFallback");
   const profileUrl =
     syncedUser?.profileUrl ??
     profile?.profileurl ??
-    `https://steamcommunity.com/profiles/${session.user.steamId}`;
+    `https://steamcommunity.com/profiles/${session!.user!.steamId}`;
   const personaState = profile?.personastate ?? 0;
-  const status = profile ? (personaStates[personaState] ?? "Online") : "Unknown";
+  const status = profile
+    ? tPersona(PERSONA_STATE_KEYS[personaState] ?? "online")
+    : tCommon("unknown");
 
   return (
     <div className="min-h-screen text-white">
       <Navbar />
 
       <main className="relative overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
-
         <div className="relative z-10 mx-auto w-full max-w-7xl space-y-20">
           <DashboardHeader
             displayName={displayName}
             avatarUrl={
               syncedUser
                 ? resolveUserAvatarUrl(syncedUser) || profile?.avatarfull
-                : profile?.avatarfull ?? session.user.image
+                : profile?.avatarfull ?? session!.user!.image
             }
             profileUrl={profileUrl}
             steamLevel={

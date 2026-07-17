@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type PlayersTrackedCardProps = {
@@ -46,6 +49,8 @@ export function PlayersTrackedCard({
   count,
   className,
 }: PlayersTrackedCardProps) {
+  const t = useTranslations("landing");
+
   return (
     <aside
       className={cn(
@@ -56,14 +61,14 @@ export function PlayersTrackedCard({
       <div className="flex items-center gap-2">
         <UsersIcon />
         <h3 className="text-sm font-semibold tracking-wide text-white sm:text-base">
-          Players Tracked
+          {t("playersTracked")}
         </h3>
       </div>
       <p className="mt-3 text-3xl font-bold tracking-tight text-white">
         {count.toLocaleString()}
       </p>
       <p className="mt-1 text-xs text-white/55 sm:text-sm">
-        Steam accounts synced
+        {t("steamAccountsSynced")}
       </p>
     </aside>
   );

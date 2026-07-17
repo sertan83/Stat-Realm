@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ExploreFilters } from "@/components/ExploreFilters";
 import { ExploreGameCard } from "@/components/ExploreGameCard";
 import { getExplorePageNumbers } from "@/lib/explore/catalog-params";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import type { Game } from "@/types/game";
 
 type ExploreCatalogProps = {
@@ -57,6 +58,7 @@ export function ExploreCatalog({
   sortBy,
   hideDlc,
 }: ExploreCatalogProps) {
+  const t = useTranslations("explore");
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -147,7 +149,7 @@ export function ExploreCatalog({
       {games.length > 0 ? (
         <>
           <section
-            aria-label="Games"
+            aria-label={t("gamesAriaLabel")}
             className={`mt-10 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${
               isPending ? "opacity-70" : ""
             }`}
@@ -158,7 +160,7 @@ export function ExploreCatalog({
           </section>
 
           <nav
-            aria-label="Explore games pagination"
+            aria-label={t("paginationAriaLabel")}
             className="mt-14 flex flex-wrap items-center justify-center gap-2 pb-4"
           >
             {currentPage === 1 ? (
@@ -166,7 +168,7 @@ export function ExploreCatalog({
                 aria-disabled="true"
                 className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/35"
               >
-                Previous
+                {t("previous")}
               </span>
             ) : (
               <button
@@ -174,7 +176,7 @@ export function ExploreCatalog({
                 onClick={() => navigateCatalog({ page: currentPage - 1 })}
                 className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
               >
-                Previous
+                {t("previous")}
               </button>
             )}
 
@@ -199,7 +201,7 @@ export function ExploreCatalog({
                 aria-disabled="true"
                 className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/35"
               >
-                Next
+                {t("next")}
               </span>
             ) : (
               <button
@@ -207,7 +209,7 @@ export function ExploreCatalog({
                 onClick={() => navigateCatalog({ page: currentPage + 1 })}
                 className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
               >
-                Next
+                {t("next")}
               </button>
             )}
           </nav>
@@ -217,9 +219,7 @@ export function ExploreCatalog({
           role="status"
           className="mt-10 flex min-h-52 items-center justify-center text-center text-white/70"
         >
-          {totalCount > 0
-            ? "No games found on this page."
-            : "No games found."}
+          {totalCount > 0 ? t("noGamesOnPage") : t("noGamesFound")}
         </div>
       )}
     </>

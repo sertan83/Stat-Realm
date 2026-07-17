@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { AmbientGlow } from "@/components/AmbientGlow";
 
 const INSTAGRAM_URL = "https://instagram.com/statrealm";
@@ -39,6 +42,10 @@ function MailIcon() {
 }
 
 export function LandingFooter() {
+  const t = useTranslations("footer");
+  const tCommon = useTranslations("common");
+  const year = new Date().getFullYear();
+
   return (
     <footer className="relative overflow-hidden border-t border-white/10 px-4 py-8 lg:px-6">
       <AmbientGlow
@@ -48,7 +55,7 @@ export function LandingFooter() {
       <div className="relative z-10 mx-auto flex w-full max-w-7xl justify-center md:justify-start">
         <div className="flex flex-col items-center gap-8 md:flex-row md:items-center">
           <div className="flex flex-col items-center gap-2 md:items-start">
-            <p className="text-xs text-white/45">Follow us on Instagram</p>
+            <p className="text-xs text-white/45">{t("followInstagram")}</p>
             <a
               href={INSTAGRAM_URL}
               target="_blank"
@@ -57,13 +64,13 @@ export function LandingFooter() {
             >
               <Image
                 src="/insta.svg"
-                alt="Instagram"
+                alt={t("instagramAlt")}
                 width={20}
                 height={20}
                 unoptimized
                 className="h-5 w-5 shrink-0"
               />
-              <span>@statrealm</span>
+              <span>{tCommon("instagramHandle")}</span>
             </a>
           </div>
 
@@ -73,14 +80,17 @@ export function LandingFooter() {
           />
 
           <div className="flex flex-col items-center gap-2 md:items-start">
-            <p className="text-xs text-white/45">Reach us</p>
+            <p className="text-xs text-white/45">{t("reachUs")}</p>
             <a href={EMAIL_URL} className={contactLinkClassName}>
               <MailIcon />
-              <span>statrealmgg@gmail.com</span>
+              <span>{tCommon("email")}</span>
             </a>
           </div>
         </div>
       </div>
+      <p className="relative z-10 mx-auto mt-8 w-full max-w-7xl text-center text-xs text-white/35 md:text-left">
+        {t("copyright", { year })}
+      </p>
     </footer>
   );
 }

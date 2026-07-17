@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { signInWithSteam } from "@/app/actions/auth";
 
-const FEATURES = [
-  "Personal Dashboard",
-  "Achievement Tracking",
-  "Global Leaderboards",
+const FEATURE_KEYS = [
+  "featurePersonalDashboard",
+  "featureAchievementTracking",
+  "featureGlobalLeaderboards",
 ] as const;
 
 type AuthRequiredModalProps = {
@@ -16,6 +17,8 @@ type AuthRequiredModalProps = {
 };
 
 export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
+  const t = useTranslations("auth");
+
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -46,7 +49,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       <button
         type="button"
-        aria-label="Close sign in required dialog"
+        aria-label={t("closeDialog")}
         className="statrealm-modal-backdrop absolute inset-0 bg-[#140B2D]/80 backdrop-blur-xl"
         onClick={onClose}
       />
@@ -60,7 +63,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("close")}
           className="absolute top-5 right-5 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 backdrop-blur-sm transition hover:border-white/20 hover:bg-white/10 hover:text-white"
         >
           <span aria-hidden="true" className="text-xl leading-none">
@@ -84,21 +87,19 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
             id="auth-required-title"
             className="mt-7 text-2xl font-bold tracking-tight text-white sm:text-[1.75rem]"
           >
-            Sign in with Steam
+            {t("modalTitle")}
           </h2>
           <p
             id="auth-required-description"
             className="mt-4 max-w-[420px] text-sm leading-relaxed text-white/65 sm:text-[0.95rem]"
           >
-            Connect your Steam account to unlock your personal dashboard,
-            achievements, playtime analytics, leaderboards, and detailed game
-            statistics.
+            {t("modalDescription")}
           </p>
 
           <ul className="mt-6 w-full space-y-3 text-left">
-            {FEATURES.map((feature) => (
+            {FEATURE_KEYS.map((featureKey) => (
               <li
-                key={feature}
+                key={featureKey}
                 className="flex items-center gap-3 text-sm text-white/55"
               >
                 <span
@@ -107,7 +108,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
                 >
                   ✓
                 </span>
-                <span>{feature}</span>
+                <span>{t(featureKey)}</span>
               </li>
             ))}
           </ul>
@@ -127,7 +128,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
                 unoptimized
                 className="shrink-0"
               />
-              Sign in with Steam
+              {t("signInWithSteam")}
             </button>
           </form>
           <button
@@ -135,7 +136,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
             onClick={onClose}
             className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-transparent px-4 text-sm font-medium text-white/55 transition hover:border-white/10 hover:bg-white/5 hover:text-white/80"
           >
-            Cancel
+            {t("cancel")}
           </button>
         </div>
       </div>

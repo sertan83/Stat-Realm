@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Achievement } from "@/types/game-details";
 
 type AchievementListProps = {
@@ -24,17 +25,14 @@ function getGlobalUnlockPercentage(value: unknown) {
   return Number.isFinite(percentage) ? percentage : null;
 }
 
-function formatGlobalUnlockPercentage(value: unknown) {
-  const percentage = getGlobalUnlockPercentage(value);
-  return percentage === null ? "N/A" : `${percentage.toFixed(1)}% global`;
-}
-
 export function AchievementList({
   achievements,
   gameSlug,
   status,
   dataSource = "global",
 }: AchievementListProps) {
+  const t = useTranslations("gameDetails");
+  const tCommon = useTranslations("common");
   const [expandedGameSlug, setExpandedGameSlug] = useState<string | null>(null);
   const isExpanded = expandedGameSlug === gameSlug;
   const sortedAchievements = useMemo(
@@ -57,8 +55,7 @@ export function AchievementList({
   if (status === "unavailable") {
     return (
       <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-sm text-white/55 backdrop-blur-md">
-        Achievement data is temporarily unavailable. Please try again in a
-        moment.
+        {t("achievementsUnavailable")}
       </div>
     );
   }
@@ -66,7 +63,7 @@ export function AchievementList({
   if (status === "empty" || achievements.length === 0) {
     return (
       <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-sm text-white/55 backdrop-blur-md">
-        This game has no Steam achievements.
+        {t("noAchievements")}
       </div>
     );
   }
@@ -75,7 +72,7 @@ export function AchievementList({
     <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-md">
       {dataSource === "global" ? (
         <p className="border-b border-white/10 px-4 py-3 text-xs text-white/50 sm:px-5">
-          Showing global Steam achievement statistics.
+          {t("globalAchievementStats")}
         </p>
       ) : null}
 
@@ -99,7 +96,7 @@ export function AchievementList({
                 {achievement.name}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-white/40">
-                {achievement.description || "N/A"}
+                {achievement.description || tCommon("notApplicable")}
               </p>
             </div>
             <div className="shrink-0 text-right">
@@ -112,21 +109,28 @@ export function AchievementList({
                         : "text-white/45"
                     }`}
                   >
-                    {achievement.isUnlocked ? "Unlocked" : "Locked"}
+                    {achievement.isUnlocked ? t("unlocked") : t("locked")}
                   </p>
                   {achievement.isUnlocked ? (
                     <p className="mt-1 text-xs text-white/40">
-                      {achievement.unlockedAt ?? "N/A"}
+                      {achievement.unlockedAt ?? tCommon("notApplicable")}
                     </p>
                   ) : null}
                 </>
               ) : (
-                <p className="font-semibold text-white/45">Global stat</p>
+                <p className="font-semibold text-white/45">{t("globalStat")}</p>
               )}
               <p className="mt-1 text-xs text-[#EFA5A8]">
-                {formatGlobalUnlockPercentage(
-                  achievement.globalUnlockPercentage,
-                )}
+                {(() => {
+                  const percentage = getGlobalUnlockPercentage(
+                    achievement.globalUnlockPercentage,
+                  );
+                  return percentage === null
+                    ? tCommon("notApplicable")
+                    : t("globalUnlockPercentage", {
+                        percentage: percentage.toFixed(1),
+                      });
+                })()}
               </p>
             </div>
           </li>
@@ -143,7 +147,7 @@ export function AchievementList({
             }
             className="text-sm font-medium text-white/65 transition hover:text-white"
           >
-            {isExpanded ? "Show Less ←" : "View All Achievements →"}
+            {isExpanded ? t("showLess") : t("viewAllAchievements")}
           </button>
         </div>
       )}

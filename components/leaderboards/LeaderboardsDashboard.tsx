@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { LeaderboardFeaturedPlayer } from "@/components/leaderboards/LeaderboardFeaturedPlayer";
 import { LeaderboardTable } from "@/components/leaderboards/LeaderboardTable";
 import type {
@@ -30,6 +31,8 @@ export function LeaderboardsDashboard({
   dbEntries,
   showSignInBanner = false,
 }: LeaderboardsDashboardProps) {
+  const t = useTranslations("leaderboards");
+  const tCommon = useTranslations("common");
   const [rankBy, setRankBy] =
     useState<LeaderboardGlobalRank>("Total Playtime");
   const [activePage, setActivePage] = useState(1);
@@ -91,17 +94,17 @@ export function LeaderboardsDashboard({
       <section className="mt-8">
         <div className="mb-5">
           <p className="text-xs font-semibold tracking-[0.18em] text-[#EFA5A8] uppercase">
-            Top 100 Players
+            {t("top100Players")}
           </p>
           <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-            Global Leaderboard
+            {t("globalLeaderboard")}
           </h2>
         </div>
 
         <LeaderboardTable players={visiblePlayers} rankOffset={rankOffset} />
 
         <nav
-          aria-label="Leaderboard pagination"
+          aria-label={t("paginationAriaLabel")}
           className="mt-8 flex flex-wrap items-center justify-center gap-2"
         >
           <button
@@ -110,7 +113,7 @@ export function LeaderboardsDashboard({
             onClick={() => setActivePage((page) => page - 1)}
             className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:bg-transparent disabled:text-white/35"
           >
-            Previous
+            {tCommon("previous")}
           </button>
 
           {pages.map((page) => (
@@ -135,7 +138,7 @@ export function LeaderboardsDashboard({
             onClick={() => setActivePage((page) => page + 1)}
             className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:bg-transparent disabled:text-white/35"
           >
-            Next
+            {tCommon("next")}
           </button>
         </nav>
       </section>

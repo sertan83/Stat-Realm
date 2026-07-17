@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Navbar } from "@/components/Navbar";
 import { LeaderboardsDashboard } from "@/components/leaderboards/LeaderboardsDashboard";
 import { leaderboardGames } from "@/data/leaderboard";
@@ -11,11 +12,21 @@ import {
 } from "@/lib/steam/api";
 import { syncUserSteamLibrary } from "@/lib/steam/library-sync";
 
-export const metadata: Metadata = {
-  title: "Leaderboards — StatRealm",
-  description:
-    "Compare the world's top Steam players across every game on StatRealm.",
+type LeaderboardsPageProps = {
+  params: Promise<{ locale: string }>;
 };
+
+export async function generateMetadata({
+  params,
+}: LeaderboardsPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
+
+  return {
+    title: t("leaderboardsTitle"),
+    description: t("leaderboardsDescription"),
+  };
+}
 
 function buildCatalogMaps() {
   const catalogAliasesByAppId = leaderboardGames.reduce(
@@ -40,8 +51,11 @@ function buildCatalogMaps() {
   return { catalogAliasesByAppId, catalogCategoriesByAppId };
 }
 
-export default async function LeaderboardsPage() {
-  const session = await auth();
+export default async function LeaderboardsPage({ params }: LeaderboardsPageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const [session, t] = await Promise.all([auth(), getTranslations("leaderboards")]);
   const isAuthenticated = Boolean(session?.user?.steamId);
   const { catalogAliasesByAppId, catalogCategoriesByAppId } =
     buildCatalogMaps();
@@ -87,14 +101,13 @@ export default async function LeaderboardsPage() {
       <Navbar />
 
       <main className="relative min-h-[calc(100vh-55px)] overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
-
         <div className="relative z-10 mx-auto w-full max-w-7xl">
           <header>
             <h1 className="text-4xl font-bold tracking-[0.1em] text-white uppercase sm:text-5xl lg:text-6xl">
-              Leaderboards
+              {t("title")}
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg">
-              Compare the world&apos;s top Steam players across every game.
+              {t("description")}
             </p>
           </header>
 

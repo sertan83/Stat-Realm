@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 const controlClassName =
   "h-11 rounded-lg border border-white/10 bg-white/5 px-4 text-sm text-white outline-none backdrop-blur-md transition focus:border-white/25";
 
@@ -14,6 +18,25 @@ type ExploreFiltersProps = {
   onHideDlcChange: (hideDlc: boolean) => void;
 };
 
+const genreOptions = [
+  { value: "Action", key: "action" },
+  { value: "Adventure", key: "adventure" },
+  { value: "RPG", key: "rpg" },
+  { value: "Strategy", key: "strategy" },
+] as const;
+
+const platformOptions = [
+  { value: "Windows", key: "windows" },
+  { value: "macOS", key: "macos" },
+  { value: "Linux", key: "linux" },
+] as const;
+
+const sortOptions = [
+  { value: "Most Popular", key: "mostPopular" },
+  { value: "Newest", key: "newest" },
+  { value: "Name", key: "name" },
+] as const;
+
 export function ExploreFilters({
   query,
   genre,
@@ -26,14 +49,19 @@ export function ExploreFilters({
   onSortByChange,
   onHideDlcChange,
 }: ExploreFiltersProps) {
+  const t = useTranslations("explore");
+  const tGenres = useTranslations("genres");
+  const tPlatforms = useTranslations("platforms");
+  const tSort = useTranslations("sortOptions");
+
   return (
     <div className="mt-8 space-y-4">
       <label className="block">
-        <span className="sr-only">Search games</span>
+        <span className="sr-only">{t("searchLabel")}</span>
         <input
           type="search"
           name="search"
-          placeholder="Search games..."
+          placeholder={t("searchPlaceholder")}
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
           className={`${controlClassName} w-full placeholder:text-white/35`}
@@ -42,53 +70,58 @@ export function ExploreFilters({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]">
         <label>
-          <span className="sr-only">Genre</span>
+          <span className="sr-only">{t("genreLabel")}</span>
           <select
             name="genre"
             value={genre}
             onChange={(event) => onGenreChange(event.target.value)}
             className={`${controlClassName} w-full`}
           >
-            <option value="">Genre</option>
-            <option>Action</option>
-            <option>Adventure</option>
-            <option>RPG</option>
-            <option>Strategy</option>
+            <option value="">{t("genreDefault")}</option>
+            {genreOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {tGenres(option.key)}
+              </option>
+            ))}
           </select>
         </label>
 
         <label>
-          <span className="sr-only">Platform</span>
+          <span className="sr-only">{t("platformLabel")}</span>
           <select
             name="platform"
             value={platform}
             onChange={(event) => onPlatformChange(event.target.value)}
             className={`${controlClassName} w-full`}
           >
-            <option value="">Platform</option>
-            <option>Windows</option>
-            <option>macOS</option>
-            <option>Linux</option>
+            <option value="">{t("platformDefault")}</option>
+            {platformOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {tPlatforms(option.key)}
+              </option>
+            ))}
           </select>
         </label>
 
         <label>
-          <span className="sr-only">Sort games</span>
+          <span className="sr-only">{t("sortLabel")}</span>
           <select
             name="sort"
             value={sortBy}
             onChange={(event) => onSortByChange(event.target.value)}
             className={`${controlClassName} w-full`}
           >
-            <option value="">Sort By</option>
-            <option>Most Popular</option>
-            <option>Newest</option>
-            <option>Name</option>
+            <option value="">{t("sortDefault")}</option>
+            {sortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {tSort(option.key)}
+              </option>
+            ))}
           </select>
         </label>
 
         <label className="flex h-11 cursor-pointer items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/5 px-4 text-sm text-white backdrop-blur-md sm:col-span-2 lg:col-span-1">
-          <span>Hide DLC</span>
+          <span>{t("hideDlc")}</span>
           <input
             type="checkbox"
             name="hideDlc"

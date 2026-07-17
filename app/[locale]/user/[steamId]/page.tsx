@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Navbar } from "@/components/Navbar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import {
@@ -15,42 +16,47 @@ import { loadPublicProfileDashboard } from "@/lib/user/public-profile-dashboard"
 const STEAM_ID_PATTERN = /^\d{17}$/;
 
 type UserProfilePageProps = {
-  params: Promise<{ steamId: string }>;
+  params: Promise<{ locale: string; steamId: string }>;
 };
 
 export async function generateMetadata({
   params,
 }: UserProfilePageProps): Promise<Metadata> {
-  const { steamId } = await params;
+  const { locale, steamId } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
 
   if (!STEAM_ID_PATTERN.test(steamId)) {
     return {
-      title: "Profile Not Found — StatRealm",
+      title: t("profileNotFoundTitle"),
     };
   }
 
-  const profile = await loadPublicProfileDashboard(steamId);
+  const profile = await loadPublicProfileDashboard(steamId, locale);
 
   if (!profile) {
     return {
-      title: "Profile Not Found — StatRealm",
+      title: t("profileNotFoundTitle"),
     };
   }
 
   return {
-    title: `${profile.displayName} — StatRealm`,
-    description: `View ${profile.displayName}'s public StatRealm gaming profile.`,
+    title: t("profileTitle", { name: profile.displayName }),
+    description: t("profileDescription", { name: profile.displayName }),
   };
 }
 
 export default async function UserProfilePage({ params }: UserProfilePageProps) {
-  const { steamId } = await params;
+  const { locale, steamId } = await params;
+  setRequestLocale(locale);
 
   if (!STEAM_ID_PATTERN.test(steamId)) {
     notFound();
   }
 
-  const profile = await loadPublicProfileDashboard(steamId);
+  const [profile, tPersona] = await Promise.all([
+    loadPublicProfileDashboard(steamId, locale),
+    getTranslations("personaStates"),
+  ]);
 
   if (!profile) {
     notFound();
@@ -61,14 +67,13 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
       <Navbar />
 
       <main className="relative overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
-
         <div className="relative z-10 mx-auto w-full max-w-7xl space-y-20">
           <DashboardHeader
             displayName={profile.displayName}
             avatarUrl={profile.avatarUrl}
             profileUrl={profile.profileUrl}
             steamLevel={profile.steamLevel}
-            status="Unknown"
+            status={tPersona("unknown")}
             isOnline={false}
           />
 

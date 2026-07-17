@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { CommunityLeaderboardPlayer } from "@/lib/community/rankings";
 import { cn } from "@/lib/utils";
 
@@ -12,10 +15,12 @@ export function CommunityLeaderboard({
   players,
   className,
 }: CommunityLeaderboardProps) {
+  const t = useTranslations("landing");
+
   return (
     <section className={cn("mt-20 pb-6", className)}>
       <h2 className="text-xl font-semibold tracking-wide text-white sm:text-2xl">
-        Community Leaderboard
+        {t("communityLeaderboard")}
       </h2>
 
       {players.length > 0 ? (
@@ -49,7 +54,9 @@ export function CommunityLeaderboard({
                     {player.username}
                   </p>
                   <p className="mt-0.5 text-xs text-white/55 sm:text-sm">
-                    {player.hoursPlayed.toLocaleString()}h played
+                    {t("hoursPlayed", {
+                      hours: player.hoursPlayed.toLocaleString(),
+                    })}
                   </p>
                 </div>
               </Link>
@@ -58,8 +65,7 @@ export function CommunityLeaderboard({
         </ol>
       ) : (
         <p className="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-5 text-sm text-white/60">
-          No synced players yet. Sign in with Steam to appear on the community
-          leaderboard.
+          {t("noSyncedPlayers")}
         </p>
       )}
 
@@ -68,7 +74,7 @@ export function CommunityLeaderboard({
           href="/leaderboards"
           className="text-sm font-medium text-white/65 transition hover:text-white sm:text-base"
         >
-          View Full Leaderboard →
+          {t("viewFullLeaderboard")}
         </Link>
       </div>
     </section>

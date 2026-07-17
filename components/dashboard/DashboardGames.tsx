@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import type { DashboardGame } from "@/types/dashboard";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
+import { Link } from "@/i18n/navigation";
 import { reportSuccessfulGameImage } from "@/lib/steam/report-game-image-cache";
 
 function DashboardGameCard({
@@ -16,6 +17,7 @@ function DashboardGameCard({
   rank?: number;
   compact?: boolean;
 }) {
+  const t = useTranslations("dashboard");
   const candidates = useMemo(() => {
     const baseCandidates =
       game.imageCandidates && game.imageCandidates.length > 0
@@ -45,7 +47,7 @@ function DashboardGameCard({
       >
         {showPlaceholder ? (
           <div className="flex h-full w-full items-center justify-center bg-white/5 px-3 text-center text-xs font-medium text-white/45">
-            No Image Available
+            {t("noImageAvailable")}
           </div>
         ) : (
           <Image
@@ -91,9 +93,9 @@ function DashboardGameCard({
         <p className="mt-1.5 text-right text-xs text-white/45">
           {game.completion === null
             ? game.completionStatus === "unavailable"
-              ? "Achievement sync failed"
-              : "Completion unavailable"
-            : `${game.completion}% complete`}
+              ? t("achievementSyncFailed")
+              : t("completionUnavailable")
+            : t("percentComplete", { percentage: game.completion })}
         </p>
       </div>
     </Link>
@@ -105,10 +107,12 @@ export function RecentlyPlayed({
 }: {
   games: DashboardGame[];
 }) {
+  const t = useTranslations("dashboard");
+
   return (
     <section>
       <h2 className="text-2xl font-bold text-white sm:text-3xl">
-        Recently Played
+        {t("recentlyPlayed")}
       </h2>
       <div className="mt-6 flex gap-5 overflow-x-auto pb-4">
         {games.map((game) => (
@@ -124,10 +128,12 @@ export function MostPlayedGames({
 }: {
   games: DashboardGame[];
 }) {
+  const t = useTranslations("dashboard");
+
   return (
     <section>
       <h2 className="text-2xl font-bold text-white sm:text-3xl">
-        Most Played Games
+        {t("mostPlayedGames")}
       </h2>
       <div className="mt-6 grid gap-4 xl:grid-cols-2">
         {games.map((game, index) => (

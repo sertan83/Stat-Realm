@@ -1,6 +1,17 @@
 import type { Game } from "@/types/game";
 
+export type DashboardMetricKey =
+  | "totalGames"
+  | "totalPlaytime"
+  | "totalAchievements"
+  | "achievementCompletionRate"
+  | "perfectGames"
+  | "averagePlaytimePerGame"
+  | "averageAchievementRarity"
+  | "globalRank";
+
 export type DashboardMetric = {
+  key: DashboardMetricKey;
   label: string;
   value: string;
   icon: string;

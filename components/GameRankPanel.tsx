@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { slugifyGameName } from "@/lib/slugify-game-name";
 

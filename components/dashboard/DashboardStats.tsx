@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { DashboardMetric } from "@/types/dashboard";
 
 type DashboardStatsProps = {
@@ -5,15 +8,17 @@ type DashboardStatsProps = {
 };
 
 export function DashboardStats({ metrics }: DashboardStatsProps) {
+  const t = useTranslations("dashboard");
+
   return (
     <section>
       <h2 className="text-2xl font-bold text-white sm:text-3xl">
-        Profile Statistics
+        {t("profileStatistics")}
       </h2>
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {metrics.map((metric) => (
           <article
-            key={metric.label}
+            key={metric.key}
             className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:border-white/15 hover:shadow-[0_0_30px_rgba(107,47,214,0.16)]"
           >
             <div className="flex items-start justify-between gap-3">

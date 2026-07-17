@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { logOut } from "@/app/actions/auth";
+import { Link } from "@/i18n/navigation";
 
 type UserAccountDropdownProps = {
   displayName: string;
@@ -17,6 +18,8 @@ export function UserAccountDropdown({
   displayName,
   avatarUrl,
 }: UserAccountDropdownProps) {
+  const t = useTranslations("nav");
+  const tAuth = useTranslations("auth");
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +64,7 @@ export function UserAccountDropdown({
         {avatarUrl ? (
           <Image
             src={avatarUrl}
-            alt={`${displayName}'s Steam avatar`}
+            alt={tAuth("steamAvatarAlt", { name: displayName })}
             width={26}
             height={26}
             className="h-[26px] w-[26px] rounded-full object-cover ring-1 ring-white/20"
@@ -73,7 +76,7 @@ export function UserAccountDropdown({
       {isOpen ? (
         <div
           role="menu"
-          aria-label="Account menu"
+          aria-label={t("accountMenu")}
           className="statrealm-account-dropdown absolute top-[calc(100%+8px)] right-0 z-50 min-w-[168px] overflow-hidden rounded-lg border border-white/10 bg-[#1B2838] py-1 shadow-[0_12px_32px_rgba(0,0,0,0.35)]"
         >
           <Link
@@ -82,7 +85,7 @@ export function UserAccountDropdown({
             className={menuItemClassName}
             onClick={() => setIsOpen(false)}
           >
-            Profile
+            {t("profile")}
           </Link>
           <div
             aria-hidden="true"
@@ -90,7 +93,7 @@ export function UserAccountDropdown({
           />
           <form action={logOut}>
             <button type="submit" role="menuitem" className={menuItemClassName}>
-              Log Out
+              {t("logOut")}
             </button>
           </form>
         </div>

@@ -1,7 +1,12 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { signInWithSteam } from "@/app/actions/auth";
 
 export function LeaderboardSignInBanner() {
+  const t = useTranslations("auth");
+
   return (
     <section className="mb-6 rounded-xl border border-white/10 bg-white/5 p-5 shadow-[0_0_30px_rgba(107,47,214,0.12)] backdrop-blur-md sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -18,12 +23,10 @@ export function LeaderboardSignInBanner() {
           </div>
           <div>
             <h2 className="text-base font-semibold text-white sm:text-lg">
-              Want to see yourself on the leaderboard?
+              {t("leaderboardBannerTitle")}
             </h2>
             <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-white/65">
-              Sign in with your Steam account to sync your games, achievements,
-              and playtime. Once synced, you&apos;ll automatically appear on the
-              global leaderboard.
+              {t("leaderboardBannerDescription")}
             </p>
           </div>
         </div>
@@ -40,7 +43,7 @@ export function LeaderboardSignInBanner() {
               unoptimized
               className="shrink-0"
             />
-            Sign in with Steam
+            {t("signInWithSteam")}
           </button>
         </form>
       </div>

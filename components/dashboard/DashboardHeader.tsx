@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 type DashboardHeaderProps = {
   displayName: string;
@@ -17,16 +20,18 @@ export function DashboardHeader({
   status,
   isOnline,
 }: DashboardHeaderProps) {
+  const t = useTranslations("dashboard");
+  const tAuth = useTranslations("auth");
+
   return (
     <header className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
       <div>
-        <p className="text-lg text-white/55 sm:text-xl">Welcome back,</p>
+        <p className="text-lg text-white/55 sm:text-xl">{t("welcomeBack")}</p>
         <h1 className="mt-1 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          {displayName}!
+          {t("welcomeName", { name: displayName })}
         </h1>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg">
-          Track your Steam journey, discover new milestones, and explore your
-          gaming statistics.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -34,7 +39,7 @@ export function DashboardHeader({
         {avatarUrl ? (
           <Image
             src={avatarUrl}
-            alt={`${displayName}'s Steam avatar`}
+            alt={tAuth("steamAvatarAlt", { name: displayName })}
             width={72}
             height={72}
             priority
@@ -52,7 +57,9 @@ export function DashboardHeader({
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
             <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-white/60">
-              Steam Level {steamLevel ?? "—"}
+              {steamLevel !== null && steamLevel !== undefined
+                ? t("steamLevel", { level: steamLevel })
+                : t("steamLevelUnavailable")}
             </span>
             <span
               className={`inline-flex items-center gap-1.5 ${
@@ -73,7 +80,7 @@ export function DashboardHeader({
             rel="noreferrer"
             className="mt-3 inline-flex rounded-md bg-[#1B2838] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#2A475E]"
           >
-            View Steam Profile
+            {t("viewSteamProfile")}
           </a>
         </div>
       </aside>

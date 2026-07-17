@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
 import { Navbar } from "@/components/Navbar";
 import { AchievementList } from "@/components/game-details/AchievementList";
@@ -9,6 +9,7 @@ import { YourPosition } from "@/components/game-details/YourPosition";
 import { MetricGrid } from "@/components/game-details/MetricGrid";
 import { SectionHeading } from "@/components/game-details/SectionHeading";
 import { SimilarGames } from "@/components/game-details/SimilarGames";
+import { Link } from "@/i18n/navigation";
 import {
   createGameDetailsFromAppId,
   createGameDetailsFromSlug,
@@ -21,10 +22,10 @@ import {
   buildStatRealmCommunityStatisticsFromDb,
   buildStatRealmGameStatisticsFromDb,
 } from "@/lib/game-details/statrealm-statistics";
+import { createIntlFormatters, formatPlaytimeMinutes } from "@/lib/i18n/formatters";
 import { parseGameRouteAppId } from "@/lib/game-details/route-param";
 import { slugifyGameName } from "@/lib/slugify-game-name";
 import {
-  formatPlaytime,
   getAuthenticatedSteamProfile,
   getOwnedGames,
   getSteamAppIdFromImage,
@@ -47,14 +48,17 @@ import {
   UNAVAILABLE_REVIEWS,
 } from "@/lib/steam/store-metadata-labels";
 import { withPromiseTimeout } from "@/lib/utils/promise-timeout";
+import { routing } from "@/i18n/routing";
 import type { GameDetails } from "@/types/game-details";
 
 type GamePageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 };
 
 export function generateStaticParams() {
-  return gameDetailSlugs.map((slug) => ({ slug }));
+  return routing.locales.flatMap((locale) =>
+    gameDetailSlugs.map((slug) => ({ locale, slug })),
+  );
 }
 
 function toValidAppId(value: unknown) {
@@ -75,12 +79,16 @@ function toValidPlaytime(value: unknown) {
   return Number.isFinite(minutes) && minutes >= 0 ? minutes : null;
 }
 
-function formatSteamPlaytime(value: unknown) {
+function formatSteamPlaytime(
+  value: unknown,
+  unavailable: string,
+  formatPlaytime = formatPlaytimeMinutes,
+) {
   const minutes = toValidPlaytime(value);
-  return minutes === null ? "Unavailable" : formatPlaytime(minutes);
+  return minutes === null ? unavailable : formatPlaytime(minutes);
 }
 
-function formatUnlockDate(value: unknown) {
+function formatUnlockDate(value: unknown, locale: string) {
   if (typeof value !== "number" && typeof value !== "string") {
     return undefined;
   }
@@ -94,7 +102,7 @@ function formatUnlockDate(value: unknown) {
   const date = new Date(timestamp * 1000);
   if (Number.isNaN(date.getTime())) return undefined;
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
@@ -122,7 +130,8 @@ function resolveLegacySlugDetails(slug: string): {
 export async function generateMetadata({
   params,
 }: GamePageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
   const routeAppId = parseGameRouteAppId(slug);
 
   if (routeAppId !== null) {
@@ -132,8 +141,8 @@ export async function generateMetadata({
     );
     const title = storeMetadata?.name ?? `Steam App ${routeAppId}`;
     return {
-      title: `${title} Statistics — StatRealm`,
-      description: `Explore achievements, playtime, community statistics, and leaderboards for ${title}.`,
+      title: t("gameDetailsTitle", { title }),
+      description: t("gameDetailsDescription", { title }),
     };
   }
 
@@ -144,17 +153,30 @@ export async function generateMetadata({
       .split("-")
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(" ");
-    return { title: `${title} Statistics — StatRealm` };
+    return { title: t("gameDetailsTitle", { title }) };
   }
 
   return {
-    title: `${details.game.title} Statistics — StatRealm`,
-    description: `Explore achievements, playtime, community statistics, and leaderboards for ${details.game.title}.`,
+    title: t("gameDetailsTitle", { title: details.game.title }),
+    description: t("gameDetailsDescription", { title: details.game.title }),
   };
 }
 
 export default async function GamePage({ params }: GamePageProps) {
-  const { slug: routeParam } = await params;
+  const { locale, slug: routeParam } = await params;
+  setRequestLocale(locale);
+
+  const [tGameDetails, tCommon, tDashboard, tGameMetrics, tCommunityMetrics] =
+    await Promise.all([
+      getTranslations("gameDetails"),
+      getTranslations("common"),
+      getTranslations("dashboard"),
+      getTranslations("gameDetailsMetrics"),
+      getTranslations("communityMetrics"),
+    ]);
+  const formatters = createIntlFormatters(tCommon, tDashboard);
+  const unavailable = tCommon("unavailable");
+
   const session = await auth();
   const isAuthenticated = Boolean(session?.user?.steamId);
   const steamId = session?.user?.steamId;
@@ -262,7 +284,10 @@ export default async function GamePage({ params }: GamePageProps) {
         )
       : Promise.resolve(null),
     gameAppId !== null
-      ? getGameDbCommunitySnapshot(gameAppId)
+      ? getGameDbCommunitySnapshot(gameAppId, {
+          unavailable,
+          formatPlaytime: formatters.formatPlaytime,
+        })
       : Promise.resolve({
           ownerCount: 0,
           averagePlaytimeMinutes: null,
@@ -271,7 +296,9 @@ export default async function GamePage({ params }: GamePageProps) {
           leaderboard: [],
         }),
     isAuthenticated && steamId && gameAppId !== null
-      ? getUserGamePosition(gameAppId, steamId)
+      ? getUserGamePosition(gameAppId, steamId, {
+          formatPlaytime: formatters.formatPlaytime,
+        })
       : Promise.resolve(null),
   ]);
 
@@ -293,19 +320,31 @@ export default async function GamePage({ params }: GamePageProps) {
     perfectGamesCount: gameDbCommunity.perfectGamesCount,
     achievementTotal,
     steamReviewPercentage,
+    tMetrics: tGameMetrics,
+    tCommon,
   });
   const communityStatistics = buildStatRealmCommunityStatisticsFromDb({
     ownerCount: gameDbCommunity.ownerCount,
     averagePlaytimeMinutes: gameDbCommunity.averagePlaytimeMinutes,
     averageCompletion: gameDbCommunity.averageCompletion,
+    tMetrics: tCommunityMetrics,
+    tCommon,
   });
   const completionPercentage = ownedGame
     ? (syncedGame?.completionPercentage ?? null)
     : null;
   const personalizedDetails: GameDetails = {
     ...details,
-    developer: storeMetadata?.developer ?? UNKNOWN_DEVELOPER,
-    releaseYear: storeMetadata?.releaseYear ?? UNKNOWN_RELEASE_YEAR,
+    developer:
+      !storeMetadata?.developer ||
+      storeMetadata.developer === UNKNOWN_DEVELOPER
+        ? tGameDetails("unknownDeveloper")
+        : storeMetadata.developer,
+    releaseYear:
+      storeMetadata?.releaseYear === undefined ||
+      storeMetadata.releaseYear === UNKNOWN_RELEASE_YEAR
+        ? tGameDetails("unknownReleaseYear")
+        : storeMetadata.releaseYear,
     reviewScore: storeMetadata?.reviewScore ?? UNAVAILABLE_REVIEWS,
     statistics: gameStatistics,
     communityStatistics,
@@ -315,7 +354,7 @@ export default async function GamePage({ params }: GamePageProps) {
       name: achievement.name,
       description: achievement.description,
       isUnlocked: achievement.isUnlocked,
-      unlockedAt: formatUnlockDate(achievement.unlockTime),
+      unlockedAt: formatUnlockDate(achievement.unlockTime, locale),
       globalUnlockPercentage: achievement.globalUnlockPercentage,
     })),
     leaderboard: gameDbCommunity.leaderboard,
@@ -325,22 +364,30 @@ export default async function GamePage({ params }: GamePageProps) {
       ? {
           playtime: formatSteamPlaytime(
             syncedGame?.playtimeMinutes ?? ownedGame.playtime_forever,
+            unavailable,
+            formatters.formatPlaytime,
           ),
           achievements:
             syncedGame &&
             syncedGame.achievementsUnlocked !== null &&
             syncedGame.achievementsTotal !== null &&
             completionPercentage !== null
-              ? `${syncedGame.achievementsUnlocked}/${syncedGame.achievementsTotal} (${completionPercentage}%)`
-              : "Unavailable",
+              ? tGameDetails("achievementsWithProgress", {
+                  unlocked: syncedGame.achievementsUnlocked,
+                  total: syncedGame.achievementsTotal,
+                  percentage: completionPercentage,
+                })
+              : unavailable,
         }
       : isAuthenticated
         ? {
-            playtime: "0h",
+            playtime: tCommon("hoursShort", { hours: 0 }),
             achievements:
               achievementTotal > 0
-                ? `0/${achievementTotal} (0%) · Not in your Steam library`
-                : "0/0 (0%) · Not in your Steam library",
+                ? tGameDetails("achievementsNotInLibrary", {
+                    total: achievementTotal,
+                  })
+                : tGameDetails("achievementsNotInLibraryNoTotal"),
           }
         : undefined;
   const resolvedAppId =
@@ -386,7 +433,7 @@ export default async function GamePage({ params }: GamePageProps) {
             href="/explore"
             className="inline-flex items-center text-sm font-medium text-white/60 transition hover:text-white"
           >
-            ← Back to Explore
+            {tGameDetails("backToExplore")}
           </Link>
 
           <div className="mt-6">
@@ -403,16 +450,16 @@ export default async function GamePage({ params }: GamePageProps) {
           <div className="mt-20 space-y-20">
             <section>
               <SectionHeading
-                eyebrow="Game Statistics"
-                title="Your realm at a glance"
+                eyebrow={tGameDetails("sections.gameStatisticsEyebrow")}
+                title={tGameDetails("sections.gameStatisticsTitle")}
               />
               <MetricGrid metrics={personalizedDetails.statistics} />
             </section>
 
             <section id="achievements" className="scroll-mt-8">
               <SectionHeading
-                eyebrow="Rarest Achievements"
-                title="Only the dedicated prevail"
+                eyebrow={tGameDetails("sections.rarestAchievementsEyebrow")}
+                title={tGameDetails("sections.rarestAchievementsTitle")}
               />
               <AchievementList
                 achievements={personalizedDetails.achievements}
@@ -424,16 +471,16 @@ export default async function GamePage({ params }: GamePageProps) {
 
             <section>
               <SectionHeading
-                eyebrow="Community Statistics"
-                title="How the community plays"
+                eyebrow={tGameDetails("sections.communityStatisticsEyebrow")}
+                title={tGameDetails("sections.communityStatisticsTitle")}
               />
               <MetricGrid metrics={personalizedDetails.communityStatistics} />
             </section>
 
             <section>
               <SectionHeading
-                eyebrow="Leaderboards"
-                title="Top 10 players"
+                eyebrow={tGameDetails("sections.leaderboardsEyebrow")}
+                title={tGameDetails("sections.leaderboardsTitle")}
               />
               <Leaderboard players={personalizedDetails.leaderboard} />
               <YourPosition
@@ -444,8 +491,8 @@ export default async function GamePage({ params }: GamePageProps) {
 
             <section className="pb-12">
               <SectionHeading
-                eyebrow="Similar Games"
-                title="Continue exploring"
+                eyebrow={tGameDetails("sections.similarGamesEyebrow")}
+                title={tGameDetails("sections.similarGamesTitle")}
               />
               <SimilarGames games={personalizedDetails.similarGames} />
             </section>

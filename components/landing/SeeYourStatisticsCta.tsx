@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { AuthRequiredModal } from "@/components/landing/AuthRequiredModal";
 import {
   PRIMARY_BUTTON_CLASSNAME,
   PrimaryButton,
 } from "@/components/PrimaryButton";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 type SeeYourStatisticsCtaProps = {
@@ -16,6 +17,7 @@ type SeeYourStatisticsCtaProps = {
 export function SeeYourStatisticsCta({
   isAuthenticated,
 }: SeeYourStatisticsCtaProps) {
+  const t = useTranslations("landing");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (isAuthenticated) {
@@ -24,7 +26,7 @@ export function SeeYourStatisticsCta({
         href="/dashboard"
         className={cn(PRIMARY_BUTTON_CLASSNAME, "mt-8 inline-block")}
       >
-        See Your Statistics
+        {t("seeYourStatistics")}
       </Link>
     );
   }
@@ -35,7 +37,7 @@ export function SeeYourStatisticsCta({
         className="mt-8"
         onClick={() => setIsModalOpen(true)}
       >
-        See Your Statistics
+        {t("seeYourStatistics")}
       </PrimaryButton>
       <AuthRequiredModal
         isOpen={isModalOpen}
