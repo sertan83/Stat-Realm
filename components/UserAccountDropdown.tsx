@@ -87,6 +87,14 @@ export function UserAccountDropdown({
           >
             {t("profile")}
           </Link>
+          <Link
+            href="/friends"
+            role="menuitem"
+            className={menuItemClassName}
+            onClick={() => setIsOpen(false)}
+          >
+            {t("friends")}
+          </Link>
           <div
             aria-hidden="true"
             className="my-1 border-t border-white/10"

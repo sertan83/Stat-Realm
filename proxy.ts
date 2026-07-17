@@ -37,18 +37,21 @@ function getLocalePrefix(pathname: string) {
   return "";
 }
 
-function isProtectedDashboardPath(pathname: string) {
+function isProtectedAuthPath(pathname: string) {
   const normalizedPath = stripLocalePrefix(pathname);
+
   return (
     normalizedPath === "/dashboard" ||
-    normalizedPath.startsWith("/dashboard/")
+    normalizedPath.startsWith("/dashboard/") ||
+    normalizedPath === "/friends" ||
+    normalizedPath.startsWith("/friends/")
   );
 }
 
 export const proxy = auth((request) => {
   const intlResponse = intlMiddleware(request);
 
-  if (!request.auth && isProtectedDashboardPath(request.nextUrl.pathname)) {
+  if (!request.auth && isProtectedAuthPath(request.nextUrl.pathname)) {
     const localePrefix = getLocalePrefix(request.nextUrl.pathname);
     return NextResponse.redirect(new URL(`${localePrefix}/`, request.url));
   }

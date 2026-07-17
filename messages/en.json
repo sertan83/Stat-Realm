@@ -13,6 +13,7 @@
   "nav": {
     "signInWithSteam": "Sign in With Steam",
     "profile": "Profile",
+    "friends": "Friends",
     "logOut": "Log Out",
     "accountMenu": "Account menu",
     "logoAlt": "StatRealm",
@@ -355,5 +356,31 @@
     "emptyNoFriendsDescription": "None of this player's Steam friends have public profiles visible to StatRealm.",
     "emptySearchTitle": "No friends matched your search",
     "emptySearchDescription": "Try a different name or clear the search box to see all public friends."
+  },
+  "friendsPage": {
+    "metadataTitle": "Friends — StatRealm",
+    "metadataDescription": "See which of your Steam friends have joined StatRealm.",
+    "title": "Friends",
+    "subtitle": "Steam friends who have signed into StatRealm at least once.",
+    "sectionLabel": "StatRealm friends",
+    "searchLabel": "Search friends",
+    "searchPlaceholder": "Search friends by name...",
+    "steamLevel": "Steam Level {level}",
+    "steamLevelUnavailable": "Steam Level —",
+    "totalPlaytime": "Total playtime",
+    "statusOnline": "Online",
+    "statusAway": "Away",
+    "statusOffline": "Offline",
+    "statusInGame": "In-Game · {game}",
+    "viewProfile": "View Profile",
+    "paginationSummary": "Showing {start}–{end} of {total}",
+    "emptyNoStatRealmFriendsTitle": "No StatRealm friends yet",
+    "emptyNoStatRealmFriendsDescription": "None of your Steam friends have joined StatRealm yet.",
+    "emptyPrivateTitle": "Friends list is private",
+    "emptyPrivateDescription": "Your Steam friends list is private, so StatRealm cannot compare it with registered users.",
+    "emptyUnavailableTitle": "Friends list unavailable",
+    "emptyUnavailableDescription": "We couldn't load your Steam friends right now. Please try again later.",
+    "emptySearchTitle": "No friends matched your search",
+    "emptySearchDescription": "Try a different name or clear the search box to see all StatRealm friends."
   }
 }

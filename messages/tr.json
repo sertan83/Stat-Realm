@@ -13,6 +13,7 @@
   "nav": {
     "signInWithSteam": "Steam ile Giriş Yap",
     "profile": "Profil",
+    "friends": "Arkadaşlar",
     "logOut": "Çıkış Yap",
     "accountMenu": "Hesap menüsü",
     "logoAlt": "StatRealm",
@@ -355,5 +356,31 @@
     "emptyNoFriendsDescription": "Bu oyuncunun Steam arkadaşlarından hiçbirinin StatRealm'de görünen herkese açık profili yok.",
     "emptySearchTitle": "Aramanla eşleşen arkadaş yok",
     "emptySearchDescription": "Farklı bir ad dene veya tüm herkese açık arkadaşları görmek için aramayı temizle."
+  },
+  "friendsPage": {
+    "metadataTitle": "Arkadaşlar — StatRealm",
+    "metadataDescription": "Steam arkadaşlarından hangilerinin StatRealm'e katıldığını gör.",
+    "title": "Arkadaşlar",
+    "subtitle": "StatRealm'e en az bir kez giriş yapmış Steam arkadaşların.",
+    "sectionLabel": "StatRealm arkadaşları",
+    "searchLabel": "Arkadaş ara",
+    "searchPlaceholder": "Arkadaş adına göre ara...",
+    "steamLevel": "Steam Seviyesi {level}",
+    "steamLevelUnavailable": "Steam Seviyesi —",
+    "totalPlaytime": "Toplam oynama süresi",
+    "statusOnline": "Çevrimiçi",
+    "statusAway": "Uzakta",
+    "statusOffline": "Çevrimdışı",
+    "statusInGame": "Oyunda · {game}",
+    "viewProfile": "Profili Görüntüle",
+    "paginationSummary": "{total} içinden {start}–{end} gösteriliyor",
+    "emptyNoStatRealmFriendsTitle": "Henüz StatRealm arkadaşın yok",
+    "emptyNoStatRealmFriendsDescription": "Steam arkadaşlarından hiçbiri henüz StatRealm'e katılmadı.",
+    "emptyPrivateTitle": "Arkadaş listesi gizli",
+    "emptyPrivateDescription": "Steam arkadaş listen gizli olduğu için StatRealm kayıtlı kullanıcılarla karşılaştıramıyor.",
+    "emptyUnavailableTitle": "Arkadaş listesi kullanılamıyor",
+    "emptyUnavailableDescription": "Steam arkadaşların şu anda yüklenemedi. Lütfen daha sonra tekrar dene.",
+    "emptySearchTitle": "Aramanla eşleşen arkadaş yok",
+    "emptySearchDescription": "Farklı bir ad dene veya tüm StatRealm arkadaşlarını görmek için aramayı temizle."
   }
 }

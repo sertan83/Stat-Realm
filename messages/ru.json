@@ -13,6 +13,7 @@
   "nav": {
     "signInWithSteam": "Войти через Steam",
     "profile": "Профиль",
+    "friends": "Друзья",
     "logOut": "Выйти",
     "accountMenu": "Меню аккаунта",
     "logoAlt": "StatRealm",
@@ -355,5 +356,31 @@
     "emptyNoFriendsDescription": "Ни у одного друга Steam этого игрока нет публичного профиля, видимого в StatRealm.",
     "emptySearchTitle": "Друзья по запросу не найдены",
     "emptySearchDescription": "Попробуйте другое имя или очистите поиск, чтобы увидеть всех публичных друзей."
+  },
+  "friendsPage": {
+    "metadataTitle": "Друзья — StatRealm",
+    "metadataDescription": "Посмотрите, какие из ваших друзей Steam присоединились к StatRealm.",
+    "title": "Друзья",
+    "subtitle": "Друзья Steam, которые хотя бы раз входили в StatRealm.",
+    "sectionLabel": "Друзья StatRealm",
+    "searchLabel": "Поиск друзей",
+    "searchPlaceholder": "Поиск друзей по имени...",
+    "steamLevel": "Уровень Steam {level}",
+    "steamLevelUnavailable": "Уровень Steam —",
+    "totalPlaytime": "Общее время в игре",
+    "statusOnline": "В сети",
+    "statusAway": "Отошёл",
+    "statusOffline": "Не в сети",
+    "statusInGame": "В игре · {game}",
+    "viewProfile": "Открыть профиль",
+    "paginationSummary": "Показано {start}–{end} из {total}",
+    "emptyNoStatRealmFriendsTitle": "Пока нет друзей в StatRealm",
+    "emptyNoStatRealmFriendsDescription": "Ни один из ваших друзей Steam ещё не присоединился к StatRealm.",
+    "emptyPrivateTitle": "Список друзей скрыт",
+    "emptyPrivateDescription": "Ваш список друзей Steam скрыт, поэтому StatRealm не может сравнить его с зарегистрированными пользователями.",
+    "emptyUnavailableTitle": "Список друзей недоступен",
+    "emptyUnavailableDescription": "Сейчас не удалось загрузить ваших друзей Steam. Попробуйте позже.",
+    "emptySearchTitle": "Друзья по запросу не найдены",
+    "emptySearchDescription": "Попробуйте другое имя или очистите поиск, чтобы увидеть всех друзей StatRealm."
   }
 }

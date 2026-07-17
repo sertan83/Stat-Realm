@@ -40,13 +40,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function parsePlayerSummary(rawProfile: unknown): PublicSteamFriend | null {
+function parsePlayerSummary(
+  rawProfile: unknown,
+  options?: { requirePublicProfile?: boolean },
+): PublicSteamFriend | null {
   if (!isRecord(rawProfile) || typeof rawProfile.steamid !== "string") {
     return null;
   }
 
   const visibility = rawProfile.communityvisibilitystate;
-  if (visibility !== 3) {
+  if (options?.requirePublicProfile !== false && visibility !== 3) {
     return null;
   }
 
@@ -163,8 +166,9 @@ async function fetchFriendSteamIds(steamId: string) {
   }
 }
 
-async function fetchPublicFriendSummaries(
+async function fetchFriendSummaries(
   steamIds: string[],
+  options?: { requirePublicProfile?: boolean },
 ): Promise<PublicSteamFriend[]> {
   const friends: PublicSteamFriend[] = [];
 
@@ -183,7 +187,7 @@ async function fetchPublicFriendSummaries(
       const players = data.response?.players ?? [];
 
       for (const rawProfile of players) {
-        const parsed = parsePlayerSummary(rawProfile);
+        const parsed = parsePlayerSummary(rawProfile, options);
         if (parsed) {
           friends.push(parsed);
         }
@@ -197,6 +201,12 @@ async function fetchPublicFriendSummaries(
   }
 
   return friends;
+}
+
+async function fetchPublicFriendSummaries(
+  steamIds: string[],
+): Promise<PublicSteamFriend[]> {
+  return fetchFriendSummaries(steamIds, { requirePublicProfile: true });
 }
 
 async function attachSteamLevels(friends: PublicSteamFriend[]) {
@@ -244,4 +254,38 @@ export async function getPublicSteamFriends(steamId: string): Promise<{
   }
 
   return { status: "available", friends };
+}
+
+export async function getSteamFriendSummaries(
+  steamIds: string[],
+): Promise<PublicSteamFriend[]> {
+  if (steamIds.length === 0) {
+    return [];
+  }
+
+  const friends = await fetchFriendSummaries(steamIds, {
+    requirePublicProfile: false,
+  });
+
+  if (friends.length > 0) {
+    await attachSteamLevels(friends);
+  }
+
+  return friends;
+}
+
+export async function getSteamFriendsList(steamId: string): Promise<{
+  status: SteamFriendListStatus;
+  steamIds: string[];
+}> {
+  if (!STEAM_ID_PATTERN.test(steamId)) {
+    return { status: "unavailable", steamIds: [] };
+  }
+
+  const friendList = await fetchFriendSteamIds(steamId);
+
+  return {
+    status: friendList.status,
+    steamIds: friendList.steamIds,
+  };
 }

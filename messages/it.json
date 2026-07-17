@@ -13,6 +13,7 @@
   "nav": {
     "signInWithSteam": "Accedi con Steam",
     "profile": "Profilo",
+    "friends": "Amici",
     "logOut": "Esci",
     "accountMenu": "Menu account",
     "logoAlt": "StatRealm",
@@ -355,5 +356,31 @@
     "emptyNoFriendsDescription": "Nessuno degli amici Steam di questo giocatore ha un profilo pubblico visibile su StatRealm.",
     "emptySearchTitle": "Nessun amico corrisponde alla ricerca",
     "emptySearchDescription": "Prova un nome diverso o cancella la ricerca per vedere tutti gli amici pubblici."
+  },
+  "friendsPage": {
+    "metadataTitle": "Amici — StatRealm",
+    "metadataDescription": "Scopri quali dei tuoi amici Steam si sono uniti a StatRealm.",
+    "title": "Amici",
+    "subtitle": "Amici Steam che hanno effettuato l'accesso a StatRealm almeno una volta.",
+    "sectionLabel": "Amici StatRealm",
+    "searchLabel": "Cerca amici",
+    "searchPlaceholder": "Cerca amici per nome...",
+    "steamLevel": "Livello Steam {level}",
+    "steamLevelUnavailable": "Livello Steam —",
+    "totalPlaytime": "Tempo di gioco totale",
+    "statusOnline": "Online",
+    "statusAway": "Assente",
+    "statusOffline": "Offline",
+    "statusInGame": "In gioco · {game}",
+    "viewProfile": "Vedi profilo",
+    "paginationSummary": "Visualizzati {start}–{end} di {total}",
+    "emptyNoStatRealmFriendsTitle": "Nessun amico su StatRealm",
+    "emptyNoStatRealmFriendsDescription": "Nessuno dei tuoi amici Steam si è ancora unito a StatRealm.",
+    "emptyPrivateTitle": "Lista amici privata",
+    "emptyPrivateDescription": "La tua lista amici Steam è privata, quindi StatRealm non può confrontarla con gli utenti registrati.",
+    "emptyUnavailableTitle": "Lista amici non disponibile",
+    "emptyUnavailableDescription": "Non siamo riusciti a caricare i tuoi amici Steam in questo momento. Riprova più tardi.",
+    "emptySearchTitle": "Nessun amico corrisponde alla ricerca",
+    "emptySearchDescription": "Prova un nome diverso o cancella la ricerca per vedere tutti gli amici StatRealm."
   }
 }

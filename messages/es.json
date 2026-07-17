@@ -13,6 +13,7 @@
   "nav": {
     "signInWithSteam": "Iniciar sesión con Steam",
     "profile": "Perfil",
+    "friends": "Amigos",
     "logOut": "Cerrar sesión",
     "accountMenu": "Menú de cuenta",
     "logoAlt": "StatRealm",
@@ -355,5 +356,31 @@
     "emptyNoFriendsDescription": "Ninguno de los amigos de Steam de este jugador tiene un perfil público visible en StatRealm.",
     "emptySearchTitle": "Ningún amigo coincide con tu búsqueda",
     "emptySearchDescription": "Prueba con otro nombre o borra la búsqueda para ver todos los amigos públicos."
+  },
+  "friendsPage": {
+    "metadataTitle": "Amigos — StatRealm",
+    "metadataDescription": "Mira cuáles de tus amigos de Steam se han unido a StatRealm.",
+    "title": "Amigos",
+    "subtitle": "Amigos de Steam que han iniciado sesión en StatRealm al menos una vez.",
+    "sectionLabel": "Amigos de StatRealm",
+    "searchLabel": "Buscar amigos",
+    "searchPlaceholder": "Buscar amigos por nombre...",
+    "steamLevel": "Nivel de Steam {level}",
+    "steamLevelUnavailable": "Nivel de Steam —",
+    "totalPlaytime": "Tiempo de juego total",
+    "statusOnline": "En línea",
+    "statusAway": "Ausente",
+    "statusOffline": "Desconectado",
+    "statusInGame": "En juego · {game}",
+    "viewProfile": "Ver perfil",
+    "paginationSummary": "Mostrando {start}–{end} de {total}",
+    "emptyNoStatRealmFriendsTitle": "Aún no hay amigos en StatRealm",
+    "emptyNoStatRealmFriendsDescription": "Ninguno de tus amigos de Steam se ha unido a StatRealm todavía.",
+    "emptyPrivateTitle": "La lista de amigos es privada",
+    "emptyPrivateDescription": "Tu lista de amigos de Steam es privada, por lo que StatRealm no puede compararla con usuarios registrados.",
+    "emptyUnavailableTitle": "Lista de amigos no disponible",
+    "emptyUnavailableDescription": "No pudimos cargar tus amigos de Steam en este momento. Inténtalo de nuevo más tarde.",
+    "emptySearchTitle": "Ningún amigo coincide con tu búsqueda",
+    "emptySearchDescription": "Prueba con otro nombre o borra la búsqueda para ver todos los amigos de StatRealm."
   }
 }
