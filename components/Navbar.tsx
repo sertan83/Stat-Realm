@@ -2,6 +2,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { signInWithSteam } from "@/app/actions/auth";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { NavbarFrame } from "@/components/NavbarFrame";
 import { UserAccountDropdown } from "@/components/UserAccountDropdown";
 import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
@@ -10,7 +11,7 @@ export async function Navbar() {
   const [session, t] = await Promise.all([auth(), getTranslations("nav")]);
 
   return (
-    <header className="relative z-10 bg-[#8C2F2F]">
+    <NavbarFrame>
       <div className="flex h-[55px] w-full items-center justify-between pl-4 pr-4">
         <Link href="/" className="shrink-0">
           <div className="relative flex h-[55px] w-[220px] items-center">
@@ -52,6 +53,6 @@ export async function Navbar() {
           )}
         </div>
       </div>
-    </header>
+    </NavbarFrame>
   );
 }
