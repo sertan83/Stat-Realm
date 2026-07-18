@@ -26,7 +26,7 @@ export const rankedGames: Game[] = rankedGameData.map(
     const slug = slugifyGameName(title);
 
     return {
-      id: `ranked-${slug}`,
+      id: steamAppId,
       title,
       slug,
       imageUrl: `https://cdn.cloudflare.steamstatic.com/steam/apps/${steamAppId}/header.jpg`,

@@ -38,12 +38,23 @@ export type LandingRecentPlayer = {
   isOnline: boolean;
 };
 
+export type RankedCommunityGame = {
+  appId: number;
+  name: string;
+};
+
 export async function getCommunityRankings() {
   const aggregates = await readCommunityAggregates();
 
   return {
-    mostPlayedGames: aggregates.mostPlayed.map((game) => game.name),
-    mostOwnedGames: aggregates.mostOwned.map((game) => game.name),
+    mostPlayedGames: aggregates.mostPlayed.map((game) => ({
+      appId: game.appId,
+      name: game.name,
+    })),
+    mostOwnedGames: aggregates.mostOwned.map((game) => ({
+      appId: game.appId,
+      name: game.name,
+    })),
   };
 }
 
@@ -131,8 +142,14 @@ export async function getCommunityLandingData() {
   ]);
 
   return {
-    mostPlayedGames: aggregates.mostPlayed.map((game) => game.name),
-    mostOwnedGames: aggregates.mostOwned.map((game) => game.name),
+    mostPlayedGames: aggregates.mostPlayed.map((game) => ({
+      appId: game.appId,
+      name: game.name,
+    })),
+    mostOwnedGames: aggregates.mostOwned.map((game) => ({
+      appId: game.appId,
+      name: game.name,
+    })),
     registeredUserCount,
     communityLeaderboard,
     recentPlayer,

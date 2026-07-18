@@ -1,12 +1,12 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
+import type { RankedCommunityGame } from "@/lib/community/rankings";
 import { cn } from "@/lib/utils";
-import { slugifyGameName } from "@/lib/slugify-game-name";
 
 type GameRankPanelProps = {
   title: string;
-  games: string[];
+  games: RankedCommunityGame[];
   className?: string;
 };
 
@@ -25,17 +25,17 @@ export function GameRankPanel({ title, games, className }: GameRankPanelProps) {
       <ol className="mt-3 flex flex-1 flex-col justify-between gap-0.5">
         {games.map((game, index) => (
           <li
-            key={game}
+            key={game.appId}
             className="truncate rounded-md text-xs text-white/75 sm:text-sm"
           >
             <Link
-              href={`/game/${slugifyGameName(game)}`}
+              href={`/game/${game.appId}`}
               className="block truncate rounded-md px-2 py-1 transition duration-[250ms] hover:scale-[1.02] hover:bg-white/5 hover:text-white"
             >
               <span className="mr-1.5 font-medium text-white/45">
                 {index + 1}.
               </span>
-              {game}
+              {game.name}
             </Link>
           </li>
         ))}

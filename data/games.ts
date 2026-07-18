@@ -2,7 +2,7 @@ import type { Game } from "@/types/game";
 
 export const featuredGames: Game[] = [
   {
-    id: "elden-ring",
+    id: "1245620",
     title: "Elden Ring",
     slug: "elden-ring",
     imageUrl:
@@ -10,7 +10,7 @@ export const featuredGames: Game[] = [
     category: "Action RPG",
   },
   {
-    id: "cyberpunk-2077",
+    id: "1091500",
     title: "Cyberpunk 2077",
     slug: "cyberpunk-2077",
     imageUrl:
@@ -18,7 +18,7 @@ export const featuredGames: Game[] = [
     category: "RPG",
   },
   {
-    id: "baldurs-gate-3",
+    id: "1086940",
     title: "Baldur's Gate 3",
     slug: "baldurs-gate-3",
     imageUrl:
@@ -26,7 +26,7 @@ export const featuredGames: Game[] = [
     category: "RPG",
   },
   {
-    id: "hades",
+    id: "1145360",
     title: "Hades",
     slug: "hades",
     imageUrl:
@@ -34,7 +34,7 @@ export const featuredGames: Game[] = [
     category: "Roguelike",
   },
   {
-    id: "red-dead-redemption-2",
+    id: "1174180",
     title: "Red Dead Redemption 2",
     slug: "red-dead-redemption-2",
     imageUrl:
@@ -42,7 +42,7 @@ export const featuredGames: Game[] = [
     category: "Action",
   },
   {
-    id: "the-witcher-3",
+    id: "292030",
     title: "The Witcher 3: Wild Hunt",
     slug: "the-witcher-3",
     imageUrl:
@@ -50,7 +50,7 @@ export const featuredGames: Game[] = [
     category: "RPG",
   },
   {
-    id: "portal-2",
+    id: "620",
     title: "Portal 2",
     slug: "portal-2",
     imageUrl:
@@ -58,7 +58,7 @@ export const featuredGames: Game[] = [
     category: "Puzzle",
   },
   {
-    id: "counter-strike-2",
+    id: "730",
     title: "Counter-Strike 2",
     slug: "counter-strike-2",
     imageUrl:

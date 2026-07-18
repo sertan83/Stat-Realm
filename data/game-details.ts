@@ -5,6 +5,7 @@ import {
   UNKNOWN_RELEASE_YEAR,
   UNAVAILABLE_REVIEWS,
 } from "@/lib/steam/store-metadata-labels";
+import { getSteamAppIdFromImage } from "@/lib/steam/api";
 import { slugifyGameName } from "@/lib/slugify-game-name";
 import type { GameDetails, LeaderboardPlayer } from "@/types/game-details";
 
@@ -72,7 +73,9 @@ const allDetailGames = [
   ),
 ];
 
-export const gameDetailSlugs = allDetailGames.map((game) => game.slug);
+export const gameDetailAppIds = allDetailGames
+  .map((game) => getSteamAppIdFromImage(game.imageUrl))
+  .filter((appId): appId is number => appId !== null);
 
 export function createGameDetails(
   game: (typeof allDetailGames)[number],

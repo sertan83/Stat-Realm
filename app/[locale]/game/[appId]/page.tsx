@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
 import { Navbar } from "@/components/Navbar";
@@ -10,15 +11,13 @@ import { YourPosition } from "@/components/game-details/YourPosition";
 import { MetricGrid } from "@/components/game-details/MetricGrid";
 import { SectionHeading } from "@/components/game-details/SectionHeading";
 import { SimilarGames } from "@/components/game-details/SimilarGames";
-import { Link } from "@/i18n/navigation";
-import {
-  createGameDetailsFromAppId,
-  createGameDetailsFromSlug,
-  gameDetailSlugs,
-  getGameDetails,
-} from "@/data/game-details";
+import { getPathname, Link } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
+import { createGameDetailsFromAppId, gameDetailAppIds } from "@/data/game-details";
 import { getUserLibrary } from "@/lib/db";
 import { getGameDbCommunitySnapshot, getUserGamePosition } from "@/lib/game-details/db-community";
+import { resolveSlugToAppId } from "@/lib/game-details/resolve-slug-to-app-id";
+import { parseGameRouteAppId } from "@/lib/game-details/route-param";
 import {
   buildStatRealmCommunityStatisticsFromDb,
   buildStatRealmGameStatisticsFromDb,
@@ -26,42 +25,59 @@ import {
 import { createIntlFormatters, formatPlaytimeMinutes } from "@/lib/i18n/formatters";
 import { loadGameReviewsPage } from "@/lib/reviews/game-reviews";
 import { parseGameReviewsQuery } from "@/lib/reviews/query-params";
-import { parseGameRouteAppId } from "@/lib/game-details/route-param";
-import { slugifyGameName } from "@/lib/slugify-game-name";
 import {
   getAuthenticatedSteamProfile,
   getOwnedGames,
-  getSteamAppIdFromImage,
 } from "@/lib/steam/api";
 import { getGameAchievementsForDetails } from "@/lib/steam/game-achievements";
 import { syncUserSteamLibrary } from "@/lib/steam/library-sync";
 import {
   buildSteamBannerImageCandidates,
   buildSteamCoverImageCandidates,
-  getDefaultGameImageCandidates,
   resolveCapsuleFilenameForApp,
 } from "@/lib/steam/game-images";
 import { getCachedStoreAppRecord } from "@/lib/steam/store-app-cache";
-import {
-  getSteamStoreAppDetails,
-} from "@/lib/steam/store-app-details";
+import { getSteamStoreAppDetails } from "@/lib/steam/store-app-details";
 import {
   UNKNOWN_DEVELOPER,
   UNKNOWN_RELEASE_YEAR,
   UNAVAILABLE_REVIEWS,
 } from "@/lib/steam/store-metadata-labels";
 import { withPromiseTimeout } from "@/lib/utils/promise-timeout";
-import { routing } from "@/i18n/routing";
 import type { GameDetails } from "@/types/game-details";
 
 type GamePageProps = {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; appId: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+function buildSearchQueryString(
+  searchParams: Record<string, string | string[] | undefined>,
+) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (typeof value === "string") {
+      params.set(key, value);
+      continue;
+    }
+
+    if (Array.isArray(value)) {
+      for (const entry of value) {
+        params.append(key, entry);
+      }
+    }
+  }
+
+  return params.toString();
+}
+
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
-    gameDetailSlugs.map((slug) => ({ locale, slug })),
+    gameDetailAppIds.map((appId) => ({
+      locale,
+      appId: String(appId),
+    })),
   );
 }
 
@@ -112,65 +128,63 @@ function formatUnlockDate(value: unknown, locale: string) {
   }).format(date);
 }
 
-function resolveLegacySlugDetails(slug: string): {
-  details: GameDetails;
-  appId: number | null;
-} {
-  const staticDetails = getGameDetails(slug);
-
-  if (staticDetails) {
-    return {
-      details: staticDetails,
-      appId: getSteamAppIdFromImage(staticDetails.game.imageUrl),
-    };
+async function resolveRouteAppId(routeParam: string) {
+  const routeAppId = parseGameRouteAppId(routeParam);
+  if (routeAppId !== null) {
+    return routeAppId;
   }
 
-  return {
-    details: createGameDetailsFromSlug(slug),
-    appId: null,
-  };
+  return resolveSlugToAppId(routeParam);
 }
 
 export async function generateMetadata({
   params,
 }: GamePageProps): Promise<Metadata> {
-  const { locale, slug } = await params;
+  const { locale, appId: routeParam } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
-  const routeAppId = parseGameRouteAppId(slug);
+  const routeAppId = await resolveRouteAppId(routeParam);
 
-  if (routeAppId !== null) {
-    const storeMetadata = await withPromiseTimeout(
-      getSteamStoreAppDetails(routeAppId).catch(() => null),
-      null,
-    );
-    const title = storeMetadata?.name ?? `Steam App ${routeAppId}`;
-    return {
-      title: t("gameDetailsTitle", { title }),
-      description: t("gameDetailsDescription", { title }),
-    };
+  if (routeAppId === null) {
+    return { title: t("gameDetailsTitle", { title: "Steam Game" }) };
   }
 
-  const details = getGameDetails(slug);
-
-  if (!details) {
-    const title = slug
-      .split("-")
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(" ");
-    return { title: t("gameDetailsTitle", { title }) };
-  }
+  const storeMetadata = await withPromiseTimeout(
+    getSteamStoreAppDetails(routeAppId).catch(() => null),
+    null,
+  );
+  const title = storeMetadata?.name ?? `Steam App ${routeAppId}`;
 
   return {
-    title: t("gameDetailsTitle", { title: details.game.title }),
-    description: t("gameDetailsDescription", { title: details.game.title }),
+    title: t("gameDetailsTitle", { title }),
+    description: t("gameDetailsDescription", { title }),
   };
 }
 
 export default async function GamePage({ params, searchParams }: GamePageProps) {
-  const { locale, slug: routeParam } = await params;
+  const { locale, appId: routeParam } = await params;
   const resolvedSearchParams = await searchParams;
   const reviewsQuery = parseGameReviewsQuery(resolvedSearchParams);
   setRequestLocale(locale);
+
+  let routeAppId = parseGameRouteAppId(routeParam);
+
+  if (routeAppId === null) {
+    const resolvedAppId = await resolveSlugToAppId(routeParam);
+
+    if (resolvedAppId === null) {
+      notFound();
+    }
+
+    const queryString = buildSearchQueryString(resolvedSearchParams);
+    const targetPath = getPathname({
+      locale,
+      href: `/game/${resolvedAppId}`,
+    });
+
+    permanentRedirect(
+      queryString ? `${targetPath}?${queryString}` : targetPath,
+    );
+  }
 
   const [tGameDetails, tCommon, tDashboard, tGameMetrics, tCommunityMetrics] =
     await Promise.all([
@@ -186,7 +200,6 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
   const session = await auth();
   const isAuthenticated = Boolean(session?.user?.steamId);
   const steamId = session?.user?.steamId;
-  const routeAppId = parseGameRouteAppId(routeParam);
 
   let ownedGames: Awaited<ReturnType<typeof getOwnedGames>> = [];
 
@@ -197,43 +210,11 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
     );
   }
 
-  let gameAppId: number | null = routeAppId;
-  let details: GameDetails;
-
-  if (routeAppId !== null) {
-    const ownedName = ownedGames.find(
-      (game) => toValidAppId(game.appid) === routeAppId,
-    )?.name;
-    const storeMetadata = await withPromiseTimeout(
-      getSteamStoreAppDetails(routeAppId).catch(() => null),
-      null,
-    );
-    const gameName =
-      storeMetadata?.name ??
-      (typeof ownedName === "string" && ownedName.trim()
-        ? ownedName.trim()
-        : `Steam App ${routeAppId}`);
-
-    details = createGameDetailsFromAppId(routeAppId, gameName);
-  } else {
-    const legacy = resolveLegacySlugDetails(routeParam);
-    details = legacy.details;
-    gameAppId = legacy.appId;
-  }
-
-  const ownedGame =
-    gameAppId !== null
-      ? ownedGames.find((game) => toValidAppId(game.appid) === gameAppId)
-      : ownedGames.find(
-          (game) =>
-            typeof game.name === "string" &&
-            slugifyGameName(game.name) === routeParam,
-        );
-  const ownedGameAppId = toValidAppId(ownedGame?.appid) ?? gameAppId;
-
-  if (ownedGameAppId !== null) {
-    gameAppId = ownedGameAppId;
-  }
+  const ownedGame = ownedGames.find(
+    (game) => toValidAppId(game.appid) === routeAppId,
+  );
+  const ownedGameAppId = toValidAppId(ownedGame?.appid) ?? routeAppId;
+  const gameAppId = ownedGameAppId;
 
   const profile =
     isAuthenticated && steamId && ownedGame
@@ -259,54 +240,49 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
   const syncedLibrary =
     isAuthenticated && steamId ? await getUserLibrary(steamId) : [];
   const syncedGame =
-    ownedGameAppId !== null
-      ? syncedLibrary.find((game) => game.appId === ownedGameAppId)
+    gameAppId !== null
+      ? syncedLibrary.find((game) => game.appId === gameAppId)
       : undefined;
+
+  const ownedName = ownedGame?.name;
+  const storeMetadataPromise = withPromiseTimeout(
+    getSteamStoreAppDetails(gameAppId).catch(() => null),
+    null,
+  );
 
   const [achievementDetails, storeMetadata, gameDbCommunity, userGamePosition] =
     await Promise.all([
-    gameAppId !== null
-      ? withPromiseTimeout(
-          getGameAchievementsForDetails(gameAppId, {
-            steamId,
-            ownsGame: Boolean(ownedGame),
-          }),
-          {
-            achievements: [],
-            dataSource: "global" as const,
-            status: "unavailable" as const,
-          },
-          20_000,
-        )
-      : Promise.resolve({
+      withPromiseTimeout(
+        getGameAchievementsForDetails(gameAppId, {
+          steamId,
+          ownsGame: Boolean(ownedGame),
+        }),
+        {
           achievements: [],
           dataSource: "global" as const,
           status: "unavailable" as const,
-        }),
-    gameAppId !== null
-      ? withPromiseTimeout(
-          getSteamStoreAppDetails(gameAppId).catch(() => null),
-          null,
-        )
-      : Promise.resolve(null),
-    gameAppId !== null
-      ? getGameDbCommunitySnapshot(gameAppId, {
-          unavailable,
-          formatPlaytime: formatters.formatPlaytime,
-        })
-      : Promise.resolve({
-          ownerCount: 0,
-          averagePlaytimeMinutes: null,
-          averageCompletion: null,
-          perfectGamesCount: 0,
-          leaderboard: [],
-        }),
-    isAuthenticated && steamId && gameAppId !== null
-      ? getUserGamePosition(gameAppId, steamId, {
-          formatPlaytime: formatters.formatPlaytime,
-        })
-      : Promise.resolve(null),
-  ]);
+        },
+        20_000,
+      ),
+      storeMetadataPromise,
+      getGameDbCommunitySnapshot(gameAppId, {
+        unavailable,
+        formatPlaytime: formatters.formatPlaytime,
+      }),
+      isAuthenticated && steamId
+        ? getUserGamePosition(gameAppId, steamId, {
+            formatPlaytime: formatters.formatPlaytime,
+          })
+        : Promise.resolve(null),
+    ]);
+
+  const gameName =
+    storeMetadata?.name ??
+    (typeof ownedName === "string" && ownedName.trim()
+      ? ownedName.trim()
+      : `Steam App ${gameAppId}`);
+
+  const details: GameDetails = createGameDetailsFromAppId(gameAppId, gameName);
 
   const steamAchievements = achievementDetails.achievements;
   const achievementTotal =
@@ -396,56 +372,44 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
                 : tGameDetails("achievementsNotInLibraryNoTotal"),
           }
         : undefined;
-  const resolvedAppId =
-    gameAppId ?? getSteamAppIdFromImage(personalizedDetails.game.imageUrl);
-  const storeRecord =
-    resolvedAppId !== null ? getCachedStoreAppRecord(resolvedAppId) : null;
+  const storeRecord = getCachedStoreAppRecord(gameAppId);
   const resolvedCapsuleFilename = resolveCapsuleFilenameForApp({
     capsuleFilename: ownedGame?.capsule_filename,
     imageUrl: personalizedDetails.game.imageUrl,
     storeData: storeRecord?.data ?? null,
   });
-  const [bannerImageCandidates, coverImageCandidates] =
-    resolvedAppId !== null
-      ? await Promise.all([
-          buildSteamBannerImageCandidates(resolvedAppId, {
-            capsuleFilename: resolvedCapsuleFilename,
-            storeData: storeRecord?.data ?? null,
-          }),
-          buildSteamCoverImageCandidates(resolvedAppId, {
-            capsuleFilename: resolvedCapsuleFilename,
-            storeData: storeRecord?.data ?? null,
-          }),
-        ])
-      : [getDefaultGameImageCandidates(), getDefaultGameImageCandidates()];
+  const [bannerImageCandidates, coverImageCandidates] = await Promise.all([
+    buildSteamBannerImageCandidates(gameAppId, {
+      capsuleFilename: resolvedCapsuleFilename,
+      storeData: storeRecord?.data ?? null,
+    }),
+    buildSteamCoverImageCandidates(gameAppId, {
+      capsuleFilename: resolvedCapsuleFilename,
+      storeData: storeRecord?.data ?? null,
+    }),
+  ]);
 
-  if (resolvedAppId !== null) {
-    console.info("[Steam Game Details] Resolved by AppID", {
-      routeParam,
-      appId: resolvedAppId,
-      title: personalizedDetails.game.title,
-      capsuleFilename: resolvedCapsuleFilename ?? null,
-    });
-  }
+  console.info("[Steam Game Details] Resolved by AppID", {
+    routeParam,
+    appId: gameAppId,
+    title: personalizedDetails.game.title,
+    capsuleFilename: resolvedCapsuleFilename ?? null,
+  });
 
-  const reviewsData =
-    resolvedAppId !== null
-      ? await loadGameReviewsPage({
-          appId: resolvedAppId,
-          gameName: personalizedDetails.game.title,
-          page: reviewsQuery.page,
-          sort: reviewsQuery.sort,
-          filter: reviewsQuery.filter,
-          viewerSteamId: steamId ?? null,
-        })
-      : null;
+  const reviewsData = await loadGameReviewsPage({
+    appId: gameAppId,
+    gameName: personalizedDetails.game.title,
+    page: reviewsQuery.page,
+    sort: reviewsQuery.sort,
+    filter: reviewsQuery.filter,
+    viewerSteamId: steamId ?? null,
+  });
 
   return (
     <div className="min-h-screen text-white">
       <Navbar />
 
       <main className="relative overflow-hidden px-4 py-8 sm:px-6 lg:px-8">
-
         <div className="relative z-10 mx-auto w-full max-w-7xl">
           <Link
             href="/explore"
@@ -459,7 +423,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
               details={personalizedDetails}
               bannerImageCandidates={bannerImageCandidates}
               coverImageCandidates={coverImageCandidates}
-              gameAppId={resolvedAppId}
+              gameAppId={gameAppId}
               isAuthenticated={isAuthenticated}
               userProgress={userProgress}
             />
@@ -481,7 +445,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
               />
               <AchievementList
                 achievements={personalizedDetails.achievements}
-                gameSlug={personalizedDetails.game.slug}
+                gameSlug={String(gameAppId)}
                 status={achievementDetails.status}
                 dataSource={achievementDetails.dataSource}
               />
@@ -507,25 +471,23 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
               />
             </section>
 
-            {reviewsData && resolvedAppId !== null ? (
-              <section>
-                <SectionHeading
-                  eyebrow={tGameDetails("sections.reviewsEyebrow")}
-                  title={tGameDetails("sections.reviewsTitle")}
-                />
-                <GameReviewsSection
-                  appId={resolvedAppId}
-                  gameName={personalizedDetails.game.title}
-                  initialData={reviewsData}
-                  isAuthenticated={isAuthenticated}
-                  locale={locale}
-                  sort={reviewsQuery.sort}
-                  filter={reviewsQuery.filter}
-                  page={reviewsQuery.page}
-                  highlightReviewKey={reviewsQuery.highlightReview}
-                />
-              </section>
-            ) : null}
+            <section>
+              <SectionHeading
+                eyebrow={tGameDetails("sections.reviewsEyebrow")}
+                title={tGameDetails("sections.reviewsTitle")}
+              />
+              <GameReviewsSection
+                appId={gameAppId}
+                gameName={personalizedDetails.game.title}
+                initialData={reviewsData}
+                isAuthenticated={isAuthenticated}
+                locale={locale}
+                sort={reviewsQuery.sort}
+                filter={reviewsQuery.filter}
+                page={reviewsQuery.page}
+                highlightReviewKey={reviewsQuery.highlightReview}
+              />
+            </section>
 
             <section className="pb-12">
               <SectionHeading

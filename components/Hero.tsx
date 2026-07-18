@@ -16,14 +16,15 @@ import { Link } from "@/i18n/navigation";
 import type {
   CommunityLeaderboardPlayer,
   LandingRecentPlayer,
+  RankedCommunityGame,
 } from "@/lib/community/rankings";
 import type { LandingLatestReview } from "@/lib/reviews/latest-review";
 import { cn } from "@/lib/utils";
 
 type HeroProps = {
   className?: string;
-  mostPlayedGames?: string[];
-  mostOwnedGames?: string[];
+  mostPlayedGames?: RankedCommunityGame[];
+  mostOwnedGames?: RankedCommunityGame[];
   registeredUserCount?: number;
   communityLeaderboard?: CommunityLeaderboardPlayer[];
   recentPlayer?: LandingRecentPlayer | null;
