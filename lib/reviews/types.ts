@@ -61,11 +61,6 @@ export type UserProfileReviewsPage = {
   totalPages: number;
 };
 
-export type ReviewGameOption = {
-  appId: number;
-  gameName: string;
-};
-
 export type CommunityReviewEntry = GameReviewEntry & {
   gameHeaderImageUrl: string;
 };
@@ -76,6 +71,4 @@ export type CommunityReviewsPageData = {
   page: number;
   pageSize: number;
   totalPages: number;
-  selectedAppId: number | null;
-  gameOptions: ReviewGameOption[];
 };

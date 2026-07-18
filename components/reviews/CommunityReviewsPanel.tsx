@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { voteReviewHelpfulAction } from "@/app/actions/game-reviews";
-import { CommunityReviewsFilter } from "@/components/reviews/CommunityReviewsFilter";
 import { Link, useRouter } from "@/i18n/navigation";
 import { buildCommunityReviewsHref } from "@/lib/reviews/community-reviews-params";
 import type {
@@ -54,12 +53,8 @@ export function CommunityReviewsPanel({
     setReviews(data.reviews);
   }, [data.reviews]);
 
-  function navigate(next: { page?: number; selectedAppId?: number | null }) {
-    const href = buildCommunityReviewsHref({
-      page: next.page ?? data.page,
-      selectedAppId:
-        next.selectedAppId !== undefined ? next.selectedAppId : data.selectedAppId,
-    });
+  function navigate(page: number) {
+    const href = buildCommunityReviewsHref({ page });
 
     startTransition(() => {
       router.push(href);
@@ -91,12 +86,6 @@ export function CommunityReviewsPanel({
 
   return (
     <div className="space-y-8">
-      <CommunityReviewsFilter
-        gameOptions={data.gameOptions}
-        selectedAppId={data.selectedAppId}
-        onGameChange={(appId) => navigate({ page: 1, selectedAppId: appId })}
-      />
-
       {formError ? <p className="text-sm text-[#EFA5A8]">{formError}</p> : null}
 
       {data.totalReviews === 0 ? (
@@ -195,7 +184,7 @@ export function CommunityReviewsPanel({
             <button
               type="button"
               disabled={data.page <= 1 || isPending}
-              onClick={() => navigate({ page: data.page - 1 })}
+              onClick={() => navigate(data.page - 1)}
               className="inline-flex h-10 items-center rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-medium text-white/75 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t("previous")}
@@ -208,7 +197,7 @@ export function CommunityReviewsPanel({
             <button
               type="button"
               disabled={data.page >= data.totalPages || isPending}
-              onClick={() => navigate({ page: data.page + 1 })}
+              onClick={() => navigate(data.page + 1)}
               className={cn(
                 "inline-flex h-10 items-center rounded-lg border px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
                 "border-white/10 bg-white/5 text-white/75 hover:border-white/20 hover:text-white",

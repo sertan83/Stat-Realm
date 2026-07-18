@@ -3,7 +3,6 @@ import "server-only";
 import {
   createGameRatingKey,
   getAllGameReviewsWithText,
-  getAllRatingAggregates,
   getGameRatingAggregate,
   getHelpfulVoteCounts,
   getStatRealmUser,
@@ -12,7 +11,6 @@ import {
 import type {
   CommunityReviewEntry,
   CommunityReviewsPageData,
-  ReviewGameOption,
 } from "@/lib/reviews/types";
 import { getSteamBannerImageCandidates } from "@/lib/steam/game-images";
 
@@ -29,29 +27,12 @@ function buildGameHeaderImageUrl(appId: number) {
 
 export async function loadCommunityReviewsPage(input: {
   page?: number;
-  selectedAppId?: number | null;
   viewerSteamId?: string | null;
 }): Promise<CommunityReviewsPageData> {
   const page = Math.max(1, input.page ?? 1);
-  const selectedAppId = input.selectedAppId ?? null;
-  const [storedRatings, aggregates] = await Promise.all([
-    getAllGameReviewsWithText(),
-    getAllRatingAggregates(),
-  ]);
+  const storedRatings = await getAllGameReviewsWithText();
 
-  const gameOptions: ReviewGameOption[] = aggregates
-    .filter((aggregate) => aggregate.totalReviews > 0)
-    .map((aggregate) => ({
-      appId: aggregate.appId,
-      gameName: aggregate.gameName,
-    }))
-    .sort((first, second) => first.gameName.localeCompare(second.gameName));
-
-  const filteredRatings = selectedAppId
-    ? storedRatings.filter((rating) => rating.appId === selectedAppId)
-    : storedRatings;
-
-  const sortedRatings = [...filteredRatings].sort(
+  const sortedRatings = [...storedRatings].sort(
     (first, second) => Date.parse(second.createdAt) - Date.parse(first.createdAt),
   );
 
@@ -106,7 +87,5 @@ export async function loadCommunityReviewsPage(input: {
     page: currentPage,
     pageSize: REVIEWS_PER_PAGE,
     totalPages,
-    selectedAppId,
-    gameOptions,
   };
 }

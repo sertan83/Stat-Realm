@@ -460,10 +460,6 @@
   "reviewsPage": {
     "title": "Отзывы",
     "subtitle": "Просматривайте новейшие отзывы сообщества StatRealm.",
-    "gameFilterLabel": "Фильтр по игре",
-    "allGames": "Все игры",
-    "searchGameLabel": "Поиск игры",
-    "searchGamePlaceholder": "Поиск игры...",
     "empty": "Отзывов сообщества пока нет.",
     "previous": "Назад",
     "next": "Далее",

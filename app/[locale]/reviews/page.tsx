@@ -36,7 +36,6 @@ export default async function ReviewsPage({
   const [reviewsData, t] = await Promise.all([
     loadCommunityReviewsPage({
       page: query.page,
-      selectedAppId: query.selectedAppId,
       viewerSteamId: session?.user?.steamId ?? null,
     }),
     getTranslations("reviewsPage"),

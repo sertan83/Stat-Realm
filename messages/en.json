@@ -460,10 +460,6 @@
   "reviewsPage": {
     "title": "Reviews",
     "subtitle": "Browse the newest community reviews from StatRealm players.",
-    "gameFilterLabel": "Filter by game",
-    "allGames": "All Games",
-    "searchGameLabel": "Search game",
-    "searchGamePlaceholder": "Search game...",
     "empty": "No community reviews yet.",
     "previous": "Previous",
     "next": "Next",

@@ -460,10 +460,6 @@
   "reviewsPage": {
     "title": "Yorumlar",
     "subtitle": "StatRealm oyuncularının en yeni topluluk yorumlarını keşfet.",
-    "gameFilterLabel": "Oyuna göre filtrele",
-    "allGames": "Tüm Oyunlar",
-    "searchGameLabel": "Oyun ara",
-    "searchGamePlaceholder": "Oyun ara...",
     "empty": "Henüz topluluk yorumu yok.",
     "previous": "Önceki",
     "next": "Sonraki",
