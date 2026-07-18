@@ -80,7 +80,7 @@
     "achievementsTracked": "Achievements Tracked",
     "trackedPlayers": "Tracked Players",
     "dailySyncs": "Daily Syncs",
-    "steamPrivacyHint": "ℹ Game Details must be set to Public in your Steam Privacy Settings for StatRealm to display your games, achievements, and playtime.",
+    "steamPrivacyHint": "Game Details must be set to Public in your Steam Privacy Settings for StatRealm to display your games, achievements, and playtime.",
     "steamPrivacyLearnHow": "Learn how"
   },
   "footer": {

@@ -29,13 +29,18 @@ export function NavbarFrame({ children }: NavbarFrameProps) {
     <>
       <header
         className={cn(
-          "fixed top-0 right-0 left-0 z-40 transition-[background-color,backdrop-filter,box-shadow] duration-300 ease-out",
-          isScrolled
-            ? "bg-[#8C2F2F]/95 shadow-[0_4px_24px_rgba(0,0,0,0.18)] backdrop-blur-md"
-            : "bg-[#8C2F2F]",
+          "fixed top-0 right-0 left-0 z-40 transition-[background-color,backdrop-filter] duration-300 ease-out",
+          isScrolled ? "bg-[#8C2F2F]/75 backdrop-blur-md" : "bg-[#8C2F2F]",
         )}
       >
-        {children}
+        <div
+          className={cn(
+            "transition-opacity duration-300 ease-out",
+            isScrolled ? "opacity-75" : "opacity-100",
+          )}
+        >
+          {children}
+        </div>
       </header>
       <div aria-hidden="true" className={cn(NAVBAR_HEIGHT_CLASS, "shrink-0")} />
     </>

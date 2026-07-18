@@ -80,7 +80,7 @@
     "achievementsTracked": "Logros registrados",
     "trackedPlayers": "Jugadores registrados",
     "dailySyncs": "Sincronizaciones diarias",
-    "steamPrivacyHint": "ℹ Los \"Detalles del juego\" deben estar en Público en tu configuración de privacidad de Steam para que StatRealm muestre tus juegos, logros y tiempo de juego.",
+    "steamPrivacyHint": "Los \"Detalles del juego\" deben estar en Público en tu configuración de privacidad de Steam para que StatRealm muestre tus juegos, logros y tiempo de juego.",
     "steamPrivacyLearnHow": "Aprende cómo"
   },
   "footer": {

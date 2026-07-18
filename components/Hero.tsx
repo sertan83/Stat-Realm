@@ -61,13 +61,13 @@ export function Hero({
             {t("heroSubtitle")}
           </p>
 
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/45 sm:text-lg">
+          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-white/65 sm:text-xl">
             {t("steamPrivacyHint")}{" "}
             <a
               href="https://steamcommunity.com/my/edit/settings"
               target="_blank"
               rel="noreferrer"
-              className="font-medium text-[#EFA5A8] transition hover:text-white"
+              className="transition hover:underline hover:underline-offset-2"
             >
               {t("steamPrivacyLearnHow")}
             </a>
