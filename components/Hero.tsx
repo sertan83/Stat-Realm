@@ -123,12 +123,12 @@ export function Hero({
           </div>
 
           <div className="absolute top-0 right-4 hidden w-[220px] flex-col gap-3 min-[1700px]:flex">
-            <LatestReviewCard review={latestReview} />
             <GameRankPanel
               title={t("mostOwned")}
               games={mostOwnedGames}
               className="h-[380px]"
             />
+            <LatestReviewCard review={latestReview} />
           </div>
         </div>
 
