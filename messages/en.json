@@ -79,7 +79,11 @@
     "gamesSupported": "Games Supported",
     "achievementsTracked": "Achievements Tracked",
     "trackedPlayers": "Tracked Players",
-    "dailySyncs": "Daily Syncs"
+    "dailySyncs": "Daily Syncs",
+    "steamPrivacyTitle": "Steam Privacy Settings",
+    "steamPrivacyBody": "If your games, playtime, achievements, or statistics are missing, make sure your Steam \"Game Details\" privacy setting is set to Public.",
+    "steamPrivacyLearnHow": "Learn how →",
+    "steamPrivacyDismiss": "Dismiss Steam privacy notice"
   },
   "footer": {
     "followInstagram": "Follow us on Instagram",

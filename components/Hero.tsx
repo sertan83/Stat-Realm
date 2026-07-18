@@ -10,6 +10,7 @@ import { PlayersTrackedCard } from "@/components/PlayersTrackedCard";
 import { RecentPlayerCard } from "@/components/RecentPlayerCard";
 import { ScrollIndicator } from "@/components/ScrollIndicator";
 import { StatsRow } from "@/components/StatsRow";
+import { SteamPrivacyNotice } from "@/components/landing/SteamPrivacyNotice";
 import { featuredGames } from "@/data/games";
 import { Link } from "@/i18n/navigation";
 import type {
@@ -62,6 +63,10 @@ export function Hero({
           </p>
 
           <StatsRow stats={heroStats} className="mt-11" />
+        </div>
+
+        <div className="relative z-10 mx-auto mt-16 w-[calc(100%-2rem)] max-w-6xl">
+          <SteamPrivacyNotice />
         </div>
 
         <div className="relative mt-20 w-screen overflow-hidden">

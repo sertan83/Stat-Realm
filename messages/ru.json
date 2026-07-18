@@ -79,7 +79,11 @@
     "gamesSupported": "Поддерживаемых игр",
     "achievementsTracked": "Отслеживаемых достижений",
     "trackedPlayers": "Отслеживаемых игроков",
-    "dailySyncs": "Ежедневных синхронизаций"
+    "dailySyncs": "Ежедневных синхронизаций",
+    "steamPrivacyTitle": "Настройки конфиденциальности Steam",
+    "steamPrivacyBody": "Если ваши игры, время в игре, достижения или статистика не отображаются, убедитесь, что параметр конфиденциальности Steam «Сведения об игре» установлен на «Открытый».",
+    "steamPrivacyLearnHow": "Узнать как →",
+    "steamPrivacyDismiss": "Закрыть уведомление о конфиденциальности Steam"
   },
   "footer": {
     "followInstagram": "Подписывайтесь в Instagram",

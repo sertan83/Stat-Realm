@@ -79,7 +79,11 @@
     "gamesSupported": "Desteklenen Oyun",
     "achievementsTracked": "Takip Edilen Başarım",
     "trackedPlayers": "Takip Edilen Oyuncu",
-    "dailySyncs": "Günlük Senkronizasyon"
+    "dailySyncs": "Günlük Senkronizasyon",
+    "steamPrivacyTitle": "Steam Gizlilik Ayarları",
+    "steamPrivacyBody": "Oyunların, oynama süren, başarımların veya istatistiklerin eksikse Steam \"Oyun Ayrıntıları\" gizlilik ayarının Herkese Açık olduğundan emin ol.",
+    "steamPrivacyLearnHow": "Nasıl yapılır →",
+    "steamPrivacyDismiss": "Steam gizlilik bildirimini kapat"
   },
   "footer": {
     "followInstagram": "Instagram'da bizi takip et",

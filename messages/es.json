@@ -79,7 +79,11 @@
     "gamesSupported": "Juegos compatibles",
     "achievementsTracked": "Logros registrados",
     "trackedPlayers": "Jugadores registrados",
-    "dailySyncs": "Sincronizaciones diarias"
+    "dailySyncs": "Sincronizaciones diarias",
+    "steamPrivacyTitle": "Configuración de privacidad de Steam",
+    "steamPrivacyBody": "Si faltan tus juegos, tiempo de juego, logros o estadísticas, asegúrate de que la configuración de privacidad \"Detalles del juego\" de Steam esté en Público.",
+    "steamPrivacyLearnHow": "Aprende cómo →",
+    "steamPrivacyDismiss": "Descartar aviso de privacidad de Steam"
   },
   "footer": {
     "followInstagram": "Síguenos en Instagram",
