@@ -80,10 +80,8 @@
     "achievementsTracked": "Achievement monitorati",
     "trackedPlayers": "Giocatori monitorati",
     "dailySyncs": "Sincronizzazioni giornaliere",
-    "steamPrivacyTitle": "Impostazioni privacy Steam",
-    "steamPrivacyBody": "Se mancano i tuoi giochi, tempo di gioco, achievement o statistiche, assicurati che l'impostazione privacy \"Dettagli di gioco\" di Steam sia impostata su Pubblico.",
-    "steamPrivacyLearnHow": "Scopri come →",
-    "steamPrivacyDismiss": "Chiudi avviso privacy Steam"
+    "steamPrivacyHint": "ℹ I \"Dettagli di gioco\" devono essere impostati su Pubblico nelle impostazioni privacy di Steam affinché StatRealm mostri i tuoi giochi, achievement e tempo di gioco.",
+    "steamPrivacyLearnHow": "Scopri come"
   },
   "footer": {
     "followInstagram": "Seguici su Instagram",

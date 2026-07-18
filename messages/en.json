@@ -80,10 +80,8 @@
     "achievementsTracked": "Achievements Tracked",
     "trackedPlayers": "Tracked Players",
     "dailySyncs": "Daily Syncs",
-    "steamPrivacyTitle": "Steam Privacy Settings",
-    "steamPrivacyBody": "If your games, playtime, achievements, or statistics are missing, make sure your Steam \"Game Details\" privacy setting is set to Public.",
-    "steamPrivacyLearnHow": "Learn how →",
-    "steamPrivacyDismiss": "Dismiss Steam privacy notice"
+    "steamPrivacyHint": "ℹ Game Details must be set to Public in your Steam Privacy Settings for StatRealm to display your games, achievements, and playtime.",
+    "steamPrivacyLearnHow": "Learn how"
   },
   "footer": {
     "followInstagram": "Follow us on Instagram",

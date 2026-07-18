@@ -10,7 +10,6 @@ import { PlayersTrackedCard } from "@/components/PlayersTrackedCard";
 import { RecentPlayerCard } from "@/components/RecentPlayerCard";
 import { ScrollIndicator } from "@/components/ScrollIndicator";
 import { StatsRow } from "@/components/StatsRow";
-import { SteamPrivacyNotice } from "@/components/landing/SteamPrivacyNotice";
 import { featuredGames } from "@/data/games";
 import { Link } from "@/i18n/navigation";
 import type {
@@ -62,11 +61,19 @@ export function Hero({
             {t("heroSubtitle")}
           </p>
 
-          <StatsRow stats={heroStats} className="mt-11" />
-        </div>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/45 sm:text-lg">
+            {t("steamPrivacyHint")}{" "}
+            <a
+              href="https://steamcommunity.com/my/edit/settings"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-[#EFA5A8] transition hover:text-white"
+            >
+              {t("steamPrivacyLearnHow")}
+            </a>
+          </p>
 
-        <div className="relative z-10 mx-auto mt-16 w-[calc(100%-2rem)] max-w-6xl">
-          <SteamPrivacyNotice />
+          <StatsRow stats={heroStats} className="mt-11" />
         </div>
 
         <div className="relative mt-20 w-screen overflow-hidden">
