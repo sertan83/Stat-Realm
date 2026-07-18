@@ -80,50 +80,50 @@ export function Hero({
           <StatsRow stats={heroStats} className="mt-11" />
         </div>
 
-        <div className="relative mt-20 w-full">
+        <div className="relative mt-20 w-screen overflow-hidden">
           <AmbientGlow
             tone="blue"
             className="top-[4%] left-1/2 h-[min(70vw,720px)] w-[min(92vw,1040px)]"
           />
 
-          <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-start min-[1700px]:grid-cols-[220px_minmax(0,1fr)_220px] min-[1700px]:gap-x-4">
-            <aside className="hidden w-[220px] flex-col gap-3 min-[1700px]:flex">
-              <GameRankPanel
-                title={t("mostPlayed")}
-                games={mostPlayedGames}
-                className="h-[380px]"
-              />
-              <PlayersTrackedCard count={registeredUserCount} />
-              <RecentPlayerCard player={recentPlayer} />
-            </aside>
+          <div className="absolute top-0 left-4 hidden w-[220px] flex-col gap-3 min-[1700px]:flex">
+            <GameRankPanel
+              title={t("mostPlayed")}
+              games={mostPlayedGames}
+              className="h-[380px]"
+            />
+            <PlayersTrackedCard count={registeredUserCount} />
+            <RecentPlayerCard player={recentPlayer} />
+          </div>
 
-            <div className="mx-auto w-[calc(100%-2rem)] max-w-6xl min-[1700px]:mx-0 min-[1700px]:w-full min-[1700px]:max-w-none">
-              <div className="mb-5 flex items-center justify-between gap-4">
-                <h2 className="text-xl font-semibold tracking-wide text-white sm:text-2xl">
-                  {t("popularGames")}
-                </h2>
-                <Link
-                  href="/explore"
-                  className="shrink-0 text-sm font-medium text-white/65 transition hover:text-white sm:text-base"
-                >
-                  {t("viewAllGames")}
-                </Link>
-              </div>
-
-              <GameGrid games={featuredGames} />
-
-              <div className="relative">
-                <AmbientGlow
-                  tone="red-purple"
-                  className="top-[8%] left-1/2 h-[min(62vw,640px)] w-[min(88vw,960px)]"
-                />
-                <div className="relative z-10">
-                  <CommunityLeaderboard players={communityLeaderboard} />
-                </div>
-              </div>
+          <div className="mx-auto w-[calc(100%-2rem)] max-w-6xl">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <h2 className="text-xl font-semibold tracking-wide text-white sm:text-2xl">
+                {t("popularGames")}
+              </h2>
+              <Link
+                href="/explore"
+                className="shrink-0 text-sm font-medium text-white/65 transition hover:text-white sm:text-base"
+              >
+                {t("viewAllGames")}
+              </Link>
             </div>
 
-            <aside className="relative hidden w-[220px] min-[1700px]:block">
+            <GameGrid games={featuredGames} />
+
+            <div className="relative">
+              <AmbientGlow
+                tone="red-purple"
+                className="top-[8%] left-1/2 h-[min(62vw,640px)] w-[min(88vw,960px)]"
+              />
+              <div className="relative z-10">
+                <CommunityLeaderboard players={communityLeaderboard} />
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute top-0 right-4 hidden w-[220px] min-[1700px]:block">
+            <div className="relative w-[220px]">
               <LatestReviewCard
                 review={latestReview}
                 className="absolute right-0 bottom-full left-0 mb-3"
@@ -133,7 +133,7 @@ export function Hero({
                 games={mostOwnedGames}
                 className="h-[380px]"
               />
-            </aside>
+            </div>
           </div>
         </div>
 
