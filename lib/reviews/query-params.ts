@@ -27,6 +27,7 @@ export function parseGameReviewsQuery(
   const page = Math.max(1, Number(readParam("reviewPage")) || 1);
   const sortParam = readParam("reviewSort");
   const filterParam = readParam("reviewFilter");
+  const highlightReview = readParam("highlightReview");
 
   return {
     page: Number.isFinite(page) ? page : 1,
@@ -36,5 +37,6 @@ export function parseGameReviewsQuery(
     filter: REVIEW_FILTER_OPTIONS.includes(filterParam as ReviewFilterOption)
       ? (filterParam as ReviewFilterOption)
       : "all",
+    highlightReview: highlightReview || null,
   };
 }

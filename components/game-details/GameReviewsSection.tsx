@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import {
   deleteGameReviewAction,
@@ -26,6 +26,7 @@ type GameReviewsSectionProps = {
   sort: ReviewSortOption;
   filter: ReviewFilterOption;
   page: number;
+  highlightReviewKey?: string | null;
 };
 
 const sortOptions: ReviewSortOption[] = [
@@ -101,11 +102,15 @@ export function GameReviewsSection({
   sort,
   filter,
   page,
+  highlightReviewKey = null,
 }: GameReviewsSectionProps) {
   const t = useTranslations("gameReviews");
   const router = useRouter();
   const pathname = usePathname();
   const [data] = useState(initialData);
+  const [highlightedReviewKey, setHighlightedReviewKey] = useState<string | null>(
+    null,
+  );
   const [ratingValue, setRatingValue] = useState(
     initialData.currentUserRating?.rating?.toFixed(1) ?? "8.0",
   );
@@ -124,6 +129,31 @@ export function GameReviewsSection({
       rating: data.summary.averageRating.toFixed(1),
     });
   }, [data.summary.averageRating, data.summary.totalRatings, t]);
+
+  useEffect(() => {
+    if (!highlightReviewKey) {
+      return;
+    }
+
+    const reviewsSection = document.getElementById("reviews");
+    reviewsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    const highlightTimer = window.setTimeout(() => {
+      setHighlightedReviewKey(highlightReviewKey);
+      document
+        .getElementById(`review-${highlightReviewKey}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
+
+    const clearHighlightTimer = window.setTimeout(() => {
+      setHighlightedReviewKey(null);
+    }, 3150);
+
+    return () => {
+      window.clearTimeout(highlightTimer);
+      window.clearTimeout(clearHighlightTimer);
+    };
+  }, [highlightReviewKey]);
 
   function navigateReviews(next: {
     page?: number;
@@ -351,7 +381,13 @@ export function GameReviewsSection({
             data.reviews.map((review) => (
               <article
                 key={review.ratingKey}
-                className="rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:p-5"
+                id={`review-${review.ratingKey}`}
+                className={cn(
+                  "rounded-xl border bg-white/[0.03] p-4 transition duration-500 sm:p-5",
+                  highlightedReviewKey === review.ratingKey
+                    ? "border-[#6B2FD6]/50 shadow-[0_0_30px_rgba(107,47,214,0.35)] ring-2 ring-[#6B2FD6]/40"
+                    : "border-white/10",
+                )}
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                   <Link

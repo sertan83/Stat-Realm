@@ -522,6 +522,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
                   sort={reviewsQuery.sort}
                   filter={reviewsQuery.filter}
                   page={reviewsQuery.page}
+                  highlightReviewKey={reviewsQuery.highlightReview}
                 />
               </section>
             ) : null}

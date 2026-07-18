@@ -6,6 +6,7 @@ import { BackgroundGlow } from "@/components/BackgroundGlow";
 import { CommunityLeaderboard } from "@/components/CommunityLeaderboard";
 import { GameGrid } from "@/components/GameGrid";
 import { GameRankPanel } from "@/components/GameRankPanel";
+import { LatestReviewCard } from "@/components/LatestReviewCard";
 import { PlayersTrackedCard } from "@/components/PlayersTrackedCard";
 import { RecentPlayerCard } from "@/components/RecentPlayerCard";
 import { ScrollIndicator } from "@/components/ScrollIndicator";
@@ -16,6 +17,7 @@ import type {
   CommunityLeaderboardPlayer,
   LandingRecentPlayer,
 } from "@/lib/community/rankings";
+import type { LandingLatestReview } from "@/lib/reviews/latest-review";
 import { cn } from "@/lib/utils";
 
 type HeroProps = {
@@ -25,6 +27,7 @@ type HeroProps = {
   registeredUserCount?: number;
   communityLeaderboard?: CommunityLeaderboardPlayer[];
   recentPlayer?: LandingRecentPlayer | null;
+  latestReview?: LandingLatestReview | null;
 };
 
 export function Hero({
@@ -34,6 +37,7 @@ export function Hero({
   registeredUserCount = 0,
   communityLeaderboard = [],
   recentPlayer = null,
+  latestReview = null,
 }: HeroProps) {
   const t = useTranslations("landing");
 
@@ -118,8 +122,13 @@ export function Hero({
             </div>
           </div>
 
-          <div className="absolute top-0 right-4 hidden h-[380px] w-[220px] min-[1700px]:block">
-            <GameRankPanel title={t("mostOwned")} games={mostOwnedGames} />
+          <div className="absolute top-0 right-4 hidden w-[220px] flex-col gap-3 min-[1700px]:flex">
+            <LatestReviewCard review={latestReview} />
+            <GameRankPanel
+              title={t("mostOwned")}
+              games={mostOwnedGames}
+              className="h-[380px]"
+            />
           </div>
         </div>
 

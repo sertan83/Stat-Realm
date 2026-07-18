@@ -13,6 +13,12 @@ import {
   resolveUserAvatarUrl,
   resolveUserDisplayName,
 } from "@/lib/steam/profile-sync";
+import {
+  getLatestLandingReview,
+  type LandingLatestReview,
+} from "@/lib/reviews/latest-review";
+
+export type { LandingLatestReview } from "@/lib/reviews/latest-review";
 
 export type CommunityLeaderboardPlayer = {
   rank: number;
@@ -110,13 +116,19 @@ export async function getTopCommunityLeaderboardPlayers(
 }
 
 export async function getCommunityLandingData() {
-  const [aggregates, registeredUserCount, communityLeaderboard, recentPlayer] =
-    await Promise.all([
-      readCommunityAggregates(),
-      getRegisteredUserCount(),
-      getTopCommunityLeaderboardPlayers(3),
-      getMostRecentLoggedInPlayer(),
-    ]);
+  const [
+    aggregates,
+    registeredUserCount,
+    communityLeaderboard,
+    recentPlayer,
+    latestReview,
+  ] = await Promise.all([
+    readCommunityAggregates(),
+    getRegisteredUserCount(),
+    getTopCommunityLeaderboardPlayers(3),
+    getMostRecentLoggedInPlayer(),
+    getLatestLandingReview(),
+  ]);
 
   return {
     mostPlayedGames: aggregates.mostPlayed.map((game) => game.name),
@@ -124,5 +136,6 @@ export async function getCommunityLandingData() {
     registeredUserCount,
     communityLeaderboard,
     recentPlayer,
+    latestReview,
   };
 }

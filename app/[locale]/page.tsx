@@ -39,6 +39,7 @@ export default async function Home({ params }: HomePageProps) {
         registeredUserCount={communityData.registeredUserCount}
         communityLeaderboard={communityData.communityLeaderboard}
         recentPlayer={communityData.recentPlayer}
+        latestReview={communityData.latestReview}
       />
       <section className="relative flex justify-center overflow-hidden px-4 pb-20 pt-0 lg:px-6">
         <AmbientGlow

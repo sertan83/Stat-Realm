@@ -1023,3 +1023,18 @@ export async function getUserHelpfulVotes(
 
   return voted;
 }
+
+export async function getLatestGameReviewWithText(): Promise<StoredGameRating | null> {
+  const db = await readDbFile();
+
+  return (
+    Object.values(db.gameRatings)
+      .filter(
+        (rating) =>
+          typeof rating.reviewText === "string" &&
+          rating.reviewText.trim().length > 0,
+      )
+      .sort((first, second) => Date.parse(second.createdAt) - Date.parse(first.createdAt))[0] ??
+    null
+  );
+}
