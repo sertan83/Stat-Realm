@@ -4,20 +4,22 @@ import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
-type ProfileTabId = "overview" | "friends";
+type ProfileTabId = "overview" | "friends" | "reviews";
 
 type ProfileTabsProps = {
   overview: ReactNode;
   friends: ReactNode;
+  reviews: ReactNode;
 };
 
-export function ProfileTabs({ overview, friends }: ProfileTabsProps) {
+export function ProfileTabs({ overview, friends, reviews }: ProfileTabsProps) {
   const t = useTranslations("profileFriends");
   const [activeTab, setActiveTab] = useState<ProfileTabId>("overview");
 
   const tabs: Array<{ id: ProfileTabId; label: string }> = [
     { id: "overview", label: t("tabs.overview") },
     { id: "friends", label: t("tabs.friends") },
+    { id: "reviews", label: t("tabs.reviews") },
   ];
 
   return (
@@ -51,7 +53,11 @@ export function ProfileTabs({ overview, friends }: ProfileTabsProps) {
       </div>
 
       <div className="pt-10" role="tabpanel">
-        {activeTab === "overview" ? overview : friends}
+        {activeTab === "overview"
+          ? overview
+          : activeTab === "friends"
+            ? friends
+            : reviews}
       </div>
     </div>
   );

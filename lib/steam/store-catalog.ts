@@ -313,7 +313,7 @@ function filterCatalogInputs(
   return playable;
 }
 
-function buildExploreGames(inputs: CatalogGameInput[]) {
+export function buildExploreGames(inputs: CatalogGameInput[]) {
   return Promise.all(
     inputs.map(async (input) => {
       const capsuleFilename = extractCapsuleFilenameFromLogoUrl(input.logoUrl);
@@ -418,6 +418,13 @@ async function fetchCatalogFromStoreSearch(query: ExploreCatalogQuery) {
 export async function fetchExploreCatalog(
   query: ExploreCatalogQuery,
 ): Promise<ExploreCatalogResult> {
+  if (query.sortBy === "Highest Rated" || query.sortBy === "Most Reviewed") {
+    const { fetchStatRealmRatedCatalog } = await import(
+      "@/lib/explore/rated-catalog"
+    );
+    return fetchStatRealmRatedCatalog(query);
+  }
+
   const cacheKey = getCatalogCacheKey(query);
   const cached = cacheGet(pageCache, cacheKey);
   if (cached) return cached;

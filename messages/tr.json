@@ -217,7 +217,9 @@
       "leaderboardsEyebrow": "Liderlik Tabloları",
       "leaderboardsTitle": "İlk 10 oyuncu",
       "similarGamesEyebrow": "Benzer Oyunlar",
-      "similarGamesTitle": "Keşfetmeye devam et"
+      "similarGamesTitle": "Keşfetmeye devam et",
+      "reviewsEyebrow": "Topluluk Yorumları",
+      "reviewsTitle": "Puanlar ve yorumlar"
     },
     "onSteam": "Steam'de",
     "yourPlaytime": "Oynama süren:",
@@ -296,7 +298,9 @@
   "sortOptions": {
     "mostPopular": "En Popüler",
     "newest": "En Yeni",
-    "name": "İsim"
+    "name": "İsim",
+    "highestRated": "En Yüksek Puan",
+    "mostReviewed": "En Çok Yorumlanan"
   },
   "personaStates": {
     "offline": "Çevrimdışı",
@@ -333,7 +337,8 @@
     "tabsLabel": "Profil bölümleri",
     "tabs": {
       "overview": "Genel Bakış",
-      "friends": "Arkadaşlar"
+      "friends": "Arkadaşlar",
+      "reviews": "Yorumlar"
     },
     "title": "Arkadaşlar",
     "subtitle": "Steam'de {count} herkese açık arkadaş",
@@ -384,5 +389,61 @@
     "emptyUnavailableDescription": "Steam arkadaşların şu anda yüklenemedi. Lütfen daha sonra tekrar dene.",
     "emptySearchTitle": "Aramanla eşleşen arkadaş yok",
     "emptySearchDescription": "Farklı bir ad dene veya tüm StatRealm arkadaşlarını görmek için aramayı temizle."
+  },
+  "gameReviews": {
+    "communityScore": "Topluluk Puanı",
+    "averageRating": "★ {rating}/10",
+    "noRatingsYet": "Henüz puan yok",
+    "totalRatings": "Toplam puan",
+    "totalReviews": "Toplam yorum",
+    "ratingDistribution": "Puan dağılımı",
+    "distributionCount": "{count}",
+    "writeReview": "Bu oyunu puanla",
+    "editYourReview": "Puanını düzenle",
+    "yourRating": "Puanın",
+    "reviewOptional": "Yorum (isteğe bağlı)",
+    "reviewPlaceholder": "Bu oyun hakkındaki düşüncelerini paylaş...",
+    "characterCount": "{count}/{max}",
+    "submitReview": "Puanı gönder",
+    "saveChanges": "Değişiklikleri kaydet",
+    "deleteReview": "Puanı sil",
+    "signInToRate": "Bu oyunu puanlamak ve yorum yazmak için Steam ile giriş yap.",
+    "sortLabel": "Yorumları sırala",
+    "filterLabel": "Yorumları filtrele",
+    "noReviewsFound": "Bu filtrelerle eşleşen yorum yok.",
+    "steamLevel": "Steam Seviyesi {level}",
+    "steamLevelUnavailable": "Steam Seviyesi —",
+    "edited": "Düzenlendi",
+    "ratingOnly": "Yalnızca puan — yazılı yorum yok.",
+    "helpful": "Faydalı ({count})",
+    "sort": {
+      "mostHelpful": "En Faydalı",
+      "highestRated": "En Yüksek Puan",
+      "lowestRated": "En Düşük Puan",
+      "newest": "En Yeni",
+      "oldest": "En Eski"
+    },
+    "filter": {
+      "all": "Tüm puanlar",
+      "reviewsWithText": "Yalnızca yazılı yorumlar",
+      "ratingsOnly": "Yalnızca puanlar",
+      "ratings8Plus": "8+ puanlar",
+      "ratingsBelow5": "5 altı puanlar"
+    },
+    "errors": {
+      "generic": "Bir şeyler ters gitti. Lütfen tekrar dene.",
+      "unauthorized": "Devam etmek için Steam ile giriş yap.",
+      "rateLimitInterval": "Başka bir puan göndermeden önce lütfen biraz bekle.",
+      "rateLimitHourly": "Saatlik puan limitine ulaştın. Lütfen daha sonra tekrar dene."
+    }
+  },
+  "profileReviews": {
+    "subtitle": "{count, plural, one {# yorum yazıldı} other {# yorum yazıldı}}",
+    "empty": "Bu oyuncu henüz yorum yazmadı.",
+    "steamLevel": "Steam Seviyesi {level}",
+    "steamLevelUnavailable": "Steam Seviyesi —",
+    "edited": "Düzenlendi",
+    "ratingOnly": "Yalnızca puan — yazılı yorum yok.",
+    "helpful": "Faydalı ({count})"
   }
 }

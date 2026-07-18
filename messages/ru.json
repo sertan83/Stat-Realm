@@ -217,7 +217,9 @@
       "leaderboardsEyebrow": "Таблицы лидеров",
       "leaderboardsTitle": "Топ-10 игроков",
       "similarGamesEyebrow": "Похожие игры",
-      "similarGamesTitle": "Продолжить обзор"
+      "similarGamesTitle": "Продолжить обзор",
+      "reviewsEyebrow": "Отзывы сообщества",
+      "reviewsTitle": "Оценки и отзывы"
     },
     "onSteam": "в Steam",
     "yourPlaytime": "Ваше время в игре:",
@@ -296,7 +298,9 @@
   "sortOptions": {
     "mostPopular": "Популярные",
     "newest": "Новые",
-    "name": "Название"
+    "name": "Название",
+    "highestRated": "Лучший рейтинг",
+    "mostReviewed": "Больше всего отзывов"
   },
   "personaStates": {
     "offline": "Не в сети",
@@ -333,7 +337,8 @@
     "tabsLabel": "Разделы профиля",
     "tabs": {
       "overview": "Обзор",
-      "friends": "Друзья"
+      "friends": "Друзья",
+      "reviews": "Отзывы"
     },
     "title": "Друзья",
     "subtitle": "{count} публичных друзей в Steam",
@@ -384,5 +389,61 @@
     "emptyUnavailableDescription": "Сейчас не удалось загрузить ваших друзей Steam. Попробуйте позже.",
     "emptySearchTitle": "Друзья по запросу не найдены",
     "emptySearchDescription": "Попробуйте другое имя или очистите поиск, чтобы увидеть всех друзей StatRealm."
+  },
+  "gameReviews": {
+    "communityScore": "Оценка сообщества",
+    "averageRating": "★ {rating}/10",
+    "noRatingsYet": "Пока нет оценок",
+    "totalRatings": "Всего оценок",
+    "totalReviews": "Всего отзывов",
+    "ratingDistribution": "Распределение оценок",
+    "distributionCount": "{count}",
+    "writeReview": "Оценить эту игру",
+    "editYourReview": "Изменить вашу оценку",
+    "yourRating": "Ваша оценка",
+    "reviewOptional": "Отзыв (необязательно)",
+    "reviewPlaceholder": "Поделитесь мнением об этой игре...",
+    "characterCount": "{count}/{max}",
+    "submitReview": "Отправить оценку",
+    "saveChanges": "Сохранить изменения",
+    "deleteReview": "Удалить оценку",
+    "signInToRate": "Войдите через Steam, чтобы оценить игру и написать отзыв.",
+    "sortLabel": "Сортировка отзывов",
+    "filterLabel": "Фильтр отзывов",
+    "noReviewsFound": "Нет отзывов по этим фильтрам.",
+    "steamLevel": "Уровень Steam {level}",
+    "steamLevelUnavailable": "Уровень Steam —",
+    "edited": "Изменено",
+    "ratingOnly": "Только оценка — без текста отзыва.",
+    "helpful": "Полезно ({count})",
+    "sort": {
+      "mostHelpful": "Самые полезные",
+      "highestRated": "Самый высокий рейтинг",
+      "lowestRated": "Самый низкий рейтинг",
+      "newest": "Сначала новые",
+      "oldest": "Сначала старые"
+    },
+    "filter": {
+      "all": "Все оценки",
+      "reviewsWithText": "Только отзывы с текстом",
+      "ratingsOnly": "Только оценки",
+      "ratings8Plus": "Оценки 8+",
+      "ratingsBelow5": "Оценки ниже 5"
+    },
+    "errors": {
+      "generic": "Что-то пошло не так. Попробуйте снова.",
+      "unauthorized": "Войдите через Steam, чтобы продолжить.",
+      "rateLimitInterval": "Подождите немного перед отправкой следующей оценки.",
+      "rateLimitHourly": "Вы достигли часового лимита оценок. Попробуйте позже."
+    }
+  },
+  "profileReviews": {
+    "subtitle": "{count, plural, one {# отзыв написан} few {# отзыва написано} many {# отзывов написано} other {# отзыва написано}}",
+    "empty": "Этот игрок ещё не написал отзывов.",
+    "steamLevel": "Уровень Steam {level}",
+    "steamLevelUnavailable": "Уровень Steam —",
+    "edited": "Изменено",
+    "ratingOnly": "Только оценка — без текста отзыва.",
+    "helpful": "Полезно ({count})"
   }
 }

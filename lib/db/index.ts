@@ -2,10 +2,14 @@ import "server-only";
 
 import type {
   CommunityAggregates,
+  GameRatingAggregate,
   MostOwnedAggregate,
   MostPlayedAggregate,
+  RatingSubmissionLog,
   StatRealmDb,
   StatRealmUser,
+  StoredGameRating,
+  StoredHelpfulVote,
   StoredProfileAnalytics,
   StoredUnlockedAchievement,
   UserLibraryGame,
@@ -149,6 +153,185 @@ function normalizeStoredLibraryGame(
   };
 }
 
+export function createGameRatingKey(steamId: string, appId: number) {
+  return `${steamId}:${appId}`;
+}
+
+export function createHelpfulVoteKey(voterSteamId: string, ratingKey: string) {
+  return `${voterSteamId}:${ratingKey}`;
+}
+
+function normalizeRatingValue(value: unknown) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  const rounded = Math.round(value * 10) / 10;
+  return rounded >= 1 && rounded <= 10 ? rounded : null;
+}
+
+function normalizeStoredGameRating(
+  rating: Partial<StoredGameRating>,
+): StoredGameRating | null {
+  const appId = rating.appId;
+  const steamId = rating.steamId;
+  const normalizedRating = normalizeRatingValue(rating.rating);
+
+  if (
+    typeof steamId !== "string" ||
+    steamId.length === 0 ||
+    typeof appId !== "number" ||
+    !Number.isInteger(appId) ||
+    appId <= 0 ||
+    normalizedRating === null
+  ) {
+    return null;
+  }
+
+  const reviewText =
+    typeof rating.reviewText === "string" && rating.reviewText.trim().length > 0
+      ? rating.reviewText.trim()
+      : null;
+  const createdAt =
+    typeof rating.createdAt === "string" ? rating.createdAt : new Date().toISOString();
+  const updatedAt =
+    typeof rating.updatedAt === "string" ? rating.updatedAt : createdAt;
+
+  return {
+    steamId,
+    appId,
+    rating: normalizedRating,
+    reviewText,
+    createdAt,
+    updatedAt,
+    editedAt:
+      typeof rating.editedAt === "string" && rating.editedAt.length > 0
+        ? rating.editedAt
+        : null,
+  };
+}
+
+function normalizeStoredHelpfulVote(
+  vote: Partial<StoredHelpfulVote>,
+): StoredHelpfulVote | null {
+  if (
+    typeof vote.ratingKey !== "string" ||
+    vote.ratingKey.length === 0 ||
+    typeof vote.voterSteamId !== "string" ||
+    vote.voterSteamId.length === 0
+  ) {
+    return null;
+  }
+
+  return {
+    ratingKey: vote.ratingKey,
+    voterSteamId: vote.voterSteamId,
+    createdAt:
+      typeof vote.createdAt === "string" ? vote.createdAt : new Date().toISOString(),
+  };
+}
+
+function normalizeGameRatingAggregate(
+  aggregate: Partial<GameRatingAggregate>,
+): GameRatingAggregate | null {
+  const appId = aggregate.appId;
+
+  if (typeof appId !== "number" || !Number.isInteger(appId) || appId <= 0) {
+    return null;
+  }
+
+  const distribution = Array.from({ length: 10 }, (_, index) => {
+    const value = aggregate.distribution?.[index];
+    return typeof value === "number" && value >= 0 ? value : 0;
+  });
+
+  return {
+    appId,
+    gameName:
+      typeof aggregate.gameName === "string" && aggregate.gameName.length > 0
+        ? aggregate.gameName
+        : `Steam App ${appId}`,
+    averageRating:
+      typeof aggregate.averageRating === "number" &&
+      Number.isFinite(aggregate.averageRating)
+        ? Math.round(aggregate.averageRating * 10) / 10
+        : 0,
+    totalRatings:
+      typeof aggregate.totalRatings === "number" && aggregate.totalRatings >= 0
+        ? aggregate.totalRatings
+        : 0,
+    totalReviews:
+      typeof aggregate.totalReviews === "number" && aggregate.totalReviews >= 0
+        ? aggregate.totalReviews
+        : 0,
+    distribution,
+    updatedAt:
+      typeof aggregate.updatedAt === "string"
+        ? aggregate.updatedAt
+        : new Date().toISOString(),
+  };
+}
+
+function ratingDistributionBucket(rating: number) {
+  return Math.min(10, Math.max(1, Math.round(rating))) - 1;
+}
+
+function rebuildRatingAggregates(
+  gameRatings: Record<string, StoredGameRating>,
+): Record<string, GameRatingAggregate> {
+  const byAppId = new Map<
+    number,
+    {
+      gameName: string;
+      ratings: StoredGameRating[];
+    }
+  >();
+
+  for (const rating of Object.values(gameRatings)) {
+    const entry = byAppId.get(rating.appId);
+    byAppId.set(rating.appId, {
+      gameName: entry?.gameName ?? `Steam App ${rating.appId}`,
+      ratings: [...(entry?.ratings ?? []), rating],
+    });
+  }
+
+  return Object.fromEntries(
+    Array.from(byAppId.entries()).map(([appId, entry]) => {
+      const distribution = Array.from({ length: 10 }, () => 0);
+      let ratingSum = 0;
+      let totalReviews = 0;
+
+      for (const rating of entry.ratings) {
+        ratingSum += rating.rating;
+        distribution[ratingDistributionBucket(rating.rating)] += 1;
+
+        if (rating.reviewText) {
+          totalReviews += 1;
+        }
+      }
+
+      const totalRatings = entry.ratings.length;
+      const averageRating =
+        totalRatings > 0
+          ? Math.round((ratingSum / totalRatings) * 10) / 10
+          : 0;
+
+      return [
+        String(appId),
+        {
+          appId,
+          gameName: entry.gameName,
+          averageRating,
+          totalRatings,
+          totalReviews,
+          distribution,
+          updatedAt: new Date().toISOString(),
+        } satisfies GameRatingAggregate,
+      ] as const;
+    }),
+  );
+}
+
 async function readDbFile(): Promise<StatRealmDb> {
   const parsed = await readPersistedDb();
 
@@ -210,6 +393,45 @@ async function readDbFile(): Promise<StatRealmDb> {
         mostOwned: parsed.aggregates?.mostOwned ?? [],
         updatedAt: parsed.aggregates?.updatedAt ?? null,
       },
+      gameRatings: Object.fromEntries(
+        Object.entries(parsed.gameRatings ?? {}).flatMap(([key, rating]) => {
+          const normalized = normalizeStoredGameRating(
+            rating as Partial<StoredGameRating>,
+          );
+          return normalized ? [[key, normalized] as const] : [];
+        }),
+      ),
+      helpfulVotes: Object.fromEntries(
+        Object.entries(parsed.helpfulVotes ?? {}).flatMap(([key, vote]) => {
+          const normalized = normalizeStoredHelpfulVote(
+            vote as Partial<StoredHelpfulVote>,
+          );
+          return normalized ? [[key, normalized] as const] : [];
+        }),
+      ),
+      ratingAggregates: Object.fromEntries(
+        Object.entries(parsed.ratingAggregates ?? {}).flatMap(([key, aggregate]) => {
+          const normalized = normalizeGameRatingAggregate(
+            aggregate as Partial<GameRatingAggregate>,
+          );
+          return normalized ? [[key, normalized] as const] : [];
+        }),
+      ),
+      ratingSubmissionLogs: Object.fromEntries(
+        Object.entries(parsed.ratingSubmissionLogs ?? {}).flatMap(
+          ([steamId, log]) => {
+            const timestamps = Array.isArray(
+              (log as Partial<RatingSubmissionLog>)?.timestamps,
+            )
+              ? (log as RatingSubmissionLog).timestamps.filter(
+                  (timestamp) => typeof timestamp === "string",
+                )
+              : [];
+
+            return [[steamId, { timestamps }] as const];
+          },
+        ),
+      ),
     };
 }
 
@@ -601,4 +823,203 @@ export async function replaceUserLibrary(
 
     await writeDbFile(db);
   });
+}
+
+const RATING_SUBMISSION_WINDOW_MS = 60 * 60 * 1000;
+const RATING_SUBMISSION_MAX_PER_WINDOW = 10;
+const RATING_SUBMISSION_MIN_INTERVAL_MS = 30 * 1000;
+
+function pruneRatingSubmissionLog(log: RatingSubmissionLog) {
+  const cutoff = Date.now() - RATING_SUBMISSION_WINDOW_MS;
+  return {
+    timestamps: log.timestamps.filter(
+      (timestamp) => Date.parse(timestamp) >= cutoff,
+    ),
+  };
+}
+
+export function assertRatingSubmissionAllowed(log: RatingSubmissionLog) {
+  const pruned = pruneRatingSubmissionLog(log);
+  const now = Date.now();
+
+  if (pruned.timestamps.length >= RATING_SUBMISSION_MAX_PER_WINDOW) {
+    throw new Error("RATE_LIMIT_HOURLY");
+  }
+
+  const lastTimestamp = pruned.timestamps.at(-1);
+  if (
+    lastTimestamp &&
+    now - Date.parse(lastTimestamp) < RATING_SUBMISSION_MIN_INTERVAL_MS
+  ) {
+    throw new Error("RATE_LIMIT_INTERVAL");
+  }
+}
+
+export async function upsertGameRating(input: {
+  steamId: string;
+  appId: number;
+  rating: number;
+  reviewText: string | null;
+  gameName?: string;
+}) {
+  await withDbLock(async () => {
+    const db = await readDbFile();
+    const normalizedRating = normalizeRatingValue(input.rating);
+
+    if (normalizedRating === null) {
+      throw new Error("INVALID_RATING");
+    }
+
+    const submissionLog = pruneRatingSubmissionLog(
+      db.ratingSubmissionLogs[input.steamId] ?? { timestamps: [] },
+    );
+    assertRatingSubmissionAllowed(submissionLog);
+
+    const now = new Date().toISOString();
+    const ratingKey = createGameRatingKey(input.steamId, input.appId);
+    const existing = db.gameRatings[ratingKey];
+    const reviewText =
+      typeof input.reviewText === "string" && input.reviewText.length > 0
+        ? input.reviewText
+        : null;
+    const reviewChanged =
+      existing &&
+      reviewText !== null &&
+      existing.reviewText !== reviewText;
+
+    db.gameRatings[ratingKey] = {
+      steamId: input.steamId,
+      appId: input.appId,
+      rating: normalizedRating,
+      reviewText,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+      editedAt: reviewChanged ? now : (existing?.editedAt ?? null),
+    };
+
+    db.ratingSubmissionLogs[input.steamId] = {
+      timestamps: [...submissionLog.timestamps, now],
+    };
+
+    const previousName = db.ratingAggregates[String(input.appId)]?.gameName;
+    db.ratingAggregates = rebuildRatingAggregates(db.gameRatings);
+
+    const aggregate = db.ratingAggregates[String(input.appId)];
+    if (aggregate) {
+      db.ratingAggregates[String(input.appId)] = {
+        ...aggregate,
+        gameName: input.gameName ?? previousName ?? aggregate.gameName,
+      };
+    }
+
+    await writeDbFile(db);
+  });
+}
+
+export async function deleteGameRating(steamId: string, appId: number) {
+  await withDbLock(async () => {
+    const db = await readDbFile();
+    const ratingKey = createGameRatingKey(steamId, appId);
+    delete db.gameRatings[ratingKey];
+
+    for (const voteKey of Object.keys(db.helpfulVotes)) {
+      if (db.helpfulVotes[voteKey]?.ratingKey === ratingKey) {
+        delete db.helpfulVotes[voteKey];
+      }
+    }
+
+    db.ratingAggregates = rebuildRatingAggregates(db.gameRatings);
+    await writeDbFile(db);
+  });
+}
+
+export async function markReviewHelpful(voterSteamId: string, ratingKey: string) {
+  await withDbLock(async () => {
+    const db = await readDbFile();
+
+    if (!db.gameRatings[ratingKey]) {
+      throw new Error("RATING_NOT_FOUND");
+    }
+
+    const voteKey = createHelpfulVoteKey(voterSteamId, ratingKey);
+    if (db.helpfulVotes[voteKey]) {
+      throw new Error("ALREADY_VOTED");
+    }
+
+    db.helpfulVotes[voteKey] = {
+      ratingKey,
+      voterSteamId,
+      createdAt: new Date().toISOString(),
+    };
+
+    await writeDbFile(db);
+  });
+}
+
+export async function getGameRating(
+  steamId: string,
+  appId: number,
+): Promise<StoredGameRating | null> {
+  const db = await readDbFile();
+  return db.gameRatings[createGameRatingKey(steamId, appId)] ?? null;
+}
+
+export async function getGameRatingAggregate(
+  appId: number,
+): Promise<GameRatingAggregate | null> {
+  const db = await readDbFile();
+  return db.ratingAggregates[String(appId)] ?? null;
+}
+
+export async function getAllRatingAggregates(): Promise<GameRatingAggregate[]> {
+  const db = await readDbFile();
+  return Object.values(db.ratingAggregates);
+}
+
+export async function getGameRatingsForApp(
+  appId: number,
+): Promise<StoredGameRating[]> {
+  const db = await readDbFile();
+  return Object.values(db.gameRatings).filter((rating) => rating.appId === appId);
+}
+
+export async function getUserGameRatings(
+  steamId: string,
+): Promise<StoredGameRating[]> {
+  const db = await readDbFile();
+  return Object.values(db.gameRatings).filter(
+    (rating) => rating.steamId === steamId,
+  );
+}
+
+export async function getHelpfulVoteCounts(
+  ratingKeys: string[],
+): Promise<Record<string, number>> {
+  const db = await readDbFile();
+  const counts = Object.fromEntries(ratingKeys.map((key) => [key, 0]));
+
+  for (const vote of Object.values(db.helpfulVotes)) {
+    if (counts[vote.ratingKey] !== undefined) {
+      counts[vote.ratingKey] += 1;
+    }
+  }
+
+  return counts;
+}
+
+export async function getUserHelpfulVotes(
+  voterSteamId: string,
+  ratingKeys: string[],
+): Promise<Set<string>> {
+  const db = await readDbFile();
+  const voted = new Set<string>();
+
+  for (const ratingKey of ratingKeys) {
+    const voteKey = createHelpfulVoteKey(voterSteamId, ratingKey);
+    if (db.helpfulVotes[voteKey]) {
+      voted.add(ratingKey);
+    }
+  }
+
+  return voted;
 }

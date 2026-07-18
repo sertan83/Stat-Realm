@@ -217,7 +217,9 @@
       "leaderboardsEyebrow": "Leaderboards",
       "leaderboardsTitle": "Top 10 players",
       "similarGamesEyebrow": "Similar Games",
-      "similarGamesTitle": "Continue exploring"
+      "similarGamesTitle": "Continue exploring",
+      "reviewsEyebrow": "Community Reviews",
+      "reviewsTitle": "Ratings and reviews"
     },
     "onSteam": "on Steam",
     "yourPlaytime": "Your playtime:",
@@ -296,7 +298,9 @@
   "sortOptions": {
     "mostPopular": "Most Popular",
     "newest": "Newest",
-    "name": "Name"
+    "name": "Name",
+    "highestRated": "Highest Rated",
+    "mostReviewed": "Most Reviewed"
   },
   "personaStates": {
     "offline": "Offline",
@@ -333,7 +337,8 @@
     "tabsLabel": "Profile sections",
     "tabs": {
       "overview": "Overview",
-      "friends": "Friends"
+      "friends": "Friends",
+      "reviews": "Reviews"
     },
     "title": "Friends",
     "subtitle": "{count} public friends on Steam",
@@ -384,5 +389,61 @@
     "emptyUnavailableDescription": "We couldn't load your Steam friends right now. Please try again later.",
     "emptySearchTitle": "No friends matched your search",
     "emptySearchDescription": "Try a different name or clear the search box to see all StatRealm friends."
+  },
+  "gameReviews": {
+    "communityScore": "Community Score",
+    "averageRating": "★ {rating}/10",
+    "noRatingsYet": "No ratings yet",
+    "totalRatings": "Total ratings",
+    "totalReviews": "Total reviews",
+    "ratingDistribution": "Rating distribution",
+    "distributionCount": "{count}",
+    "writeReview": "Rate this game",
+    "editYourReview": "Edit your rating",
+    "yourRating": "Your rating",
+    "reviewOptional": "Review (optional)",
+    "reviewPlaceholder": "Share your thoughts about this game...",
+    "characterCount": "{count}/{max}",
+    "submitReview": "Submit rating",
+    "saveChanges": "Save changes",
+    "deleteReview": "Delete rating",
+    "signInToRate": "Sign in with Steam to rate this game and write a review.",
+    "sortLabel": "Sort reviews",
+    "filterLabel": "Filter reviews",
+    "noReviewsFound": "No reviews match these filters yet.",
+    "steamLevel": "Steam Level {level}",
+    "steamLevelUnavailable": "Steam Level —",
+    "edited": "Edited",
+    "ratingOnly": "Rating only — no written review.",
+    "helpful": "Helpful ({count})",
+    "sort": {
+      "mostHelpful": "Most Helpful",
+      "highestRated": "Highest Rated",
+      "lowestRated": "Lowest Rated",
+      "newest": "Newest",
+      "oldest": "Oldest"
+    },
+    "filter": {
+      "all": "All ratings",
+      "reviewsWithText": "Reviews with text only",
+      "ratingsOnly": "Ratings only",
+      "ratings8Plus": "Ratings 8+",
+      "ratingsBelow5": "Ratings below 5"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "unauthorized": "Sign in with Steam to continue.",
+      "rateLimitInterval": "Please wait a moment before submitting another rating.",
+      "rateLimitHourly": "You have reached the hourly rating limit. Please try again later."
+    }
+  },
+  "profileReviews": {
+    "subtitle": "{count, plural, one {# review written} other {# reviews written}}",
+    "empty": "This player has not written any reviews yet.",
+    "steamLevel": "Steam Level {level}",
+    "steamLevelUnavailable": "Steam Level —",
+    "edited": "Edited",
+    "ratingOnly": "Rating only — no written review.",
+    "helpful": "Helpful ({count})"
   }
 }

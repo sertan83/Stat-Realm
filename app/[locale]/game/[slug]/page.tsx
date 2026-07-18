@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { Navbar } from "@/components/Navbar";
 import { AchievementList } from "@/components/game-details/AchievementList";
 import { GameDetailsHero } from "@/components/game-details/GameDetailsHero";
+import { GameReviewsSection } from "@/components/game-details/GameReviewsSection";
 import { Leaderboard } from "@/components/game-details/Leaderboard";
 import { YourPosition } from "@/components/game-details/YourPosition";
 import { MetricGrid } from "@/components/game-details/MetricGrid";
@@ -23,6 +24,8 @@ import {
   buildStatRealmGameStatisticsFromDb,
 } from "@/lib/game-details/statrealm-statistics";
 import { createIntlFormatters, formatPlaytimeMinutes } from "@/lib/i18n/formatters";
+import { loadGameReviewsPage } from "@/lib/reviews/game-reviews";
+import { parseGameReviewsQuery } from "@/lib/reviews/query-params";
 import { parseGameRouteAppId } from "@/lib/game-details/route-param";
 import { slugifyGameName } from "@/lib/slugify-game-name";
 import {
@@ -53,6 +56,7 @@ import type { GameDetails } from "@/types/game-details";
 
 type GamePageProps = {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export function generateStaticParams() {
@@ -162,8 +166,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function GamePage({ params }: GamePageProps) {
+export default async function GamePage({ params, searchParams }: GamePageProps) {
   const { locale, slug: routeParam } = await params;
+  const resolvedSearchParams = await searchParams;
+  const reviewsQuery = parseGameReviewsQuery(resolvedSearchParams);
   setRequestLocale(locale);
 
   const [tGameDetails, tCommon, tDashboard, tGameMetrics, tCommunityMetrics] =
@@ -422,6 +428,18 @@ export default async function GamePage({ params }: GamePageProps) {
     });
   }
 
+  const reviewsData =
+    resolvedAppId !== null
+      ? await loadGameReviewsPage({
+          appId: resolvedAppId,
+          gameName: personalizedDetails.game.title,
+          page: reviewsQuery.page,
+          sort: reviewsQuery.sort,
+          filter: reviewsQuery.filter,
+          viewerSteamId: steamId ?? null,
+        })
+      : null;
+
   return (
     <div className="min-h-screen text-white">
       <Navbar />
@@ -488,6 +506,25 @@ export default async function GamePage({ params }: GamePageProps) {
                 position={userGamePosition}
               />
             </section>
+
+            {reviewsData && resolvedAppId !== null ? (
+              <section>
+                <SectionHeading
+                  eyebrow={tGameDetails("sections.reviewsEyebrow")}
+                  title={tGameDetails("sections.reviewsTitle")}
+                />
+                <GameReviewsSection
+                  appId={resolvedAppId}
+                  gameName={personalizedDetails.game.title}
+                  initialData={reviewsData}
+                  isAuthenticated={isAuthenticated}
+                  locale={locale}
+                  sort={reviewsQuery.sort}
+                  filter={reviewsQuery.filter}
+                  page={reviewsQuery.page}
+                />
+              </section>
+            ) : null}
 
             <section className="pb-12">
               <SectionHeading

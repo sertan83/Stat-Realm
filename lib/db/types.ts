@@ -79,10 +79,44 @@ export type CommunityAggregates = {
   updatedAt: string | null;
 };
 
+export type StoredGameRating = {
+  steamId: string;
+  appId: number;
+  rating: number;
+  reviewText: string | null;
+  createdAt: string;
+  updatedAt: string;
+  editedAt: string | null;
+};
+
+export type StoredHelpfulVote = {
+  ratingKey: string;
+  voterSteamId: string;
+  createdAt: string;
+};
+
+export type GameRatingAggregate = {
+  appId: number;
+  gameName: string;
+  averageRating: number;
+  totalRatings: number;
+  totalReviews: number;
+  distribution: number[];
+  updatedAt: string;
+};
+
+export type RatingSubmissionLog = {
+  timestamps: string[];
+};
+
 export type StatRealmDb = {
   users: Record<string, StatRealmUser>;
   libraries: Record<string, UserLibraryGame[]>;
   achievementHistories: Record<string, StoredUnlockedAchievement[]>;
   profileAnalytics: Record<string, StoredProfileAnalytics>;
   aggregates: CommunityAggregates;
+  gameRatings: Record<string, StoredGameRating>;
+  helpfulVotes: Record<string, StoredHelpfulVote>;
+  ratingAggregates: Record<string, GameRatingAggregate>;
+  ratingSubmissionLogs: Record<string, RatingSubmissionLog>;
 };

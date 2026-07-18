@@ -35,6 +35,10 @@ export function createEmptyDb(): StatRealmDb {
       mostOwned: [],
       updatedAt: null,
     },
+    gameRatings: {},
+    helpfulVotes: {},
+    ratingAggregates: {},
+    ratingSubmissionLogs: {},
   };
 }
 

@@ -36,6 +36,8 @@ const sortOptions = [
   { value: "Most Popular", key: "mostPopular" },
   { value: "Newest", key: "newest" },
   { value: "Name", key: "name" },
+  { value: "Highest Rated", key: "highestRated" },
+  { value: "Most Reviewed", key: "mostReviewed" },
 ] as const;
 
 export function ExploreFilters({

@@ -217,7 +217,9 @@
       "leaderboardsEyebrow": "Clasificaciones",
       "leaderboardsTitle": "Top 10 jugadores",
       "similarGamesEyebrow": "Juegos similares",
-      "similarGamesTitle": "Sigue explorando"
+      "similarGamesTitle": "Sigue explorando",
+      "reviewsEyebrow": "Reseñas de la comunidad",
+      "reviewsTitle": "Puntuaciones y reseñas"
     },
     "onSteam": "en Steam",
     "yourPlaytime": "Tu tiempo de juego:",
@@ -296,7 +298,9 @@
   "sortOptions": {
     "mostPopular": "Más populares",
     "newest": "Más recientes",
-    "name": "Nombre"
+    "name": "Nombre",
+    "highestRated": "Mejor valorados",
+    "mostReviewed": "Más reseñados"
   },
   "personaStates": {
     "offline": "Desconectado",
@@ -333,7 +337,8 @@
     "tabsLabel": "Secciones del perfil",
     "tabs": {
       "overview": "Resumen",
-      "friends": "Amigos"
+      "friends": "Amigos",
+      "reviews": "Reseñas"
     },
     "title": "Amigos",
     "subtitle": "{count} amigos públicos en Steam",
@@ -384,5 +389,61 @@
     "emptyUnavailableDescription": "No pudimos cargar tus amigos de Steam en este momento. Inténtalo de nuevo más tarde.",
     "emptySearchTitle": "Ningún amigo coincide con tu búsqueda",
     "emptySearchDescription": "Prueba con otro nombre o borra la búsqueda para ver todos los amigos de StatRealm."
+  },
+  "gameReviews": {
+    "communityScore": "Puntuación de la comunidad",
+    "averageRating": "★ {rating}/10",
+    "noRatingsYet": "Aún no hay puntuaciones",
+    "totalRatings": "Puntuaciones totales",
+    "totalReviews": "Reseñas totales",
+    "ratingDistribution": "Distribución de puntuaciones",
+    "distributionCount": "{count}",
+    "writeReview": "Valorar este juego",
+    "editYourReview": "Editar tu puntuación",
+    "yourRating": "Tu puntuación",
+    "reviewOptional": "Reseña (opcional)",
+    "reviewPlaceholder": "Comparte tu opinión sobre este juego...",
+    "characterCount": "{count}/{max}",
+    "submitReview": "Enviar puntuación",
+    "saveChanges": "Guardar cambios",
+    "deleteReview": "Eliminar puntuación",
+    "signInToRate": "Inicia sesión con Steam para valorar este juego y escribir una reseña.",
+    "sortLabel": "Ordenar reseñas",
+    "filterLabel": "Filtrar reseñas",
+    "noReviewsFound": "No hay reseñas que coincidan con estos filtros.",
+    "steamLevel": "Nivel de Steam {level}",
+    "steamLevelUnavailable": "Nivel de Steam —",
+    "edited": "Editado",
+    "ratingOnly": "Solo puntuación — sin reseña escrita.",
+    "helpful": "Útil ({count})",
+    "sort": {
+      "mostHelpful": "Más útiles",
+      "highestRated": "Mejor valoradas",
+      "lowestRated": "Peor valoradas",
+      "newest": "Más recientes",
+      "oldest": "Más antiguas"
+    },
+    "filter": {
+      "all": "Todas las puntuaciones",
+      "reviewsWithText": "Solo reseñas con texto",
+      "ratingsOnly": "Solo puntuaciones",
+      "ratings8Plus": "Puntuaciones 8+",
+      "ratingsBelow5": "Puntuaciones por debajo de 5"
+    },
+    "errors": {
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
+      "unauthorized": "Inicia sesión con Steam para continuar.",
+      "rateLimitInterval": "Espera un momento antes de enviar otra puntuación.",
+      "rateLimitHourly": "Has alcanzado el límite horario de puntuaciones. Inténtalo más tarde."
+    }
+  },
+  "profileReviews": {
+    "subtitle": "{count, plural, one {# reseña escrita} other {# reseñas escritas}}",
+    "empty": "Este jugador aún no ha escrito reseñas.",
+    "steamLevel": "Nivel de Steam {level}",
+    "steamLevelUnavailable": "Nivel de Steam —",
+    "edited": "Editado",
+    "ratingOnly": "Solo puntuación — sin reseña escrita.",
+    "helpful": "Útil ({count})"
   }
 }
