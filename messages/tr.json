@@ -8,7 +8,9 @@
     "gameDetailsDescription": "{title} için başarımları, oynama süresini, topluluk istatistiklerini ve liderlik tablolarını keşfet.",
     "profileNotFoundTitle": "Profil Bulunamadı — StatRealm",
     "profileTitle": "{name} — StatRealm",
-    "profileDescription": "{name} adlı kullanıcının herkese açık StatRealm oyun profilini görüntüle."
+    "profileDescription": "{name} adlı kullanıcının herkese açık StatRealm oyun profilini görüntüle.",
+    "reviewsTitle": "Yorumlar — StatRealm",
+    "reviewsDescription": "StatRealm oyuncularının en yeni topluluk yorumlarını keşfet."
   },
   "nav": {
     "signInWithSteam": "Steam ile Giriş Yap",
@@ -55,6 +57,7 @@
     "communityLeaderboard": "Topluluk Liderlik Tablosu",
     "achievementTagline": "Her başarım bir hikâye anlatır.",
     "viewLeaderboards": "🏆 Liderlik Tablolarını Gör",
+    "viewReviews": "⭐ Yorumlar",
     "playersTracked": "Takip Edilen Oyuncular",
     "steamAccountsSynced": "Steam hesabı senkronize edildi",
     "recentPlayer": "Son Oyuncu",
@@ -452,6 +455,20 @@
     "steamLevelUnavailable": "Steam Seviyesi —",
     "edited": "Düzenlendi",
     "ratingOnly": "Yalnızca puan — yazılı yorum yok.",
+    "helpful": "Faydalı ({count})"
+  },
+  "reviewsPage": {
+    "title": "Yorumlar",
+    "subtitle": "StatRealm oyuncularının en yeni topluluk yorumlarını keşfet.",
+    "gameFilterLabel": "Oyuna göre filtrele",
+    "allGames": "Tüm Oyunlar",
+    "empty": "Henüz topluluk yorumu yok.",
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "pageNumber": "Sayfa {page} / {totalPages}",
+    "steamLevel": "Steam Seviyesi {level}",
+    "steamLevelUnavailable": "Steam Seviyesi —",
+    "ratingValue": "{rating} / 10",
     "helpful": "Faydalı ({count})"
   }
 }

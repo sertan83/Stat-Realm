@@ -8,7 +8,9 @@
     "gameDetailsDescription": "Изучайте достижения, время в игре, статистику сообщества и таблицы лидеров для {title}.",
     "profileNotFoundTitle": "Профиль не найден — StatRealm",
     "profileTitle": "{name} — StatRealm",
-    "profileDescription": "Просмотрите публичный игровой профиль {name} на StatRealm."
+    "profileDescription": "Просмотрите публичный игровой профиль {name} на StatRealm.",
+    "reviewsTitle": "Отзывы — StatRealm",
+    "reviewsDescription": "Просматривайте новейшие отзывы сообщества StatRealm."
   },
   "nav": {
     "signInWithSteam": "Войти через Steam",
@@ -55,6 +57,7 @@
     "communityLeaderboard": "Таблица лидеров сообщества",
     "achievementTagline": "Каждое достижение — это история.",
     "viewLeaderboards": "🏆 Таблицы лидеров",
+    "viewReviews": "⭐ Отзывы",
     "playersTracked": "Отслеживаемых игроков",
     "steamAccountsSynced": "Синхронизированных аккаунтов Steam",
     "recentPlayer": "Недавний игрок",
@@ -452,6 +455,20 @@
     "steamLevelUnavailable": "Уровень Steam —",
     "edited": "Изменено",
     "ratingOnly": "Только оценка — без текста отзыва.",
+    "helpful": "Полезно ({count})"
+  },
+  "reviewsPage": {
+    "title": "Отзывы",
+    "subtitle": "Просматривайте новейшие отзывы сообщества StatRealm.",
+    "gameFilterLabel": "Фильтр по игре",
+    "allGames": "Все игры",
+    "empty": "Отзывов сообщества пока нет.",
+    "previous": "Назад",
+    "next": "Далее",
+    "pageNumber": "Страница {page} из {totalPages}",
+    "steamLevel": "Уровень Steam {level}",
+    "steamLevelUnavailable": "Уровень Steam —",
+    "ratingValue": "{rating} / 10",
     "helpful": "Полезно ({count})"
   }
 }

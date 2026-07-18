@@ -1038,3 +1038,12 @@ export async function getLatestGameReviewWithText(): Promise<StoredGameRating | 
     null
   );
 }
+
+export async function getAllGameReviewsWithText(): Promise<StoredGameRating[]> {
+  const db = await readDbFile();
+
+  return Object.values(db.gameRatings).filter(
+    (rating) =>
+      typeof rating.reviewText === "string" && rating.reviewText.trim().length > 0,
+  );
+}

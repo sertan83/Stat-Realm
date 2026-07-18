@@ -8,7 +8,9 @@
     "gameDetailsDescription": "Explore achievements, playtime, community statistics, and leaderboards for {title}.",
     "profileNotFoundTitle": "Profile Not Found — StatRealm",
     "profileTitle": "{name} — StatRealm",
-    "profileDescription": "View {name}'s public StatRealm gaming profile."
+    "profileDescription": "View {name}'s public StatRealm gaming profile.",
+    "reviewsTitle": "Reviews — StatRealm",
+    "reviewsDescription": "Browse the newest community reviews from StatRealm players."
   },
   "nav": {
     "signInWithSteam": "Sign in With Steam",
@@ -55,6 +57,7 @@
     "communityLeaderboard": "Community Leaderboard",
     "achievementTagline": "Every achievement tells a story.",
     "viewLeaderboards": "🏆 View Leaderboards",
+    "viewReviews": "⭐ Reviews",
     "playersTracked": "Players Tracked",
     "steamAccountsSynced": "Steam accounts synced",
     "recentPlayer": "Recent Player",
@@ -452,6 +455,20 @@
     "steamLevelUnavailable": "Steam Level —",
     "edited": "Edited",
     "ratingOnly": "Rating only — no written review.",
+    "helpful": "Helpful ({count})"
+  },
+  "reviewsPage": {
+    "title": "Reviews",
+    "subtitle": "Browse the newest community reviews from StatRealm players.",
+    "gameFilterLabel": "Filter by game",
+    "allGames": "All Games",
+    "empty": "No community reviews yet.",
+    "previous": "Previous",
+    "next": "Next",
+    "pageNumber": "Page {page} of {totalPages}",
+    "steamLevel": "Steam Level {level}",
+    "steamLevelUnavailable": "Steam Level —",
+    "ratingValue": "{rating} / 10",
     "helpful": "Helpful ({count})"
   }
 }

@@ -8,7 +8,9 @@
     "gameDetailsDescription": "Esplora achievement, tempo di gioco, statistiche della community e classifiche per {title}.",
     "profileNotFoundTitle": "Profilo non trovato — StatRealm",
     "profileTitle": "{name} — StatRealm",
-    "profileDescription": "Visualizza il profilo di gioco pubblico di {name} su StatRealm."
+    "profileDescription": "Visualizza il profilo di gioco pubblico di {name} su StatRealm.",
+    "reviewsTitle": "Recensioni — StatRealm",
+    "reviewsDescription": "Sfoglia le recensioni più recenti della community StatRealm."
   },
   "nav": {
     "signInWithSteam": "Accedi con Steam",
@@ -55,6 +57,7 @@
     "communityLeaderboard": "Classifica della community",
     "achievementTagline": "Ogni achievement racconta una storia.",
     "viewLeaderboards": "🏆 Vedi classifiche",
+    "viewReviews": "⭐ Recensioni",
     "playersTracked": "Giocatori monitorati",
     "steamAccountsSynced": "Account Steam sincronizzati",
     "recentPlayer": "Giocatore recente",
@@ -452,6 +455,20 @@
     "steamLevelUnavailable": "Livello Steam —",
     "edited": "Modificato",
     "ratingOnly": "Solo valutazione — nessuna recensione scritta.",
+    "helpful": "Utile ({count})"
+  },
+  "reviewsPage": {
+    "title": "Recensioni",
+    "subtitle": "Sfoglia le recensioni più recenti della community StatRealm.",
+    "gameFilterLabel": "Filtra per gioco",
+    "allGames": "Tutti i giochi",
+    "empty": "Non ci sono ancora recensioni della community.",
+    "previous": "Precedente",
+    "next": "Successivo",
+    "pageNumber": "Pagina {page} di {totalPages}",
+    "steamLevel": "Livello Steam {level}",
+    "steamLevelUnavailable": "Livello Steam —",
+    "ratingValue": "{rating} / 10",
     "helpful": "Utile ({count})"
   }
 }

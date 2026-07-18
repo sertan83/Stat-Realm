@@ -27,12 +27,20 @@ export default async function Home({ params }: HomePageProps) {
   return (
     <main className="relative min-h-screen text-white">
       <Navbar />
-      <Link
-        href="/leaderboards"
-        className="absolute top-[79px] left-4 z-20 rounded-lg border border-white/10 bg-[#1B2838]/90 px-3.5 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(107,47,214,0.12)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:bg-[#2A475E]"
-      >
-        {t("viewLeaderboards")}
-      </Link>
+      <div className="absolute top-[79px] left-4 z-20 flex flex-col gap-2.5">
+        <Link
+          href="/leaderboards"
+          className="rounded-lg border border-white/10 bg-[#1B2838]/90 px-3.5 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(107,47,214,0.12)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:bg-[#2A475E]"
+        >
+          {t("viewLeaderboards")}
+        </Link>
+        <Link
+          href="/reviews"
+          className="rounded-lg border border-white/10 bg-[#1B2838]/90 px-3.5 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(107,47,214,0.12)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:bg-[#2A475E]"
+        >
+          {t("viewReviews")}
+        </Link>
+      </div>
       <Hero
         mostPlayedGames={communityData.mostPlayedGames}
         mostOwnedGames={communityData.mostOwnedGames}
