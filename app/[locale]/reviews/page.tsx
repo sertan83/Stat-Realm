@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { auth } from "@/auth";
 import { Navbar } from "@/components/Navbar";
 import { CommunityReviewsPanel } from "@/components/reviews/CommunityReviewsPanel";
 import { parseCommunityReviewsQuery } from "@/lib/reviews/community-reviews-params";
@@ -31,10 +32,12 @@ export default async function ReviewsPage({
   const query = parseCommunityReviewsQuery(resolvedSearchParams);
   setRequestLocale(locale);
 
+  const session = await auth();
   const [reviewsData, t] = await Promise.all([
     loadCommunityReviewsPage({
       page: query.page,
       selectedAppId: query.selectedAppId,
+      viewerSteamId: session?.user?.steamId ?? null,
     }),
     getTranslations("reviewsPage"),
   ]);
@@ -55,7 +58,11 @@ export default async function ReviewsPage({
           </header>
 
           <div className="mt-10">
-            <CommunityReviewsPanel data={reviewsData} locale={locale} />
+            <CommunityReviewsPanel
+              data={reviewsData}
+              locale={locale}
+              isAuthenticated={Boolean(session?.user)}
+            />
           </div>
         </div>
       </main>

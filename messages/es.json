@@ -462,6 +462,8 @@
     "subtitle": "Explora las reseñas más recientes de la comunidad de StatRealm.",
     "gameFilterLabel": "Filtrar por juego",
     "allGames": "Todos los juegos",
+    "searchGameLabel": "Buscar juego",
+    "searchGamePlaceholder": "Buscar juego...",
     "empty": "Aún no hay reseñas de la comunidad.",
     "previous": "Anterior",
     "next": "Siguiente",

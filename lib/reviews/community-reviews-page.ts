@@ -7,6 +7,7 @@ import {
   getGameRatingAggregate,
   getHelpfulVoteCounts,
   getStatRealmUser,
+  getUserHelpfulVotes,
 } from "@/lib/db";
 import type {
   CommunityReviewEntry,
@@ -29,6 +30,7 @@ function buildGameHeaderImageUrl(appId: number) {
 export async function loadCommunityReviewsPage(input: {
   page?: number;
   selectedAppId?: number | null;
+  viewerSteamId?: string | null;
 }): Promise<CommunityReviewsPageData> {
   const page = Math.max(1, input.page ?? 1);
   const selectedAppId = input.selectedAppId ?? null;
@@ -57,6 +59,10 @@ export async function loadCommunityReviewsPage(input: {
     createGameRatingKey(rating.steamId, rating.appId),
   );
   const helpfulCounts = await getHelpfulVoteCounts(ratingKeys);
+  const votedKeys =
+    input.viewerSteamId && ratingKeys.length > 0
+      ? await getUserHelpfulVotes(input.viewerSteamId, ratingKeys)
+      : new Set<string>();
 
   const reviews = await Promise.all(
     sortedRatings.map(async (rating) => {
@@ -84,7 +90,7 @@ export async function loadCommunityReviewsPage(input: {
         updatedAt: rating.updatedAt,
         editedAt: rating.editedAt,
         helpfulCount: helpfulCounts[ratingKey] ?? 0,
-        hasVotedHelpful: false,
+        hasVotedHelpful: votedKeys.has(ratingKey),
       } satisfies CommunityReviewEntry;
     }),
   );

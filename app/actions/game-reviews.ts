@@ -37,6 +37,7 @@ function revalidateGameReviewPaths(appId: number) {
     revalidatePath(`/${locale}/game/${appId}`);
   }
   revalidatePath("/explore");
+  revalidatePath("/reviews");
 }
 
 export async function submitGameReviewAction(input: {
