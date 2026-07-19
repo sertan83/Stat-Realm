@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
@@ -70,6 +71,7 @@ export default async function LocaleLayout({
           </div>
         </NextIntlClientProvider>
       </body>
+      <GoogleAnalytics gaId="G-FCQX141JK2" />
     </html>
   );
 }
