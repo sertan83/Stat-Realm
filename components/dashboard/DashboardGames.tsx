@@ -1,13 +1,15 @@
 "use client";
 
-import Image from "next/image";
-import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
 import type { DashboardGame } from "@/types/dashboard";
+import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
+import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
 import { Link } from "@/i18n/navigation";
 import { reportSuccessfulGameImage } from "@/lib/steam/report-game-image-cache";
+import Image from "next/image";
 
 function DashboardGameCard({
   game,
@@ -19,20 +21,21 @@ function DashboardGameCard({
   compact?: boolean;
 }) {
   const t = useTranslations("dashboard");
-  const candidates = useMemo(() => {
-    const baseCandidates =
-      game.imageCandidates && game.imageCandidates.length > 0
-        ? game.imageCandidates
-        : [game.imageUrl, game.imageFallbackUrl].filter(
-            (candidate): candidate is string => Boolean(candidate),
-          );
-
-    return Array.from(new Set(baseCandidates));
-  }, [game.imageCandidates, game.imageFallbackUrl, game.imageUrl]);
-  const [candidateIndex, setCandidateIndex] = useState(0);
-  const activeUrl = candidates[candidateIndex];
   const appId = Number(game.id);
-  const showPlaceholder = !activeUrl || candidateIndex >= candidates.length;
+  const candidates = useMemo(
+    () =>
+      buildSteamGameImageCandidates(appId, {
+        variant: "card",
+        preferredUrls: [
+          ...(game.imageCandidates ?? []),
+          game.imageUrl,
+          game.imageFallbackUrl,
+        ],
+      }),
+    [appId, game.imageCandidates, game.imageFallbackUrl, game.imageUrl],
+  );
+  const [candidateIndex, setCandidateIndex] = useState(0);
+  const activeUrl = candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE;
 
   return (
     <Link
@@ -46,32 +49,24 @@ function DashboardGameCard({
           compact ? "h-20 w-32 shrink-0" : "aspect-[460/215] w-full rounded-b-none"
         }`}
       >
-        {showPlaceholder ? (
-          <div className="flex h-full w-full items-center justify-center bg-white/5 px-3 text-center text-xs font-medium text-white/45">
-            {t("noImageAvailable")}
-          </div>
-        ) : (
-          <Image
-            key={activeUrl}
-            src={activeUrl}
-            alt={game.title}
-            fill
-            sizes={compact ? "128px" : "280px"}
-            onLoad={() => {
-              if (Number.isInteger(appId) && appId > 0) {
-                reportSuccessfulGameImage(appId, "card", activeUrl);
-              }
-            }}
-            onError={() => {
-              if (candidateIndex + 1 < candidates.length) {
-                setCandidateIndex((currentIndex) => currentIndex + 1);
-              } else {
-                setCandidateIndex(candidates.length);
-              }
-            }}
-            className="object-cover transition duration-300 group-hover:brightness-110"
-          />
-        )}
+        <Image
+          key={activeUrl}
+          src={activeUrl}
+          alt={game.title}
+          fill
+          sizes={compact ? "128px" : "280px"}
+          onLoad={() => {
+            if (Number.isInteger(appId) && appId > 0) {
+              reportSuccessfulGameImage(appId, "card", activeUrl);
+            }
+          }}
+          onError={() => {
+            if (candidateIndex + 1 < candidates.length) {
+              setCandidateIndex((currentIndex) => currentIndex + 1);
+            }
+          }}
+          className="object-cover transition duration-300 group-hover:brightness-110"
+        />
         {rank ? (
           <span className="absolute top-2 left-2 flex h-7 w-7 items-center justify-center rounded-md bg-[#140B2D]/85 text-xs font-bold text-white backdrop-blur-sm">
             {rank}

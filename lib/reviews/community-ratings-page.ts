@@ -4,10 +4,6 @@ import { getAllRatingAggregates } from "@/lib/db";
 import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
 import type { CommunityRatingsPageData } from "@/lib/reviews/types";
 
-function buildGameCapsuleImageUrl(appId: number) {
-  return `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/capsule_231x87.jpg`;
-}
-
 export async function loadCommunityRatingsPage(): Promise<CommunityRatingsPageData> {
   const aggregates = (await getAllRatingAggregates()).filter(
     (aggregate) => aggregate.totalRatings > 0,
@@ -33,7 +29,6 @@ export async function loadCommunityRatingsPage(): Promise<CommunityRatingsPageDa
   const ratings = ratingsWithNames.map((entry) => ({
     appId: entry.appId,
     gameName: entry.gameName,
-    capsuleImageUrl: buildGameCapsuleImageUrl(entry.appId),
     averageRating: entry.averageRating,
     totalRatings: entry.totalRatings,
     totalReviews: entry.totalReviews,

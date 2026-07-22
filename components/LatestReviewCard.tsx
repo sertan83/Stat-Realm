@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
+import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
 import { Link } from "@/i18n/navigation";
 import type { LandingLatestReview } from "@/lib/reviews/latest-review";
 import { cn } from "@/lib/utils";
@@ -128,16 +129,15 @@ export function LatestReviewCard({ review, className }: LatestReviewCardProps) {
             </p>
           </div>
 
-          <div className="relative mt-3 h-16 overflow-hidden rounded-md border border-white/10 bg-[#140B2D]">
-            <Image
-              src={review.gameHeaderImageUrl}
-              alt=""
-              fill
-              sizes="220px"
-              unoptimized
-              className="object-cover transition duration-[250ms] group-hover:scale-[1.03]"
-            />
-          </div>
+          <SteamGameImageByAppId
+            appId={review.appId}
+            variant="header"
+            preferredUrls={[review.gameHeaderImageUrl]}
+            wrapperClassName="relative mt-3 h-16 overflow-hidden rounded-md border border-white/10 bg-[#140B2D]"
+            sizes="220px"
+            unoptimized
+            className="object-cover transition duration-[250ms] group-hover:scale-[1.03]"
+          />
 
           <p className="mt-3 truncate text-xs font-semibold text-white sm:text-sm">
             <GameName appId={review.appId} name={review.gameName} />

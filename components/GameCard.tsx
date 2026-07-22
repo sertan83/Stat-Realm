@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { Game } from "@/types/game";
+import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import { reportSuccessfulGameImage } from "@/lib/steam/report-game-image-cache";
 import { cn } from "@/lib/utils";
@@ -13,21 +14,20 @@ type GameCardProps = {
 };
 
 export function GameCard({ game, className }: GameCardProps) {
+  const appId = Number(game.id);
   const candidates = useMemo(() => {
     const baseCandidates =
       game.imageCandidates && game.imageCandidates.length > 0
         ? game.imageCandidates
         : [game.imageUrl];
 
-    return baseCandidates.some(
-      (candidate) => candidate === DEFAULT_GAME_FALLBACK_IMAGE,
-    )
-      ? baseCandidates
-      : [...baseCandidates, DEFAULT_GAME_FALLBACK_IMAGE];
-  }, [game.imageCandidates, game.imageUrl]);
+    return buildSteamGameImageCandidates(appId, {
+      variant: "card",
+      preferredUrls: baseCandidates,
+    });
+  }, [appId, game.imageCandidates, game.imageUrl]);
   const [candidateIndex, setCandidateIndex] = useState(0);
-  const activeUrl = candidates[candidateIndex] ?? candidates[0];
-  const appId = Number(game.id);
+  const activeUrl = candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE;
 
   return (
     <article

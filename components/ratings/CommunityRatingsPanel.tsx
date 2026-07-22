@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
+import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
 import { Select } from "@/components/ui/Select";
 import { Link } from "@/i18n/navigation";
 import type {
@@ -81,32 +81,35 @@ function sortCommunityRatings(
   }
 }
 
-function RatingRow({ rating }: { rating: CommunityRatingEntry }) {
+function RatingRow({
+  rating,
+  rank,
+}: {
+  rating: CommunityRatingEntry;
+  rank: number;
+}) {
   const t = useTranslations("ratingsPage");
-  const [imageUrl, setImageUrl] = useState(rating.capsuleImageUrl);
-  const fallbackImageUrl = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${rating.appId}/header.jpg`;
 
   return (
     <Link
       href={`/game/${rating.appId}`}
-      className="group flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4 shadow-[0_0_30px_rgba(107,47,214,0.08)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.01] hover:border-white/15 sm:gap-5 sm:p-5"
+      className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4 shadow-[0_0_30px_rgba(107,47,214,0.08)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.01] hover:border-white/15 sm:gap-5 sm:p-5"
       aria-label={t("openGame", { name: rating.gameName })}
     >
-      <div className="relative h-[47px] w-[115px] shrink-0 overflow-hidden rounded-md border border-white/10 bg-[#140B2D] sm:h-[53px] sm:w-[130px]">
-        <Image
-          src={imageUrl}
-          alt=""
-          fill
-          sizes="130px"
-          unoptimized
-          className="object-cover transition duration-[250ms] group-hover:scale-[1.03]"
-          onError={() => {
-            if (imageUrl !== fallbackImageUrl) {
-              setImageUrl(fallbackImageUrl);
-            }
-          }}
-        />
+      <div className="flex w-11 shrink-0 justify-center sm:w-14">
+        <span className="text-2xl font-bold tabular-nums text-white/50 sm:text-3xl">
+          #{rank}
+        </span>
       </div>
+
+      <SteamGameImageByAppId
+        appId={rating.appId}
+        variant="capsule"
+        wrapperClassName="h-[47px] w-[115px] shrink-0 overflow-hidden rounded-md border border-white/10 bg-[#140B2D] sm:h-[53px] sm:w-[130px]"
+        sizes="130px"
+        unoptimized
+        className="object-cover transition duration-[250ms] group-hover:scale-[1.03]"
+      />
 
       <div className="min-w-0 flex-1">
         <h2 className="truncate text-base font-semibold text-white transition group-hover:text-white/85 sm:text-lg">
@@ -179,8 +182,8 @@ export function CommunityRatingsPanel({
       </div>
 
       <div className="space-y-3">
-        {sortedRatings.map((rating) => (
-          <RatingRow key={rating.appId} rating={rating} />
+        {sortedRatings.map((rating, index) => (
+          <RatingRow key={rating.appId} rating={rating} rank={index + 1} />
         ))}
       </div>
     </div>

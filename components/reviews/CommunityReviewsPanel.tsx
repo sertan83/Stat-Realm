@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
+import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
 import { voteReviewHelpfulAction } from "@/app/actions/game-reviews";
 import { Link, useRouter } from "@/i18n/navigation";
 import { buildCommunityReviewsHref } from "@/lib/reviews/community-reviews-params";
@@ -135,16 +136,15 @@ export function CommunityReviewsPanel({
                     </div>
 
                     <div className="w-full shrink-0 lg:w-[220px]">
-                      <div className="relative h-16 overflow-hidden rounded-md border border-white/10 bg-[#140B2D]">
-                        <Image
-                          src={review.gameHeaderImageUrl}
-                          alt=""
-                          fill
-                          sizes="220px"
-                          unoptimized
-                          className="object-cover transition duration-[250ms] group-hover:scale-[1.03]"
-                        />
-                      </div>
+                      <SteamGameImageByAppId
+                        appId={review.appId}
+                        variant="header"
+                        preferredUrls={[review.gameHeaderImageUrl]}
+                        wrapperClassName="relative h-16 overflow-hidden rounded-md border border-white/10 bg-[#140B2D]"
+                        sizes="220px"
+                        unoptimized
+                        className="object-cover transition duration-[250ms] group-hover:scale-[1.03]"
+                      />
                       <p className="mt-2 truncate text-sm font-semibold text-white">
                         <GameName appId={review.appId} name={review.gameName} />
                       </p>
