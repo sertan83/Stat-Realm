@@ -39,6 +39,7 @@ export function createEmptyDb(): StatRealmDb {
     helpfulVotes: {},
     ratingAggregates: {},
     ratingSubmissionLogs: {},
+    gameMetadata: {},
   };
 }
 

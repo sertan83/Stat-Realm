@@ -1,6 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
+import { GameName } from "@/components/GameName";
 import type { RankedCommunityGame } from "@/lib/community/rankings";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +36,7 @@ export function GameRankPanel({ title, games, className }: GameRankPanelProps) {
               <span className="mr-1.5 font-medium text-white/45">
                 {index + 1}.
               </span>
-              {game.name}
+              <GameName appId={game.appId} name={game.name} />
             </Link>
           </li>
         ))}

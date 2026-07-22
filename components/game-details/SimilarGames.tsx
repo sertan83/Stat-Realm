@@ -1,6 +1,7 @@
 "use client";
 
 import { GameCard } from "@/components/GameCard";
+import { GameName } from "@/components/GameName";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
 import { Link } from "@/i18n/navigation";
 import type { Game } from "@/types/game";
@@ -20,7 +21,7 @@ export function SimilarGames({ games }: SimilarGamesProps) {
         >
           <GameCard game={game} />
           <h3 className="mt-3 truncate font-semibold text-white transition group-hover:text-white/80">
-            {game.title}
+            <GameName appId={Number(game.id)} name={game.title} />
           </h3>
           <p className="mt-1 text-sm text-white/50">{game.category}</p>
         </Link>

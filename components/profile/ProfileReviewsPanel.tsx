@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { GameName } from "@/components/GameName";
 import { Link } from "@/i18n/navigation";
 import type { UserProfileReviewsPage } from "@/lib/reviews/types";
 import { cn } from "@/lib/utils";
@@ -87,7 +88,7 @@ export function ProfileReviewsPanel({
               href={`/game/${review.appId}`}
               className="mt-4 inline-flex text-sm font-medium text-[#EFA5A8] transition hover:text-white"
             >
-              {review.gameName}
+              <GameName appId={review.appId} name={review.gameName} />
             </Link>
 
             {review.reviewText ? (

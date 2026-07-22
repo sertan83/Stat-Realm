@@ -10,6 +10,8 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { PlaytimeAnalytics } from "@/components/dashboard/PlaytimeAnalytics";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
+import { isPlaceholderGameName, GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
+import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
 import { slugifyGameName } from "@/lib/slugify-game-name";
 import {
   getAuthenticatedSteamProfile,
@@ -62,7 +64,7 @@ function toDashboardGame(
   formatters: ReturnType<typeof createIntlFormatters>,
   steamGameCategory: string,
 ): DashboardGame {
-  const title = game.name ?? `Steam App ${game.appid}`;
+  const title = game.name?.trim() ?? "";
 
   return {
     id: String(game.appid),
@@ -77,6 +79,31 @@ function toDashboardGame(
     completionStatus:
       progress?.total === 0 ? "unsupported" : completionStatus,
   };
+}
+
+async function enrichDashboardGameTitles(
+  games: DashboardGame[],
+  steamId: string,
+) {
+  const appIds = games
+    .map((game) => Number(game.id))
+    .filter((appId) => Number.isInteger(appId) && appId > 0);
+  const names = await resolveGameMetadataBatch(appIds, { steamId });
+
+  return games.map((game) => {
+    const appId = Number(game.id);
+    const resolvedName =
+      names.get(appId) ??
+      (isPlaceholderGameName(game.title, appId)
+        ? GAME_NAME_LOADING_LABEL
+        : game.title);
+
+    return {
+      ...game,
+      title: resolvedName,
+      slug: slugifyGameName(resolvedName),
+    };
+  });
 }
 
 export default async function DashboardPage({ params }: DashboardPageProps) {
@@ -196,13 +223,17 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const capsuleFilenameByAppId = new Map(
     ownedGames.map((game) => [game.appid, game.capsule_filename]),
   );
-  const [recentlyPlayed, mostPlayed] = await Promise.all([
+  const [recentlyPlayedWithImages, mostPlayedWithImages] = await Promise.all([
     enrichDashboardGamesWithSteamImages(recentlyPlayedBase, {
       capsuleFilenameByAppId,
     }),
     enrichDashboardGamesWithSteamImages(mostPlayedBase, {
       capsuleFilenameByAppId,
     }),
+  ]);
+  const [recentlyPlayed, mostPlayed] = await Promise.all([
+    enrichDashboardGameTitles(recentlyPlayedWithImages, steamId),
+    enrichDashboardGameTitles(mostPlayedWithImages, steamId),
   ]);
   if (process.env.NODE_ENV !== "production") {
     for (const game of recentlyPlayed) {

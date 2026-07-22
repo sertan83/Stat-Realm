@@ -17,6 +17,8 @@ import {
   getLatestLandingReview,
   type LandingLatestReview,
 } from "@/lib/reviews/latest-review";
+import { GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
+import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
 
 export type { LandingLatestReview } from "@/lib/reviews/latest-review";
 
@@ -43,18 +45,28 @@ export type RankedCommunityGame = {
   name: string;
 };
 
+async function resolveRankedCommunityGames(
+  games: Array<{ appId: number; name: string }>,
+): Promise<RankedCommunityGame[]> {
+  const names = await resolveGameMetadataBatch(games.map((game) => game.appId));
+
+  return games.map((game) => ({
+    appId: game.appId,
+    name: names.get(game.appId) ?? GAME_NAME_LOADING_LABEL,
+  }));
+}
+
 export async function getCommunityRankings() {
   const aggregates = await readCommunityAggregates();
 
+  const [mostPlayedGames, mostOwnedGames] = await Promise.all([
+    resolveRankedCommunityGames(aggregates.mostPlayed),
+    resolveRankedCommunityGames(aggregates.mostOwned),
+  ]);
+
   return {
-    mostPlayedGames: aggregates.mostPlayed.map((game) => ({
-      appId: game.appId,
-      name: game.name,
-    })),
-    mostOwnedGames: aggregates.mostOwned.map((game) => ({
-      appId: game.appId,
-      name: game.name,
-    })),
+    mostPlayedGames,
+    mostOwnedGames,
   };
 }
 
@@ -141,15 +153,14 @@ export async function getCommunityLandingData() {
     getLatestLandingReview(),
   ]);
 
+  const [mostPlayedGames, mostOwnedGames] = await Promise.all([
+    resolveRankedCommunityGames(aggregates.mostPlayed),
+    resolveRankedCommunityGames(aggregates.mostOwned),
+  ]);
+
   return {
-    mostPlayedGames: aggregates.mostPlayed.map((game) => ({
-      appId: game.appId,
-      name: game.name,
-    })),
-    mostOwnedGames: aggregates.mostOwned.map((game) => ({
-      appId: game.appId,
-      name: game.name,
-    })),
+    mostPlayedGames,
+    mostOwnedGames,
     registeredUserCount,
     communityLeaderboard,
     recentPlayer,

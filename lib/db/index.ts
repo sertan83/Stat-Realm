@@ -9,6 +9,7 @@ import type {
   StatRealmDb,
   StatRealmUser,
   StoredGameRating,
+  StoredGameMetadata,
   StoredHelpfulVote,
   StoredProfileAnalytics,
   StoredUnlockedAchievement,
@@ -18,6 +19,10 @@ import {
   readPersistedDb,
   writePersistedDb,
 } from "@/lib/db/persistence";
+import {
+  isPlaceholderGameName,
+  sanitizeStoredGameName,
+} from "@/lib/game-metadata/constants";
 import {
   createEmptyUserStats,
   normalizeUserStats,
@@ -48,7 +53,7 @@ function normalizeStoredAchievementHistory(
     appId,
     apiName: achievement.apiName ?? "",
     name: achievement.name ?? "Achievement",
-    gameName: achievement.gameName ?? `Steam App ${appId}`,
+    gameName: sanitizeStoredGameName(achievement.gameName, appId),
     iconUrl: achievement.iconUrl ?? "",
     unlockTime,
   };
@@ -139,7 +144,7 @@ function normalizeStoredLibraryGame(
 ): UserLibraryGame {
   return {
     appId: game.appId,
-    name: game.name,
+    name: sanitizeStoredGameName(game.name, game.appId),
     playtimeMinutes: game.playtimeMinutes ?? 0,
     playtimeTwoWeeksMinutes: game.playtimeTwoWeeksMinutes ?? 0,
     lastPlayedAt:
@@ -247,10 +252,7 @@ function normalizeGameRatingAggregate(
 
   return {
     appId,
-    gameName:
-      typeof aggregate.gameName === "string" && aggregate.gameName.length > 0
-        ? aggregate.gameName
-        : `Steam App ${appId}`,
+    gameName: sanitizeStoredGameName(aggregate.gameName, appId),
     averageRating:
       typeof aggregate.averageRating === "number" &&
       Number.isFinite(aggregate.averageRating)
@@ -278,7 +280,29 @@ function ratingDistributionBucket(rating: number) {
 
 function rebuildRatingAggregates(
   gameRatings: Record<string, StoredGameRating>,
+  context: {
+    previousAggregates: Record<string, GameRatingAggregate>;
+    gameMetadata: Record<string, StoredGameMetadata>;
+  },
 ): Record<string, GameRatingAggregate> {
+  const resolveStoredName = (appId: number, currentName?: string) => {
+    if (currentName && !isPlaceholderGameName(currentName, appId)) {
+      return currentName;
+    }
+
+    const metadataName = context.gameMetadata[String(appId)]?.name;
+    if (metadataName && !isPlaceholderGameName(metadataName, appId)) {
+      return metadataName;
+    }
+
+    const previousName = context.previousAggregates[String(appId)]?.gameName;
+    if (previousName && !isPlaceholderGameName(previousName, appId)) {
+      return previousName;
+    }
+
+    return "";
+  };
+
   const byAppId = new Map<
     number,
     {
@@ -290,7 +314,7 @@ function rebuildRatingAggregates(
   for (const rating of Object.values(gameRatings)) {
     const entry = byAppId.get(rating.appId);
     byAppId.set(rating.appId, {
-      gameName: entry?.gameName ?? `Steam App ${rating.appId}`,
+      gameName: resolveStoredName(rating.appId, entry?.gameName),
       ratings: [...(entry?.ratings ?? []), rating],
     });
   }
@@ -352,7 +376,7 @@ async function readDbFile(): Promise<StatRealmDb> {
             normalizeStoredLibraryGame({
               ...game,
               appId: game.appId ?? 0,
-              name: game.name ?? `Steam App ${game.appId}`,
+              name: sanitizeStoredGameName(game.name, game.appId ?? 0),
             }),
           ),
         ]),
@@ -432,7 +456,41 @@ async function readDbFile(): Promise<StatRealmDb> {
           },
         ),
       ),
+      gameMetadata: Object.fromEntries(
+        Object.entries(parsed.gameMetadata ?? {}).flatMap(([key, metadata]) => {
+          const normalized = normalizeStoredGameMetadata(
+            metadata as Partial<StoredGameMetadata>,
+          );
+
+          return normalized ? [[key, normalized] as const] : [];
+        }),
+      ),
     };
+}
+
+function normalizeStoredGameMetadata(
+  metadata: Partial<StoredGameMetadata>,
+): StoredGameMetadata | null {
+  const appId = metadata.appId;
+
+  if (typeof appId !== "number" || !Number.isInteger(appId) || appId <= 0) {
+    return null;
+  }
+
+  const name = sanitizeStoredGameName(metadata.name, appId);
+
+  if (!name) {
+    return null;
+  }
+
+  return {
+    appId,
+    name,
+    updatedAt:
+      typeof metadata.updatedAt === "string"
+        ? metadata.updatedAt
+        : new Date().toISOString(),
+  };
 }
 
 async function writeDbFile(db: StatRealmDb) {
@@ -902,14 +960,30 @@ export async function upsertGameRating(input: {
     };
 
     const previousName = db.ratingAggregates[String(input.appId)]?.gameName;
-    db.ratingAggregates = rebuildRatingAggregates(db.gameRatings);
+    db.ratingAggregates = rebuildRatingAggregates(db.gameRatings, {
+      previousAggregates: db.ratingAggregates,
+      gameMetadata: db.gameMetadata,
+    });
 
     const aggregate = db.ratingAggregates[String(input.appId)];
     if (aggregate) {
+      const resolvedName = sanitizeStoredGameName(
+        input.gameName ?? previousName ?? aggregate.gameName,
+        input.appId,
+      );
+
       db.ratingAggregates[String(input.appId)] = {
         ...aggregate,
-        gameName: input.gameName ?? previousName ?? aggregate.gameName,
+        gameName: resolvedName,
       };
+
+      if (resolvedName) {
+        db.gameMetadata[String(input.appId)] = {
+          appId: input.appId,
+          name: resolvedName,
+          updatedAt: now,
+        };
+      }
     }
 
     await writeDbFile(db);
@@ -928,7 +1002,10 @@ export async function deleteGameRating(steamId: string, appId: number) {
       }
     }
 
-    db.ratingAggregates = rebuildRatingAggregates(db.gameRatings);
+    db.ratingAggregates = rebuildRatingAggregates(db.gameRatings, {
+      previousAggregates: db.ratingAggregates,
+      gameMetadata: db.gameMetadata,
+    });
     await writeDbFile(db);
   });
 }
@@ -962,6 +1039,42 @@ export async function getGameRating(
 ): Promise<StoredGameRating | null> {
   const db = await readDbFile();
   return db.gameRatings[createGameRatingKey(steamId, appId)] ?? null;
+}
+
+export async function getStoredGameMetadata(
+  appId: number,
+): Promise<StoredGameMetadata | null> {
+  const db = await readDbFile();
+  return db.gameMetadata[String(appId)] ?? null;
+}
+
+export async function upsertStoredGameMetadata(appId: number, name: string) {
+  const sanitizedName = sanitizeStoredGameName(name, appId);
+
+  if (!sanitizedName) {
+    return;
+  }
+
+  await withDbLock(async () => {
+    const db = await readDbFile();
+    const now = new Date().toISOString();
+
+    db.gameMetadata[String(appId)] = {
+      appId,
+      name: sanitizedName,
+      updatedAt: now,
+    };
+
+    const aggregate = db.ratingAggregates[String(appId)];
+    if (aggregate && isPlaceholderGameName(aggregate.gameName, appId)) {
+      db.ratingAggregates[String(appId)] = {
+        ...aggregate,
+        gameName: sanitizedName,
+      };
+    }
+
+    await writeDbFile(db);
+  });
 }
 
 export async function getGameRatingAggregate(

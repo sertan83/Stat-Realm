@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { GameName } from "@/components/GameName";
 import { Link } from "@/i18n/navigation";
 import type { LandingLatestReview } from "@/lib/reviews/latest-review";
 import { cn } from "@/lib/utils";
@@ -139,7 +140,7 @@ export function LatestReviewCard({ review, className }: LatestReviewCardProps) {
           </div>
 
           <p className="mt-3 truncate text-xs font-semibold text-white sm:text-sm">
-            {review.gameName}
+            <GameName appId={review.appId} name={review.gameName} />
           </p>
 
           <p className="mt-1 text-xs font-medium text-[#EFA5A8] sm:text-sm">

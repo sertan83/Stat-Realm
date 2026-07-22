@@ -1,9 +1,9 @@
 import "server-only";
 
 import { getUserGameRatings } from "@/lib/db";
+import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
 import type { UserRatingsPageData } from "@/lib/reviews/types";
 import { getSteamBannerImageCandidates } from "@/lib/steam/game-images";
-import { resolveSteamGameDisplayName } from "@/lib/steam/resolve-game-name";
 
 function buildGameHeaderImageUrl(appId: number) {
   const bannerCandidates = getSteamBannerImageCandidates(appId);
@@ -23,21 +23,22 @@ export async function loadUserRatingsPage(
     (first, second) => Date.parse(second.createdAt) - Date.parse(first.createdAt),
   );
 
-  const ratings = await Promise.all(
-    sortedRatings.map(async (rating) => {
-      const gameName = await resolveSteamGameDisplayName(rating.appId, {
-        steamId,
-      });
-
-      return {
-        appId: rating.appId,
-        gameName,
-        imageUrl: buildGameHeaderImageUrl(rating.appId),
-        rating: rating.rating,
-        createdAt: rating.createdAt,
-      };
-    }),
+  const ratingsWithNames = await attachResolvedGameNames(
+    sortedRatings.map((rating) => ({
+      appId: rating.appId,
+      rating: rating.rating,
+      createdAt: rating.createdAt,
+    })),
+    { steamId },
   );
+
+  const ratings = ratingsWithNames.map((rating) => ({
+    appId: rating.appId,
+    gameName: rating.gameName,
+    imageUrl: buildGameHeaderImageUrl(rating.appId),
+    rating: rating.rating,
+    createdAt: rating.createdAt,
+  }));
 
   return {
     ratings,

@@ -2,10 +2,10 @@ import "server-only";
 
 import {
   createGameRatingKey,
-  getGameRatingAggregate,
   getLatestGameReviewWithText,
   getStatRealmUser,
 } from "@/lib/db";
+import { resolveGameDisplayName } from "@/lib/steam/game-metadata";
 import { getSteamBannerImageCandidates } from "@/lib/steam/game-images";
 
 const REVIEW_PREVIEW_LENGTH = 120;
@@ -38,9 +38,9 @@ export async function getLatestLandingReview(): Promise<LandingLatestReview | nu
     return null;
   }
 
-  const [user, aggregate] = await Promise.all([
+  const [user, gameName] = await Promise.all([
     getStatRealmUser(latestReview.steamId),
-    getGameRatingAggregate(latestReview.appId),
+    resolveGameDisplayName(latestReview.appId),
   ]);
   const bannerCandidates = getSteamBannerImageCandidates(latestReview.appId);
 
@@ -48,7 +48,7 @@ export async function getLatestLandingReview(): Promise<LandingLatestReview | nu
     ratingKey: createGameRatingKey(latestReview.steamId, latestReview.appId),
     steamId: latestReview.steamId,
     appId: latestReview.appId,
-    gameName: aggregate?.gameName ?? `Steam App ${latestReview.appId}`,
+    gameName,
     gameHeaderImageUrl:
       bannerCandidates[0]?.url ??
       `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${latestReview.appId}/header.jpg`,

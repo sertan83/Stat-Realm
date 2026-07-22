@@ -15,6 +15,7 @@ import type {
   ReviewFilterOption,
   ReviewSortOption,
 } from "@/lib/reviews/types";
+import { resolveGameDisplayName } from "@/lib/steam/game-metadata";
 
 const REVIEWS_PER_PAGE = 20;
 
@@ -97,6 +98,9 @@ export async function loadGameReviewsPage(input: {
   const page = Math.max(1, input.page ?? 1);
   const sort = input.sort ?? "newest";
   const filter = input.filter ?? "all";
+  const resolvedGameName = await resolveGameDisplayName(input.appId, {
+    steamId: input.viewerSteamId,
+  });
   const [aggregate, storedRatings, currentUserRating] = await Promise.all([
     getGameRatingAggregate(input.appId),
     getGameRatingsForApp(input.appId),
@@ -124,7 +128,7 @@ export async function loadGameReviewsPage(input: {
         ratingKey,
         steamId: rating.steamId,
         appId: rating.appId,
-        gameName: input.gameName,
+        gameName: resolvedGameName,
         displayName: user?.displayName ?? `Steam User ${rating.steamId.slice(-4)}`,
         avatarUrl: user?.avatarUrl ?? user?.avatar ?? "",
         profileUrl:

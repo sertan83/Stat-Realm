@@ -5,9 +5,11 @@ import {
   getGameRatingAggregate,
   getHelpfulVoteCounts,
   getStatRealmUser,
+  getLatestGameReviewWithText,
   getUserGameRatings,
   getUserHelpfulVotes,
 } from "@/lib/db";
+import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
 import type { UserProfileReviewsPage } from "@/lib/reviews/types";
 
 const REVIEWS_PER_PAGE = 20;
@@ -30,35 +32,34 @@ export async function loadUserProfileReviewsPage(input: {
       : Promise.resolve(new Set<string>()),
   ]);
 
-  const reviews = await Promise.all(
-    storedRatings.map(async (rating) => {
-      const ratingKey = createGameRatingKey(rating.steamId, rating.appId);
-      const aggregate = await getGameRatingAggregate(rating.appId);
-      const gameName = aggregate?.gameName ?? `Steam App ${rating.appId}`;
+  const reviewEntries = storedRatings.map((rating) => {
+    const ratingKey = createGameRatingKey(rating.steamId, rating.appId);
 
-      return {
-        ratingKey,
-        steamId: rating.steamId,
-        appId: rating.appId,
-        gameName,
-        displayName: user?.displayName ?? `Steam User ${rating.steamId.slice(-4)}`,
-        avatarUrl: user?.avatarUrl ?? user?.avatar ?? "",
-        profileUrl:
-          user?.profileUrl ??
-          `https://steamcommunity.com/profiles/${rating.steamId}`,
-        steamLevel: user?.stats.steamLevel ?? null,
-        rating: rating.rating,
-        reviewText: rating.reviewText,
-        createdAt: rating.createdAt,
-        updatedAt: rating.updatedAt,
-        editedAt: rating.editedAt,
-        helpfulCount: helpfulCounts[ratingKey] ?? 0,
-        hasVotedHelpful: votedKeys.has(ratingKey),
-      };
-    }),
-  );
+    return {
+      ratingKey,
+      steamId: rating.steamId,
+      appId: rating.appId,
+      displayName: user?.displayName ?? `Steam User ${rating.steamId.slice(-4)}`,
+      avatarUrl: user?.avatarUrl ?? user?.avatar ?? "",
+      profileUrl:
+        user?.profileUrl ??
+        `https://steamcommunity.com/profiles/${rating.steamId}`,
+      steamLevel: user?.stats.steamLevel ?? null,
+      rating: rating.rating,
+      reviewText: rating.reviewText,
+      createdAt: rating.createdAt,
+      updatedAt: rating.updatedAt,
+      editedAt: rating.editedAt,
+      helpfulCount: helpfulCounts[ratingKey] ?? 0,
+      hasVotedHelpful: votedKeys.has(ratingKey),
+    };
+  });
 
-  const sortedReviews = reviews.sort(
+  const reviewsWithNames = await attachResolvedGameNames(reviewEntries, {
+    steamId: input.steamId,
+  });
+
+  const sortedReviews = [...reviewsWithNames].sort(
     (first, second) => Date.parse(second.createdAt) - Date.parse(first.createdAt),
   );
 

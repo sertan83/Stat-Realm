@@ -1,11 +1,13 @@
 import "server-only";
 
-import type { ExploreCatalogQuery } from "@/lib/explore/catalog-params";
 import { getAllRatingAggregates } from "@/lib/db";
+import { isPlaceholderGameName, GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
+import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
 import {
   buildExploreGames,
   type ExploreCatalogResult,
 } from "@/lib/steam/store-catalog";
+import type { ExploreCatalogQuery } from "@/lib/explore/catalog-params";
 
 const GAMES_PER_PAGE = 24;
 
@@ -55,11 +57,18 @@ export async function fetchStatRealmRatedCatalog(
     pageStart,
     pageStart + GAMES_PER_PAGE,
   );
+  const resolvedNames = await resolveGameMetadataBatch(
+    pageAggregates.map((aggregate) => aggregate.appId),
+  );
 
   const games = await buildExploreGames(
     pageAggregates.map((aggregate) => ({
       appId: aggregate.appId,
-      title: aggregate.gameName,
+      title:
+        resolvedNames.get(aggregate.appId) ??
+        (isPlaceholderGameName(aggregate.gameName, aggregate.appId)
+          ? GAME_NAME_LOADING_LABEL
+          : aggregate.gameName),
       category: "StatRealm Rated",
     })),
   );

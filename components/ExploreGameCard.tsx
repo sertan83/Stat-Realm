@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { GameCard } from "@/components/GameCard";
+import { GameName } from "@/components/GameName";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
 import { Link } from "@/i18n/navigation";
 import type { Game } from "@/types/game";
@@ -12,6 +13,7 @@ type ExploreGameCardProps = {
 
 export function ExploreGameCard({ game }: ExploreGameCardProps) {
   const t = useTranslations("explore");
+  const appId = Number(game.id);
 
   return (
     <Link
@@ -22,7 +24,7 @@ export function ExploreGameCard({ game }: ExploreGameCardProps) {
       <GameCard game={game} />
       <div className="px-1 pt-3">
         <h2 className="truncate text-base font-semibold text-white transition group-hover:text-white/85">
-          {game.title}
+          <GameName appId={appId} name={game.title} />
         </h2>
         <p className="mt-1 text-sm text-white/55">{game.category}</p>
       </div>

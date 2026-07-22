@@ -3,6 +3,8 @@ import "server-only";
 import type { SteamProfile } from "@/lib/auth/steam";
 import { commitUserSyncSnapshot, getStatRealmUser, getUserAchievementHistory } from "@/lib/db";
 import type { StatRealmUserStats, UserLibraryGame } from "@/lib/db/types";
+import { GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
+import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
 import {
   getAchievementLibrarySummary,
   shouldRefreshAchievementHistory,
@@ -29,7 +31,7 @@ function toUserLibraryGames(
 
     return {
       appId: game.appid,
-      name: game.name?.trim() || `Steam App ${game.appid}`,
+      name: game.name?.trim() || "",
       playtimeMinutes: game.playtime_forever ?? 0,
       playtimeTwoWeeksMinutes: game.playtime_2weeks ?? 0,
       lastPlayedAt:
@@ -45,6 +47,26 @@ function toUserLibraryGames(
         : null,
     };
   });
+}
+
+async function resolveLibraryGameNames(
+  libraryGames: UserLibraryGame[],
+  steamId: string,
+) {
+  const unresolvedAppIds = libraryGames
+    .filter((game) => !game.name.trim())
+    .map((game) => game.appId);
+
+  if (unresolvedAppIds.length === 0) {
+    return libraryGames;
+  }
+
+  const names = await resolveGameMetadataBatch(unresolvedAppIds, { steamId });
+
+  return libraryGames.map((game) => ({
+    ...game,
+    name: game.name.trim() || names.get(game.appId) || GAME_NAME_LOADING_LABEL,
+  }));
 }
 
 function buildSyncedUserStats(
@@ -114,7 +136,10 @@ export async function syncUserSteamLibrary(
     ownedLibrary,
     { forceRefresh: forceAchievementRefresh },
   );
-  const libraryGames = toUserLibraryGames(ownedLibrary, achievementSummary);
+  const libraryGames = await resolveLibraryGameNames(
+    toUserLibraryGames(ownedLibrary, achievementSummary),
+    steamId,
+  );
   const stats = buildSyncedUserStats(
     libraryGames,
     gameCount,

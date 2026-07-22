@@ -179,10 +179,7 @@ export async function findSteamAppBySlug(slug: string, includeDlc = true) {
       if (match) return match;
     }
 
-    return {
-      appid: numericAppId,
-      name: `Steam App ${numericAppId}`,
-    };
+    return null;
   }
 
   const cached = appListCaches.get(includeDlc);

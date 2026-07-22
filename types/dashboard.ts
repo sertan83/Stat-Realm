@@ -28,6 +28,7 @@ export type DashboardGame = Game & {
 
 export type DashboardAchievement = {
   id: string;
+  appId: number;
   iconUrl: string;
   name: string;
   game: string;

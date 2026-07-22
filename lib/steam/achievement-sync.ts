@@ -1,5 +1,7 @@
 import "server-only";
 
+import { GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
+import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
 import {
   fetchAchievementProgressResult,
   fetchAchievementSchemaResult,
@@ -191,7 +193,7 @@ function logGameDiagnostics(
     console.info(
       [
         "[Steam Achievement Sync]",
-        `Game: ${game.name ?? `Steam App ${game.appid}`}`,
+        `Game: ${game.name?.trim() || GAME_NAME_LOADING_LABEL}`,
         `Supports achievements: ${supportsAchievements ? "Yes" : "No"}`,
         `Unlocked: ${progress?.unlocked ?? "N/A"}`,
         `Total: ${progress?.total ?? "N/A"}`,
@@ -330,12 +332,11 @@ async function synchronizeAchievementLibrary(
     });
   }
 
-  const unlockedAchievementHistory = schemaResults
+  const unlockedAchievementHistoryBase = schemaResults
     .flatMap(({ game, result }) => {
       if (result.status !== "complete") return [];
 
-      const gameName =
-        gamesByAppId.get(game.appId)?.name ?? `Steam App ${game.appId}`;
+      const gameName = gamesByAppId.get(game.appId)?.name?.trim() || "";
 
       return game.progress.achievements.flatMap((achievement) => {
         if (
@@ -365,6 +366,22 @@ async function synchronizeAchievementLibrary(
       });
     })
     .sort((first, second) => second.unlockTime - first.unlockTime);
+
+  const historyAppIds = [
+    ...new Set(unlockedAchievementHistoryBase.map((entry) => entry.appId)),
+  ];
+  const resolvedNames = await resolveGameMetadataBatch(historyAppIds, {
+    steamId,
+  });
+  const unlockedAchievementHistory = unlockedAchievementHistoryBase.map(
+    (entry) => ({
+      ...entry,
+      gameName:
+        entry.gameName.trim() ||
+        resolvedNames.get(entry.appId) ||
+        GAME_NAME_LOADING_LABEL,
+    }),
+  );
 
   console.info("[Steam Achievement Sync] History synchronized", {
     unlockedAchievements: unlockedAchievementHistory.length,

@@ -37,6 +37,8 @@ import {
   resolveCapsuleFilenameForApp,
 } from "@/lib/steam/game-images";
 import { getCachedStoreAppRecord } from "@/lib/steam/store-app-cache";
+import { GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
+import { resolveGameDisplayName } from "@/lib/steam/game-metadata";
 import { getSteamStoreAppDetails } from "@/lib/steam/store-app-details";
 import {
   UNKNOWN_DEVELOPER,
@@ -145,14 +147,18 @@ export async function generateMetadata({
   const routeAppId = await resolveRouteAppId(routeParam);
 
   if (routeAppId === null) {
-    return { title: t("gameDetailsTitle", { title: "Steam Game" }) };
+    return { title: t("gameDetailsTitle", { title: GAME_NAME_LOADING_LABEL }) };
   }
 
+  const gameName = await resolveGameDisplayName(routeAppId);
   const storeMetadata = await withPromiseTimeout(
     getSteamStoreAppDetails(routeAppId).catch(() => null),
     null,
   );
-  const title = storeMetadata?.name ?? `Steam App ${routeAppId}`;
+  const title =
+    storeMetadata?.name && storeMetadata.name.trim().length > 0
+      ? storeMetadata.name
+      : gameName;
 
   return {
     title: t("gameDetailsTitle", { title }),
@@ -276,11 +282,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
         : Promise.resolve(null),
     ]);
 
-  const gameName =
-    storeMetadata?.name ??
-    (typeof ownedName === "string" && ownedName.trim()
-      ? ownedName.trim()
-      : `Steam App ${gameAppId}`);
+  const gameName = await resolveGameDisplayName(gameAppId, { steamId });
 
   const details: GameDetails = createGameDetailsFromAppId(gameAppId, gameName);
 

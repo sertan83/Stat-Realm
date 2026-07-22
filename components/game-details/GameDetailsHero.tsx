@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { GameName } from "@/components/GameName";
 import { SteamGameImage } from "@/components/game-details/SteamGameImage";
 import { PersonalSteamSignInPrompt } from "@/components/game-details/PersonalSteamSignInPrompt";
 import { UNAVAILABLE_REVIEWS } from "@/lib/steam/store-metadata-labels";
@@ -29,6 +30,7 @@ export function GameDetailsHero({
 }: GameDetailsHeroProps) {
   const t = useTranslations("gameDetails");
   const { game } = details;
+  const resolvedAppId = gameAppId ?? Number(game.id);
 
   return (
     <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_0_60px_rgba(107,47,214,0.14)] backdrop-blur-md">
@@ -64,7 +66,7 @@ export function GameDetailsHero({
 
         <div className="pb-1 text-center lg:text-left">
           <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            {game.title}
+            <GameName appId={resolvedAppId} name={game.title} />
           </h1>
           <p className="mt-3 text-sm text-white/65 sm:text-base">
             {game.category} <span className="mx-2 text-white/30">•</span>

@@ -3,11 +3,11 @@ import "server-only";
 import {
   createGameRatingKey,
   getAllGameReviewsWithText,
-  getGameRatingAggregate,
   getHelpfulVoteCounts,
   getStatRealmUser,
   getUserHelpfulVotes,
 } from "@/lib/db";
+import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
 import type {
   CommunityReviewEntry,
   CommunityReviewsPageData,
@@ -45,19 +45,15 @@ export async function loadCommunityReviewsPage(input: {
       ? await getUserHelpfulVotes(input.viewerSteamId, ratingKeys)
       : new Set<string>();
 
-  const reviews = await Promise.all(
+  const reviewEntries = await Promise.all(
     sortedRatings.map(async (rating) => {
       const ratingKey = createGameRatingKey(rating.steamId, rating.appId);
-      const [user, aggregate] = await Promise.all([
-        getStatRealmUser(rating.steamId),
-        getGameRatingAggregate(rating.appId),
-      ]);
+      const user = await getStatRealmUser(rating.steamId);
 
       return {
         ratingKey,
         steamId: rating.steamId,
         appId: rating.appId,
-        gameName: aggregate?.gameName ?? `Steam App ${rating.appId}`,
         gameHeaderImageUrl: buildGameHeaderImageUrl(rating.appId),
         displayName: user?.displayName ?? `Steam User ${rating.steamId.slice(-4)}`,
         avatarUrl: user?.avatarUrl ?? user?.avatar ?? "",
@@ -72,8 +68,16 @@ export async function loadCommunityReviewsPage(input: {
         editedAt: rating.editedAt,
         helpfulCount: helpfulCounts[ratingKey] ?? 0,
         hasVotedHelpful: votedKeys.has(ratingKey),
-      } satisfies CommunityReviewEntry;
+      };
     }),
+  );
+
+  const reviews = (await attachResolvedGameNames(reviewEntries)).map(
+    (review) =>
+      ({
+        ...review,
+        gameName: review.gameName,
+      }) satisfies CommunityReviewEntry,
   );
 
   const totalReviews = reviews.length;

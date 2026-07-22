@@ -109,6 +109,12 @@ export type RatingSubmissionLog = {
   timestamps: string[];
 };
 
+export type StoredGameMetadata = {
+  appId: number;
+  name: string;
+  updatedAt: string;
+};
+
 export type StatRealmDb = {
   users: Record<string, StatRealmUser>;
   libraries: Record<string, UserLibraryGame[]>;
@@ -119,4 +125,5 @@ export type StatRealmDb = {
   helpfulVotes: Record<string, StoredHelpfulVote>;
   ratingAggregates: Record<string, GameRatingAggregate>;
   ratingSubmissionLogs: Record<string, RatingSubmissionLog>;
+  gameMetadata: Record<string, StoredGameMetadata>;
 };

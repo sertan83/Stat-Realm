@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { GameName } from "@/components/GameName";
 import type { DashboardAchievement } from "@/types/dashboard";
 
 function getUnlockDate(timestamp: number) {
@@ -74,7 +75,7 @@ export function RecentAchievements({
                       {achievement.name}
                     </h3>
                     <p className="mt-1 text-sm text-white/50">
-                      {achievement.game}
+                      <GameName appId={achievement.appId} name={achievement.game} />
                     </p>
                   </div>
                   <time

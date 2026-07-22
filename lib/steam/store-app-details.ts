@@ -118,7 +118,7 @@ function createUnavailableDetails(appId: number): SteamStoreAppDetails {
   return {
     storeAvailable: false,
     isPlayableGame: false,
-    name: `Steam App ${appId}`,
+    name: "",
     developer: UNKNOWN_DEVELOPER,
     releaseYear: UNKNOWN_RELEASE_YEAR,
     reviewScore: UNAVAILABLE_REVIEWS,
@@ -149,7 +149,7 @@ export const getSteamStoreAppDetails = cache(
     const appName =
       typeof data.name === "string" && data.name.trim()
         ? data.name.trim()
-        : `Steam App ${appId}`;
+        : "";
 
     return {
       storeAvailable: true,

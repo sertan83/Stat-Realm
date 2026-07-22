@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { GameName } from "@/components/GameName";
 import { voteReviewHelpfulAction } from "@/app/actions/game-reviews";
 import { Link, useRouter } from "@/i18n/navigation";
 import { buildCommunityReviewsHref } from "@/lib/reviews/community-reviews-params";
@@ -145,7 +146,7 @@ export function CommunityReviewsPanel({
                         />
                       </div>
                       <p className="mt-2 truncate text-sm font-semibold text-white">
-                        {review.gameName}
+                        <GameName appId={review.appId} name={review.gameName} />
                       </p>
                     </div>
                   </div>

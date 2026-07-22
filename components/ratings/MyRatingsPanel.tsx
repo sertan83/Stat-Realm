@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { GameName } from "@/components/GameName";
 import { GameCard } from "@/components/GameCard";
 import { Link } from "@/i18n/navigation";
 import type { UserRatingsPageData } from "@/lib/reviews/types";
@@ -71,7 +72,7 @@ export function MyRatingsPanel({ data, locale }: MyRatingsPanelProps) {
             <GameCard game={toGameCard(rating)} />
             <div className="px-1 pt-3">
               <h2 className="truncate text-base font-semibold text-white transition group-hover:text-white/85">
-                {rating.gameName}
+                <GameName appId={rating.appId} name={rating.gameName} />
               </h2>
               <p className="mt-1 text-sm font-semibold text-[#EFA5A8]">
                 {t("ratingValue", { rating: rating.rating.toFixed(1) })}

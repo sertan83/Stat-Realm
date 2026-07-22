@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { GameName } from "@/components/GameName";
 import type { DashboardGame } from "@/types/dashboard";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
 import { Link } from "@/i18n/navigation";
@@ -79,7 +80,9 @@ function DashboardGameCard({
       </div>
 
       <div className={compact ? "min-w-0 flex-1 px-4" : "p-4"}>
-        <h3 className="truncate font-semibold text-white">{game.title}</h3>
+        <h3 className="truncate font-semibold text-white">
+          <GameName appId={appId} name={game.title} />
+        </h3>
         <div className="mt-2 flex items-center justify-between gap-3 text-xs text-white/45">
           <span>{game.playtime}</span>
           <span>{game.lastPlayed}</span>
