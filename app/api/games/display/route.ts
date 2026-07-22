@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resolveGameImageCandidatesBatch } from "@/lib/game-display/resolve";
+import { resolveGameDisplayBatch } from "@/lib/game-display/resolve";
 import type { SteamGameImageVariant } from "@/lib/game-display/types";
 
 const VALID_VARIANTS = new Set<SteamGameImageVariant>([
@@ -40,11 +40,25 @@ export async function GET(request: Request) {
   }
 
   const variant = parseVariant(searchParams);
-  const candidates = await resolveGameImageCandidatesBatch(appIds, variant);
+  const displays = await resolveGameDisplayBatch(
+    appIds.map((appId) => ({ appId })),
+    { imageVariant: variant, persist: true },
+  );
 
   return NextResponse.json(
     Object.fromEntries(
-      Array.from(candidates.entries()).map(([appId, urls]) => [String(appId), urls]),
+      [...displays.entries()].map(([appId, display]) => [
+        String(appId),
+        {
+          appId: display.appId,
+          name: display.name,
+          slug: display.slug,
+          imageUrl: display.imageUrl,
+          imageCandidates: display.imageCandidates,
+          headerImageCandidates: display.headerImageCandidates,
+          capsuleImageCandidates: display.capsuleImageCandidates,
+        },
+      ]),
     ),
   );
 }

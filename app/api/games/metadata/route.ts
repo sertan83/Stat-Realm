@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
+import { resolveGameDisplayBatch } from "@/lib/game-display/resolve";
 
 function parseAppIds(searchParams: URLSearchParams) {
   const rawValue = searchParams.get("appIds");
@@ -21,9 +21,17 @@ export async function GET(request: Request) {
     return NextResponse.json({});
   }
 
-  const names = await resolveGameMetadataBatch(appIds);
+  const displays = await resolveGameDisplayBatch(
+    appIds.map((appId) => ({ appId })),
+    { persist: true },
+  );
 
   return NextResponse.json(
-    Object.fromEntries(Array.from(names.entries()).map(([appId, name]) => [String(appId), name])),
+    Object.fromEntries(
+      Array.from(displays.entries()).map(([appId, display]) => [
+        String(appId),
+        display.name,
+      ]),
+    ),
   );
 }

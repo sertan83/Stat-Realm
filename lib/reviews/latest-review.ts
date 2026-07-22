@@ -5,8 +5,7 @@ import {
   getLatestGameReviewWithText,
   getStatRealmUser,
 } from "@/lib/db";
-import { resolveGameDisplayName } from "@/lib/steam/game-metadata";
-import { resolveGameImageCandidates } from "@/lib/steam/resolve-game-images";
+import { resolveGameDisplay } from "@/lib/game-display/resolve";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 
 const REVIEW_PREVIEW_LENGTH = 120;
@@ -40,19 +39,21 @@ export async function getLatestLandingReview(): Promise<LandingLatestReview | nu
     return null;
   }
 
-  const [user, gameName, imageCandidates] = await Promise.all([
+  const [user, display] = await Promise.all([
     getStatRealmUser(latestReview.steamId),
-    resolveGameDisplayName(latestReview.appId),
-    resolveGameImageCandidates(latestReview.appId, "header"),
+    resolveGameDisplay(latestReview.appId, {
+      imageVariant: "header",
+      persist: true,
+    }),
   ]);
 
   return {
     ratingKey: createGameRatingKey(latestReview.steamId, latestReview.appId),
     steamId: latestReview.steamId,
     appId: latestReview.appId,
-    gameName,
-    gameHeaderImageUrl: imageCandidates[0] ?? DEFAULT_GAME_FALLBACK_IMAGE,
-    imageCandidates,
+    gameName: display.name,
+    gameHeaderImageUrl: display.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
+    imageCandidates: display.headerImageCandidates,
     reviewerName:
       user?.displayName ?? `Steam User ${latestReview.steamId.slice(-4)}`,
     reviewerAvatarUrl: user?.avatarUrl ?? user?.avatar ?? "",

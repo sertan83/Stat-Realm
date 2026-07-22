@@ -24,7 +24,7 @@ export function GameCard({ game, className }: GameCardProps) {
         alt={game.title}
         variant="card"
         initialCandidates={game.imageCandidates}
-        preferredUrls={[game.imageUrl, ...(game.imageCandidates ?? [])]}
+        preferredUrls={[game.imageUrl]}
         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 360px"
         className="object-cover transition duration-300 group-hover:brightness-110"
         imageCacheRole="card"

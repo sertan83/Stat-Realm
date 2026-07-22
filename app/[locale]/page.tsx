@@ -7,6 +7,7 @@ import { SeeYourStatisticsCta } from "@/components/landing/SeeYourStatisticsCta"
 import { Navbar } from "@/components/Navbar";
 import { Link } from "@/i18n/navigation";
 import { getCommunityLandingData } from "@/lib/community/rankings";
+import { loadFeaturedGames } from "@/lib/landing/featured-games";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +19,10 @@ export default async function Home({ params }: HomePageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [session, communityData, t] = await Promise.all([
+  const [session, communityData, featuredGames, t] = await Promise.all([
     auth(),
     getCommunityLandingData(),
+    loadFeaturedGames(),
     getTranslations("landing"),
   ]);
 
@@ -48,6 +50,7 @@ export default async function Home({ params }: HomePageProps) {
         </Link>
       </div>
       <Hero
+        featuredGames={featuredGames}
         mostPlayedGames={communityData.mostPlayedGames}
         mostOwnedGames={communityData.mostOwnedGames}
         registeredUserCount={communityData.registeredUserCount}

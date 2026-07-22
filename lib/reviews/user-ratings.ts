@@ -1,8 +1,7 @@
 import "server-only";
 
 import { getUserGameRatings } from "@/lib/db";
-import { attachResolvedGameImages } from "@/lib/reviews/attach-game-images";
-import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
+import { attachGameDisplay } from "@/lib/game-display/attach";
 import type { UserRatingsPageData } from "@/lib/reviews/types";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 
@@ -15,23 +14,19 @@ export async function loadUserRatingsPage(
     (first, second) => Date.parse(second.createdAt) - Date.parse(first.createdAt),
   );
 
-  const ratingsWithNames = await attachResolvedGameNames(
-    sortedRatings.map((rating) => ({
-      appId: rating.appId,
-      rating: rating.rating,
-      createdAt: rating.createdAt,
-    })),
-    { steamId },
-  );
-
-  const ratingsWithImages = await attachResolvedGameImages(ratingsWithNames, {
-    variant: "card",
-  });
-
-  const ratings = ratingsWithImages.map((rating) => ({
+  const ratings = (
+    await attachGameDisplay(
+      sortedRatings.map((rating) => ({
+        appId: rating.appId,
+        rating: rating.rating,
+        createdAt: rating.createdAt,
+      })),
+      { steamId, imageVariant: "card", persist: true },
+    )
+  ).map((rating) => ({
     appId: rating.appId,
     gameName: rating.gameName,
-    imageUrl: rating.imageCandidates[0] ?? DEFAULT_GAME_FALLBACK_IMAGE,
+    imageUrl: rating.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
     imageCandidates: rating.imageCandidates,
     rating: rating.rating,
     createdAt: rating.createdAt,

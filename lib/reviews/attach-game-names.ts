@@ -1,7 +1,6 @@
 import "server-only";
 
-import { GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
-import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
+import { attachGameDisplay } from "@/lib/game-display/attach";
 
 export async function attachResolvedGameNames<
   T extends {
@@ -9,17 +8,20 @@ export async function attachResolvedGameNames<
     gameName?: string;
   },
 >(entries: T[], options?: { steamId?: string | null }) {
-  if (entries.length === 0) {
-    return [];
-  }
+  const enriched = await attachGameDisplay(entries, options);
 
-  const names = await resolveGameMetadataBatch(
-    entries.map((entry) => entry.appId),
-    options,
+  return enriched.map(
+    ({
+      gameName,
+      imageCandidates,
+      imageUrl,
+      slug,
+      headerImageCandidates,
+      capsuleImageCandidates,
+      ...entry
+    }) => ({
+      ...entry,
+      gameName,
+    }),
   );
-
-  return entries.map((entry) => ({
-    ...entry,
-    gameName: names.get(entry.appId) ?? GAME_NAME_LOADING_LABEL,
-  }));
 }

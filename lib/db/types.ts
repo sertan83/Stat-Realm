@@ -109,9 +109,17 @@ export type RatingSubmissionLog = {
   timestamps: string[];
 };
 
+export type StoredGameImages = {
+  card?: string[];
+  header?: string[];
+  capsule?: string[];
+};
+
 export type StoredGameMetadata = {
   appId: number;
   name: string;
+  capsuleFilename?: string;
+  images?: StoredGameImages;
   updatedAt: string;
 };
 

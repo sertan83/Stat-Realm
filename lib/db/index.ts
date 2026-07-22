@@ -10,6 +10,7 @@ import type {
   StatRealmUser,
   StoredGameRating,
   StoredGameMetadata,
+  StoredGameImages,
   StoredHelpfulVote,
   StoredProfileAnalytics,
   StoredUnlockedAchievement,
@@ -468,6 +469,35 @@ async function readDbFile(): Promise<StatRealmDb> {
     };
 }
 
+function normalizeStoredGameImages(
+  images: Partial<StoredGameImages> | undefined,
+): StoredGameImages | undefined {
+  if (!images) {
+    return undefined;
+  }
+
+  const normalizeList = (value: unknown) =>
+    Array.isArray(value)
+      ? value.filter((entry): entry is string => typeof entry === "string")
+      : undefined;
+
+  const normalized: StoredGameImages = {
+    card: normalizeList(images.card),
+    header: normalizeList(images.header),
+    capsule: normalizeList(images.capsule),
+  };
+
+  if (
+    !normalized.card?.length &&
+    !normalized.header?.length &&
+    !normalized.capsule?.length
+  ) {
+    return undefined;
+  }
+
+  return normalized;
+}
+
 function normalizeStoredGameMetadata(
   metadata: Partial<StoredGameMetadata>,
 ): StoredGameMetadata | null {
@@ -486,6 +516,11 @@ function normalizeStoredGameMetadata(
   return {
     appId,
     name,
+    capsuleFilename:
+      typeof metadata.capsuleFilename === "string"
+        ? metadata.capsuleFilename
+        : undefined,
+    images: normalizeStoredGameImages(metadata.images),
     updatedAt:
       typeof metadata.updatedAt === "string"
         ? metadata.updatedAt
@@ -1048,8 +1083,18 @@ export async function getStoredGameMetadata(
   return db.gameMetadata[String(appId)] ?? null;
 }
 
-export async function upsertStoredGameMetadata(appId: number, name: string) {
-  const sanitizedName = sanitizeStoredGameName(name, appId);
+export async function upsertStoredGameMetadata(
+  appId: number,
+  input:
+    | string
+    | {
+        name: string;
+        capsuleFilename?: string;
+        images?: StoredGameImages;
+      },
+) {
+  const payload = typeof input === "string" ? { name: input } : input;
+  const sanitizedName = sanitizeStoredGameName(payload.name, appId);
 
   if (!sanitizedName) {
     return;
@@ -1058,10 +1103,13 @@ export async function upsertStoredGameMetadata(appId: number, name: string) {
   await withDbLock(async () => {
     const db = await readDbFile();
     const now = new Date().toISOString();
+    const previous = db.gameMetadata[String(appId)];
 
     db.gameMetadata[String(appId)] = {
       appId,
       name: sanitizedName,
+      capsuleFilename: payload.capsuleFilename ?? previous?.capsuleFilename,
+      images: payload.images ?? previous?.images,
       updatedAt: now,
     };
 

@@ -1,15 +1,11 @@
 import "server-only";
 
-import { slugifyGameName } from "@/lib/slugify-game-name";
+import { resolveGameDisplay } from "@/lib/game-display/resolve";
 import type { ExploreCatalogQuery } from "@/lib/explore/catalog-params";
 import {
   isSteamAppListCached,
   searchSteamAppList,
 } from "@/lib/steam/app-list";
-import {
-  buildSteamExploreCardImage,
-  extractCapsuleFilenameFromLogoUrl,
-} from "@/lib/steam/game-images";
 import {
   isExcludedAppName,
   isPlayableSteamStoreApp,
@@ -316,19 +312,18 @@ function filterCatalogInputs(
 export function buildExploreGames(inputs: CatalogGameInput[]) {
   return Promise.all(
     inputs.map(async (input) => {
-      const capsuleFilename = extractCapsuleFilenameFromLogoUrl(input.logoUrl);
-      const image = await buildSteamExploreCardImage(input.appId, {
-        capsuleFilename: capsuleFilename ?? undefined,
+      const display = await resolveGameDisplay(input.appId, {
+        imageVariant: "card",
         logoUrl: input.logoUrl,
-        gameTitle: input.title,
+        persist: true,
       });
 
       return {
         id: String(input.appId),
-        title: input.title,
-        slug: slugifyGameName(input.title),
-        imageUrl: image.imageUrl,
-        imageCandidates: image.imageCandidates,
+        title: display.name,
+        slug: display.slug,
+        imageUrl: display.imageUrl,
+        imageCandidates: display.imageCandidates,
         category: input.category,
       };
     }),

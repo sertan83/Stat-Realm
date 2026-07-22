@@ -7,8 +7,7 @@ import {
   getStatRealmUser,
   getUserHelpfulVotes,
 } from "@/lib/db";
-import { attachResolvedGameImages } from "@/lib/reviews/attach-game-images";
-import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
+import { attachGameDisplay } from "@/lib/game-display/attach";
 import type {
   CommunityReviewEntry,
   CommunityReviewsPageData,
@@ -63,12 +62,10 @@ export async function loadCommunityReviewsPage(input: {
     }),
   );
 
-  const reviewsWithImages = await attachResolvedGameImages(
-    await attachResolvedGameNames(reviewEntries),
-    { variant: "header" },
-  );
-
-  const reviews = reviewsWithImages.map(
+  const reviews = (await attachGameDisplay(reviewEntries, {
+    imageVariant: "header",
+    persist: true,
+  })).map(
     (review) =>
       ({
         ...review,

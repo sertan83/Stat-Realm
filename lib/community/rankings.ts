@@ -18,7 +18,7 @@ import {
   type LandingLatestReview,
 } from "@/lib/reviews/latest-review";
 import { GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
-import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
+import { resolveGameDisplayBatch } from "@/lib/game-display/resolve";
 
 export type { LandingLatestReview } from "@/lib/reviews/latest-review";
 
@@ -48,11 +48,14 @@ export type RankedCommunityGame = {
 async function resolveRankedCommunityGames(
   games: Array<{ appId: number; name: string }>,
 ): Promise<RankedCommunityGame[]> {
-  const names = await resolveGameMetadataBatch(games.map((game) => game.appId));
+  const displays = await resolveGameDisplayBatch(
+    games.map((game) => ({ appId: game.appId })),
+    { persist: true },
+  );
 
   return games.map((game) => ({
     appId: game.appId,
-    name: names.get(game.appId) ?? GAME_NAME_LOADING_LABEL,
+    name: displays.get(game.appId)?.name ?? GAME_NAME_LOADING_LABEL,
   }));
 }
 

@@ -2,11 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import {
-  buildSteamGameImageCandidates,
-  type SteamGameImageVariant,
-} from "@/lib/steam/game-image-candidates-client";
+import type { SteamGameImageVariant } from "@/lib/game-display/types";
 import type { GameImageRole } from "@/lib/steam/game-image-cache";
+import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import { reportSuccessfulGameImage } from "@/lib/steam/report-game-image-cache";
 import { cn } from "@/lib/utils";
@@ -25,6 +23,25 @@ type SteamGameImageByAppIdProps = {
   wrapperClassName?: string;
 };
 
+function selectVariantCandidates(
+  payload: {
+    imageCandidates: string[];
+    headerImageCandidates: string[];
+    capsuleImageCandidates: string[];
+  },
+  variant: SteamGameImageVariant,
+) {
+  if (variant === "header") {
+    return payload.headerImageCandidates;
+  }
+
+  if (variant === "capsule") {
+    return payload.capsuleImageCandidates;
+  }
+
+  return payload.imageCandidates;
+}
+
 export function SteamGameImageByAppId({
   appId,
   alt = "",
@@ -38,16 +55,16 @@ export function SteamGameImageByAppId({
   imageCacheRole,
   wrapperClassName,
 }: SteamGameImageByAppIdProps) {
-  const [serverCandidates, setServerCandidates] = useState<string[]>([]);
+  const [resolvedCandidates, setResolvedCandidates] = useState<string[]>([]);
   const [candidateIndex, setCandidateIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchResolvedCandidates() {
+    async function fetchResolvedDisplay() {
       try {
         const response = await fetch(
-          `/api/games/images?appIds=${appId}&variant=${variant}`,
+          `/api/games/display?appIds=${appId}&variant=${variant}`,
           { cache: "no-store" },
         );
 
@@ -55,18 +72,25 @@ export function SteamGameImageByAppId({
           return;
         }
 
-        const payload = (await response.json()) as Record<string, string[]>;
-        const resolvedCandidates = payload[String(appId)];
+        const payload = (await response.json()) as Record<
+          string,
+          {
+            imageCandidates: string[];
+            headerImageCandidates: string[];
+            capsuleImageCandidates: string[];
+          }
+        >;
+        const display = payload[String(appId)];
 
-        if (!cancelled && Array.isArray(resolvedCandidates) && resolvedCandidates.length > 0) {
-          setServerCandidates(resolvedCandidates);
+        if (!cancelled && display) {
+          setResolvedCandidates(selectVariantCandidates(display, variant));
         }
       } catch {
         // Keep local fallback chain until a later retry or navigation refresh.
       }
     }
 
-    void fetchResolvedCandidates();
+    void fetchResolvedDisplay();
 
     return () => {
       cancelled = true;
@@ -74,8 +98,8 @@ export function SteamGameImageByAppId({
   }, [appId, variant]);
 
   const candidates = useMemo(() => {
-    if (serverCandidates.length > 0) {
-      return serverCandidates;
+    if (resolvedCandidates.length > 0) {
+      return resolvedCandidates;
     }
 
     if (initialCandidates.length > 0) {
@@ -84,9 +108,9 @@ export function SteamGameImageByAppId({
 
     return buildSteamGameImageCandidates(appId, {
       variant,
-      preferredUrls: [...preferredUrls],
+      preferredUrls,
     });
-  }, [appId, initialCandidates, preferredUrls, serverCandidates, variant]);
+  }, [appId, initialCandidates, preferredUrls, resolvedCandidates, variant]);
 
   useEffect(() => {
     setCandidateIndex(0);

@@ -1,8 +1,7 @@
 import "server-only";
 
 import { getAllRatingAggregates } from "@/lib/db";
-import { attachResolvedGameImages } from "@/lib/reviews/attach-game-images";
-import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
+import { attachGameDisplay } from "@/lib/game-display/attach";
 import type { CommunityRatingsPageData } from "@/lib/reviews/types";
 
 export async function loadCommunityRatingsPage(): Promise<CommunityRatingsPageData> {
@@ -17,21 +16,17 @@ export async function loadCommunityRatingsPage(): Promise<CommunityRatingsPageDa
       second.totalReviews - first.totalReviews,
   );
 
-  const ratingsWithNames = await attachResolvedGameNames(
-    sortedAggregates.map((aggregate) => ({
-      appId: aggregate.appId,
-      gameName: aggregate.gameName,
-      averageRating: aggregate.averageRating,
-      totalRatings: aggregate.totalRatings,
-      totalReviews: aggregate.totalReviews,
-    })),
-  );
-
-  const ratingsWithImages = await attachResolvedGameImages(ratingsWithNames, {
-    variant: "capsule",
-  });
-
-  const ratings = ratingsWithImages.map((entry) => ({
+  const ratings = (
+    await attachGameDisplay(
+      sortedAggregates.map((aggregate) => ({
+        appId: aggregate.appId,
+        averageRating: aggregate.averageRating,
+        totalRatings: aggregate.totalRatings,
+        totalReviews: aggregate.totalReviews,
+      })),
+      { imageVariant: "capsule", persist: true },
+    )
+  ).map((entry) => ({
     appId: entry.appId,
     gameName: entry.gameName,
     imageCandidates: entry.imageCandidates,

@@ -536,8 +536,12 @@ export async function enrichDashboardGamesWithSteamImages<
   games: T[],
   options: {
     capsuleFilenameByAppId?: Map<number, string | undefined>;
+    steamId?: string | null;
   } = {},
 ): Promise<T[]> {
+  const { resolveGameDisplay } = await import("@/lib/game-display/resolve");
+  const { slugifyGameName } = await import("@/lib/slugify-game-name");
+
   return Promise.all(
     games.map(async (game) => {
       const appId = Number(game.id);
@@ -545,16 +549,24 @@ export async function enrichDashboardGamesWithSteamImages<
         return game;
       }
 
-      const images = await buildSteamDashboardGameImage(appId, {
-        capsuleFilename: options.capsuleFilenameByAppId?.get(appId),
-        gameTitle: game.title,
+      const display = await resolveGameDisplay(appId, {
+        steamId: options.steamId,
+        imageVariant: "card",
+        preferredUrls: [
+          game.imageUrl,
+          game.imageFallbackUrl,
+          ...(game.imageCandidates ?? []),
+        ].filter((url): url is string => Boolean(url?.trim())),
+        persist: true,
       });
 
       return {
         ...game,
-        imageUrl: images.imageUrl,
-        imageFallbackUrl: images.imageFallbackUrl,
-        imageCandidates: images.imageCandidates,
+        title: display.name,
+        slug: slugifyGameName(display.name),
+        imageUrl: display.imageUrl,
+        imageFallbackUrl: display.imageCandidates[1],
+        imageCandidates: display.imageCandidates,
       };
     }),
   );

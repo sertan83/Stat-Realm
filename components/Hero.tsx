@@ -11,7 +11,6 @@ import { PlayersTrackedCard } from "@/components/PlayersTrackedCard";
 import { RecentPlayerCard } from "@/components/RecentPlayerCard";
 import { ScrollIndicator } from "@/components/ScrollIndicator";
 import { StatsRow } from "@/components/StatsRow";
-import { featuredGames } from "@/data/games";
 import { Link } from "@/i18n/navigation";
 import type {
   CommunityLeaderboardPlayer,
@@ -19,10 +18,12 @@ import type {
   RankedCommunityGame,
 } from "@/lib/community/rankings";
 import type { LandingLatestReview } from "@/lib/reviews/latest-review";
+import type { Game } from "@/types/game";
 import { cn } from "@/lib/utils";
 
 type HeroProps = {
   className?: string;
+  featuredGames: Game[];
   mostPlayedGames?: RankedCommunityGame[];
   mostOwnedGames?: RankedCommunityGame[];
   registeredUserCount?: number;
@@ -33,6 +34,7 @@ type HeroProps = {
 
 export function Hero({
   className,
+  featuredGames,
   mostPlayedGames = [],
   mostOwnedGames = [],
   registeredUserCount = 0,
