@@ -478,6 +478,15 @@
     "subtitleWithCount": "StatRealm'de {count, plural, one {# oyun} other {# oyun}} puanladın.",
     "empty": "Henüz hiçbir oyunu puanlamadın.",
     "ratingValue": "{rating} / 10",
-    "openGame": "{name} oyununu aç"
+    "openGame": "{name} oyununu aç",
+    "sortLabel": "Sırala",
+    "sort": {
+      "newest": "En yeni",
+      "oldest": "En eski",
+      "ratingHighToLow": "Puanın (Yüksekten düşüğe)",
+      "ratingLowToHigh": "Puanın (Düşükten yükseğe)",
+      "alphabeticalAZ": "Alfabetik (A–Z)",
+      "alphabeticalZA": "Alfabetik (Z–A)"
+    }
   }
 }

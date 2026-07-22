@@ -478,6 +478,15 @@
     "subtitleWithCount": "Has puntuado {count, plural, one {# juego} other {# juegos}} en StatRealm.",
     "empty": "Aún no has puntuado ningún juego.",
     "ratingValue": "{rating} / 10",
-    "openGame": "Abrir {name}"
+    "openGame": "Abrir {name}",
+    "sortLabel": "Ordenar por",
+    "sort": {
+      "newest": "Más recientes",
+      "oldest": "Más antiguos",
+      "ratingHighToLow": "Tu puntuación (de mayor a menor)",
+      "ratingLowToHigh": "Tu puntuación (de menor a mayor)",
+      "alphabeticalAZ": "Alfabético (A–Z)",
+      "alphabeticalZA": "Alfabético (Z–A)"
+    }
   }
 }

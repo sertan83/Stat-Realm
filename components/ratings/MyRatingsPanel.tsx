@@ -1,8 +1,10 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
 import { GameCard } from "@/components/GameCard";
+import { Select } from "@/components/ui/Select";
 import { Link } from "@/i18n/navigation";
 import type { UserRatingsPageData } from "@/lib/reviews/types";
 import type { Game } from "@/types/game";
@@ -11,6 +13,72 @@ type MyRatingsPanelProps = {
   data: UserRatingsPageData;
   locale: string;
 };
+
+type MyRatingsSortOption =
+  | "newest"
+  | "oldest"
+  | "ratingHighToLow"
+  | "ratingLowToHigh"
+  | "alphabeticalAZ"
+  | "alphabeticalZA";
+
+const sortOptions: MyRatingsSortOption[] = [
+  "newest",
+  "oldest",
+  "ratingHighToLow",
+  "ratingLowToHigh",
+  "alphabeticalAZ",
+  "alphabeticalZA",
+];
+
+function compareByDateNewestFirst(
+  first: UserRatingsPageData["ratings"][number],
+  second: UserRatingsPageData["ratings"][number],
+) {
+  return Date.parse(second.createdAt) - Date.parse(first.createdAt);
+}
+
+function sortUserRatings(
+  ratings: UserRatingsPageData["ratings"],
+  sortBy: MyRatingsSortOption,
+  locale: string,
+) {
+  const sorted = [...ratings];
+
+  switch (sortBy) {
+    case "oldest":
+      return sorted.sort(
+        (first, second) => Date.parse(first.createdAt) - Date.parse(second.createdAt),
+      );
+    case "ratingHighToLow":
+      return sorted.sort((first, second) => {
+        const ratingDiff = second.rating - first.rating;
+        return ratingDiff !== 0 ? ratingDiff : compareByDateNewestFirst(first, second);
+      });
+    case "ratingLowToHigh":
+      return sorted.sort((first, second) => {
+        const ratingDiff = first.rating - second.rating;
+        return ratingDiff !== 0 ? ratingDiff : compareByDateNewestFirst(first, second);
+      });
+    case "alphabeticalAZ":
+      return sorted.sort((first, second) => {
+        const nameDiff = first.gameName.localeCompare(second.gameName, locale, {
+          sensitivity: "base",
+        });
+        return nameDiff !== 0 ? nameDiff : compareByDateNewestFirst(first, second);
+      });
+    case "alphabeticalZA":
+      return sorted.sort((first, second) => {
+        const nameDiff = second.gameName.localeCompare(first.gameName, locale, {
+          sensitivity: "base",
+        });
+        return nameDiff !== 0 ? nameDiff : compareByDateNewestFirst(first, second);
+      });
+    case "newest":
+    default:
+      return sorted.sort(compareByDateNewestFirst);
+  }
+}
 
 function formatRatingDate(value: string, locale: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -32,6 +100,11 @@ function toGameCard(rating: UserRatingsPageData["ratings"][number]): Game {
 
 export function MyRatingsPanel({ data, locale }: MyRatingsPanelProps) {
   const t = useTranslations("myRatingsPage");
+  const [sortBy, setSortBy] = useState<MyRatingsSortOption>("newest");
+  const sortedRatings = useMemo(
+    () => sortUserRatings(data.ratings, sortBy, locale),
+    [data.ratings, locale, sortBy],
+  );
 
   if (data.totalRatings === 0) {
     return (
@@ -61,8 +134,21 @@ export function MyRatingsPanel({ data, locale }: MyRatingsPanelProps) {
         </p>
       </div>
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {data.ratings.map((rating) => (
+      <div className="mt-8 max-w-sm">
+        <span className="mb-2 block text-sm text-white/65">{t("sortLabel")}</span>
+        <Select
+          value={sortBy}
+          onValueChange={(value) => setSortBy(value as MyRatingsSortOption)}
+          ariaLabel={t("sortLabel")}
+          options={sortOptions.map((option) => ({
+            value: option,
+            label: t(`sort.${option}`),
+          }))}
+        />
+      </div>
+
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {sortedRatings.map((rating) => (
           <Link
             key={rating.appId}
             href={`/game/${rating.appId}`}

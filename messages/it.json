@@ -478,6 +478,15 @@
     "subtitleWithCount": "Hai valutato {count, plural, one {# gioco} other {# giochi}} su StatRealm.",
     "empty": "Non hai ancora valutato nessun gioco.",
     "ratingValue": "{rating} / 10",
-    "openGame": "Apri {name}"
+    "openGame": "Apri {name}",
+    "sortLabel": "Ordina per",
+    "sort": {
+      "newest": "Più recenti",
+      "oldest": "Meno recenti",
+      "ratingHighToLow": "La tua valutazione (dalla più alta)",
+      "ratingLowToHigh": "La tua valutazione (dalla più bassa)",
+      "alphabeticalAZ": "Alfabetico (A–Z)",
+      "alphabeticalZA": "Alfabetico (Z–A)"
+    }
   }
 }

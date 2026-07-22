@@ -478,6 +478,15 @@
     "subtitleWithCount": "Вы оценили {count, plural, one {# игру} few {# игры} many {# игр} other {# игры}} на StatRealm.",
     "empty": "Вы ещё не оценили ни одной игры.",
     "ratingValue": "{rating} / 10",
-    "openGame": "Открыть {name}"
+    "openGame": "Открыть {name}",
+    "sortLabel": "Сортировать",
+    "sort": {
+      "newest": "Сначала новые",
+      "oldest": "Сначала старые",
+      "ratingHighToLow": "Ваша оценка (по убыванию)",
+      "ratingLowToHigh": "Ваша оценка (по возрастанию)",
+      "alphabeticalAZ": "По алфавиту (А–Я)",
+      "alphabeticalZA": "По алфавиту (Я–А)"
+    }
   }
 }

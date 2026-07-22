@@ -478,6 +478,15 @@
     "subtitleWithCount": "You have rated {count, plural, one {# game} other {# games}} on StatRealm.",
     "empty": "You haven't rated any games yet.",
     "ratingValue": "{rating} / 10",
-    "openGame": "Open {name}"
+    "openGame": "Open {name}",
+    "sortLabel": "Sort by",
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "ratingHighToLow": "Your Rating (High to Low)",
+      "ratingLowToHigh": "Your Rating (Low to High)",
+      "alphabeticalAZ": "Alphabetical (A–Z)",
+      "alphabeticalZA": "Alphabetical (Z–A)"
+    }
   }
 }
