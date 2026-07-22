@@ -1,11 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { GameListImage } from "@/components/GameListImage";
 import { GameName } from "@/components/GameName";
-import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
-import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import type { DashboardGame } from "@/types/dashboard";
-import { getGameDetailsHref } from "@/lib/game-details/game-href";
 import { Link } from "@/i18n/navigation";
 
 function DashboardGameCard({
@@ -22,28 +20,27 @@ function DashboardGameCard({
 
   return (
     <Link
-      href={getGameDetailsHref(game)}
+      href={`/game/${game.id}`}
       className={`group overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:border-white/15 hover:shadow-[0_0_35px_rgba(107,47,214,0.16)] ${
         compact ? "flex min-w-0 items-center p-3" : "block w-[280px] shrink-0"
       }`}
     >
       <div
-        className={`relative ${
-          compact ? "h-20 w-32 shrink-0" : "aspect-[460/215] w-full rounded-b-none"
+        className={`relative overflow-hidden ${
+          compact ? "h-20 w-32 shrink-0 rounded-lg" : "aspect-[460/215] w-full rounded-b-none"
         }`}
       >
-        <SteamGameImageByAppId
+        <GameListImage
           appId={appId}
           alt={game.title}
-          variant={GAME_LIST_IMAGE_VARIANT}
-          initialCandidates={game.imageCandidates}
+          imageUrl={game.imageUrl}
+          imageCandidates={game.imageCandidates}
+          preferredUrls={[game.imageUrl, game.imageFallbackUrl]}
           sizes={compact ? "128px" : "280px"}
           className="object-cover transition duration-300 group-hover:brightness-110"
-          imageCacheRole="card"
-          wrapperClassName="absolute inset-0 overflow-hidden rounded-lg"
         />
         {rank ? (
-          <span className="absolute top-2 left-2 flex h-7 w-7 items-center justify-center rounded-md bg-[#140B2D]/85 text-xs font-bold text-white backdrop-blur-sm">
+          <span className="absolute top-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-md bg-[#140B2D]/85 text-xs font-bold text-white backdrop-blur-sm">
             {rank}
           </span>
         ) : null}
