@@ -1,8 +1,9 @@
 import "server-only";
 
-import { getGameRatingAggregate, getUserGameRatings } from "@/lib/db";
+import { getUserGameRatings } from "@/lib/db";
 import type { UserRatingsPageData } from "@/lib/reviews/types";
 import { getSteamBannerImageCandidates } from "@/lib/steam/game-images";
+import { resolveSteamGameDisplayName } from "@/lib/steam/resolve-game-name";
 
 function buildGameHeaderImageUrl(appId: number) {
   const bannerCandidates = getSteamBannerImageCandidates(appId);
@@ -24,11 +25,13 @@ export async function loadUserRatingsPage(
 
   const ratings = await Promise.all(
     sortedRatings.map(async (rating) => {
-      const aggregate = await getGameRatingAggregate(rating.appId);
+      const gameName = await resolveSteamGameDisplayName(rating.appId, {
+        steamId,
+      });
 
       return {
         appId: rating.appId,
-        gameName: aggregate?.gameName ?? `Steam App ${rating.appId}`,
+        gameName,
         imageUrl: buildGameHeaderImageUrl(rating.appId),
         rating: rating.rating,
         createdAt: rating.createdAt,
