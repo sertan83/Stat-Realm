@@ -63,6 +63,7 @@ export type UserProfileReviewsPage = {
 
 export type CommunityReviewEntry = GameReviewEntry & {
   gameHeaderImageUrl: string;
+  imageCandidates: string[];
 };
 
 export type CommunityReviewsPageData = {
@@ -77,6 +78,7 @@ export type UserRatingEntry = {
   appId: number;
   gameName: string;
   imageUrl: string;
+  imageCandidates: string[];
   rating: number;
   createdAt: string;
 };
@@ -89,6 +91,7 @@ export type UserRatingsPageData = {
 export type CommunityRatingEntry = {
   appId: number;
   gameName: string;
+  imageCandidates: string[];
   averageRating: number;
   totalRatings: number;
   totalReviews: number;

@@ -93,7 +93,7 @@ function RatingRow({
   return (
     <Link
       href={`/game/${rating.appId}`}
-      className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4 shadow-[0_0_30px_rgba(107,47,214,0.08)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.01] hover:border-white/15 sm:gap-5 sm:p-5"
+      className="group flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4 shadow-[0_0_30px_rgba(107,47,214,0.08)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.01] hover:border-white/15 hover:bg-white/[0.07] sm:gap-5 sm:p-5"
       aria-label={t("openGame", { name: rating.gameName })}
     >
       <div className="flex w-11 shrink-0 justify-center sm:w-14">
@@ -105,6 +105,7 @@ function RatingRow({
       <SteamGameImageByAppId
         appId={rating.appId}
         variant="capsule"
+        initialCandidates={rating.imageCandidates}
         wrapperClassName="h-[47px] w-[115px] shrink-0 overflow-hidden rounded-md border border-white/10 bg-[#140B2D] sm:h-[53px] sm:w-[130px]"
         sizes="130px"
         unoptimized

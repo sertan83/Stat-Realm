@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   buildSteamGameImageCandidates,
   type SteamGameImageVariant,
@@ -17,6 +17,7 @@ type SteamGameImageByAppIdProps = {
   className?: string;
   sizes: string;
   variant?: SteamGameImageVariant;
+  initialCandidates?: string[];
   preferredUrls?: Array<string | null | undefined>;
   unoptimized?: boolean;
   priority?: boolean;
@@ -30,21 +31,67 @@ export function SteamGameImageByAppId({
   className = "object-cover",
   sizes,
   variant = "card",
+  initialCandidates = [],
   preferredUrls = [],
   unoptimized = false,
   priority = false,
   imageCacheRole,
   wrapperClassName,
 }: SteamGameImageByAppIdProps) {
-  const candidates = useMemo(
-    () =>
-      buildSteamGameImageCandidates(appId, {
-        variant,
-        preferredUrls,
-      }),
-    [appId, preferredUrls, variant],
-  );
+  const [serverCandidates, setServerCandidates] = useState<string[]>([]);
   const [candidateIndex, setCandidateIndex] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchResolvedCandidates() {
+      try {
+        const response = await fetch(
+          `/api/games/images?appIds=${appId}&variant=${variant}`,
+          { cache: "no-store" },
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as Record<string, string[]>;
+        const resolvedCandidates = payload[String(appId)];
+
+        if (!cancelled && Array.isArray(resolvedCandidates) && resolvedCandidates.length > 0) {
+          setServerCandidates(resolvedCandidates);
+        }
+      } catch {
+        // Keep local fallback chain until a later retry or navigation refresh.
+      }
+    }
+
+    void fetchResolvedCandidates();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appId, variant]);
+
+  const candidates = useMemo(() => {
+    if (serverCandidates.length > 0) {
+      return serverCandidates;
+    }
+
+    if (initialCandidates.length > 0) {
+      return initialCandidates;
+    }
+
+    return buildSteamGameImageCandidates(appId, {
+      variant,
+      preferredUrls: [...preferredUrls],
+    });
+  }, [appId, initialCandidates, preferredUrls, serverCandidates, variant]);
+
+  useEffect(() => {
+    setCandidateIndex(0);
+  }, [candidates]);
+
   const activeUrl = candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE;
 
   const image = (

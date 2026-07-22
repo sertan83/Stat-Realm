@@ -7,23 +7,15 @@ import {
   getStatRealmUser,
   getUserHelpfulVotes,
 } from "@/lib/db";
+import { attachResolvedGameImages } from "@/lib/reviews/attach-game-images";
 import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
 import type {
   CommunityReviewEntry,
   CommunityReviewsPageData,
 } from "@/lib/reviews/types";
-import { getSteamBannerImageCandidates } from "@/lib/steam/game-images";
+import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 
 const REVIEWS_PER_PAGE = 10;
-
-function buildGameHeaderImageUrl(appId: number) {
-  const bannerCandidates = getSteamBannerImageCandidates(appId);
-
-  return (
-    bannerCandidates[0]?.url ??
-    `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`
-  );
-}
 
 export async function loadCommunityReviewsPage(input: {
   page?: number;
@@ -54,7 +46,6 @@ export async function loadCommunityReviewsPage(input: {
         ratingKey,
         steamId: rating.steamId,
         appId: rating.appId,
-        gameHeaderImageUrl: buildGameHeaderImageUrl(rating.appId),
         displayName: user?.displayName ?? `Steam User ${rating.steamId.slice(-4)}`,
         avatarUrl: user?.avatarUrl ?? user?.avatar ?? "",
         profileUrl:
@@ -72,11 +63,19 @@ export async function loadCommunityReviewsPage(input: {
     }),
   );
 
-  const reviews = (await attachResolvedGameNames(reviewEntries)).map(
+  const reviewsWithImages = await attachResolvedGameImages(
+    await attachResolvedGameNames(reviewEntries),
+    { variant: "header" },
+  );
+
+  const reviews = reviewsWithImages.map(
     (review) =>
       ({
         ...review,
         gameName: review.gameName,
+        gameHeaderImageUrl:
+          review.imageCandidates[0] ?? DEFAULT_GAME_FALLBACK_IMAGE,
+        imageCandidates: review.imageCandidates,
       }) satisfies CommunityReviewEntry,
   );
 

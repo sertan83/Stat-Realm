@@ -1,11 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import { useMemo, useState } from "react";
 import type { Game } from "@/types/game";
-import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
-import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
-import { reportSuccessfulGameImage } from "@/lib/steam/report-game-image-cache";
+import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
 import { cn } from "@/lib/utils";
 
 type GameCardProps = {
@@ -15,19 +11,6 @@ type GameCardProps = {
 
 export function GameCard({ game, className }: GameCardProps) {
   const appId = Number(game.id);
-  const candidates = useMemo(() => {
-    const baseCandidates =
-      game.imageCandidates && game.imageCandidates.length > 0
-        ? game.imageCandidates
-        : [game.imageUrl];
-
-    return buildSteamGameImageCandidates(appId, {
-      variant: "card",
-      preferredUrls: baseCandidates,
-    });
-  }, [appId, game.imageCandidates, game.imageUrl]);
-  const [candidateIndex, setCandidateIndex] = useState(0);
-  const activeUrl = candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE;
 
   return (
     <article
@@ -36,27 +19,16 @@ export function GameCard({ game, className }: GameCardProps) {
         className,
       )}
     >
-      <Image
-        key={activeUrl}
-        src={activeUrl}
+      <SteamGameImageByAppId
+        appId={appId}
         alt={game.title}
-        fill
+        variant="card"
+        initialCandidates={game.imageCandidates}
+        preferredUrls={[game.imageUrl, ...(game.imageCandidates ?? [])]}
         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 360px"
         className="object-cover transition duration-300 group-hover:brightness-110"
-        onLoad={() => {
-          if (
-            Number.isInteger(appId) &&
-            appId > 0 &&
-            activeUrl !== DEFAULT_GAME_FALLBACK_IMAGE
-          ) {
-            reportSuccessfulGameImage(appId, "card", activeUrl);
-          }
-        }}
-        onError={() => {
-          if (candidateIndex + 1 < candidates.length) {
-            setCandidateIndex((currentIndex) => currentIndex + 1);
-          }
-        }}
+        imageCacheRole="card"
+        wrapperClassName="absolute inset-0"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[#140B2D]/60 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
     </article>

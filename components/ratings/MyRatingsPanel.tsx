@@ -94,6 +94,7 @@ function toGameCard(rating: UserRatingsPageData["ratings"][number]): Game {
     title: rating.gameName,
     slug: String(rating.appId),
     imageUrl: rating.imageUrl,
+    imageCandidates: rating.imageCandidates,
     category: "",
   };
 }

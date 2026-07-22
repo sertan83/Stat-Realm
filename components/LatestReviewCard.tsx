@@ -132,6 +132,7 @@ export function LatestReviewCard({ review, className }: LatestReviewCardProps) {
           <SteamGameImageByAppId
             appId={review.appId}
             variant="header"
+            initialCandidates={review.imageCandidates}
             preferredUrls={[review.gameHeaderImageUrl]}
             wrapperClassName="relative mt-3 h-16 overflow-hidden rounded-md border border-white/10 bg-[#140B2D]"
             sizes="220px"

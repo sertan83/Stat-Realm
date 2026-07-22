@@ -1,18 +1,10 @@
 import "server-only";
 
 import { getUserGameRatings } from "@/lib/db";
+import { attachResolvedGameImages } from "@/lib/reviews/attach-game-images";
 import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
 import type { UserRatingsPageData } from "@/lib/reviews/types";
-import { getSteamBannerImageCandidates } from "@/lib/steam/game-images";
-
-function buildGameHeaderImageUrl(appId: number) {
-  const bannerCandidates = getSteamBannerImageCandidates(appId);
-
-  return (
-    bannerCandidates[0]?.url ??
-    `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`
-  );
-}
+import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 
 export async function loadUserRatingsPage(
   steamId: string,
@@ -32,10 +24,15 @@ export async function loadUserRatingsPage(
     { steamId },
   );
 
-  const ratings = ratingsWithNames.map((rating) => ({
+  const ratingsWithImages = await attachResolvedGameImages(ratingsWithNames, {
+    variant: "card",
+  });
+
+  const ratings = ratingsWithImages.map((rating) => ({
     appId: rating.appId,
     gameName: rating.gameName,
-    imageUrl: buildGameHeaderImageUrl(rating.appId),
+    imageUrl: rating.imageCandidates[0] ?? DEFAULT_GAME_FALLBACK_IMAGE,
+    imageCandidates: rating.imageCandidates,
     rating: rating.rating,
     createdAt: rating.createdAt,
   }));

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getAllRatingAggregates } from "@/lib/db";
+import { attachResolvedGameImages } from "@/lib/reviews/attach-game-images";
 import { attachResolvedGameNames } from "@/lib/reviews/attach-game-names";
 import type { CommunityRatingsPageData } from "@/lib/reviews/types";
 
@@ -26,9 +27,14 @@ export async function loadCommunityRatingsPage(): Promise<CommunityRatingsPageDa
     })),
   );
 
-  const ratings = ratingsWithNames.map((entry) => ({
+  const ratingsWithImages = await attachResolvedGameImages(ratingsWithNames, {
+    variant: "capsule",
+  });
+
+  const ratings = ratingsWithImages.map((entry) => ({
     appId: entry.appId,
     gameName: entry.gameName,
+    imageCandidates: entry.imageCandidates,
     averageRating: entry.averageRating,
     totalRatings: entry.totalRatings,
     totalReviews: entry.totalReviews,

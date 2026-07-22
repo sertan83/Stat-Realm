@@ -1,15 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
+import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
 import type { DashboardGame } from "@/types/dashboard";
-import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
-import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
 import { Link } from "@/i18n/navigation";
-import { reportSuccessfulGameImage } from "@/lib/steam/report-game-image-cache";
-import Image from "next/image";
 
 function DashboardGameCard({
   game,
@@ -22,20 +18,6 @@ function DashboardGameCard({
 }) {
   const t = useTranslations("dashboard");
   const appId = Number(game.id);
-  const candidates = useMemo(
-    () =>
-      buildSteamGameImageCandidates(appId, {
-        variant: "card",
-        preferredUrls: [
-          ...(game.imageCandidates ?? []),
-          game.imageUrl,
-          game.imageFallbackUrl,
-        ],
-      }),
-    [appId, game.imageCandidates, game.imageFallbackUrl, game.imageUrl],
-  );
-  const [candidateIndex, setCandidateIndex] = useState(0);
-  const activeUrl = candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE;
 
   return (
     <Link
@@ -45,27 +27,20 @@ function DashboardGameCard({
       }`}
     >
       <div
-        className={`relative overflow-hidden rounded-lg ${
+        className={`relative ${
           compact ? "h-20 w-32 shrink-0" : "aspect-[460/215] w-full rounded-b-none"
         }`}
       >
-        <Image
-          key={activeUrl}
-          src={activeUrl}
+        <SteamGameImageByAppId
+          appId={appId}
           alt={game.title}
-          fill
+          variant="card"
+          initialCandidates={game.imageCandidates}
+          preferredUrls={[game.imageUrl, game.imageFallbackUrl, ...(game.imageCandidates ?? [])]}
           sizes={compact ? "128px" : "280px"}
-          onLoad={() => {
-            if (Number.isInteger(appId) && appId > 0) {
-              reportSuccessfulGameImage(appId, "card", activeUrl);
-            }
-          }}
-          onError={() => {
-            if (candidateIndex + 1 < candidates.length) {
-              setCandidateIndex((currentIndex) => currentIndex + 1);
-            }
-          }}
           className="object-cover transition duration-300 group-hover:brightness-110"
+          imageCacheRole="card"
+          wrapperClassName="absolute inset-0 overflow-hidden rounded-lg"
         />
         {rank ? (
           <span className="absolute top-2 left-2 flex h-7 w-7 items-center justify-center rounded-md bg-[#140B2D]/85 text-xs font-bold text-white backdrop-blur-sm">

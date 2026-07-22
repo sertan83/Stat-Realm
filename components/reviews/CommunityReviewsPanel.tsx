@@ -139,6 +139,7 @@ export function CommunityReviewsPanel({
                       <SteamGameImageByAppId
                         appId={review.appId}
                         variant="header"
+                        initialCandidates={review.imageCandidates}
                         preferredUrls={[review.gameHeaderImageUrl]}
                         wrapperClassName="relative h-16 overflow-hidden rounded-md border border-white/10 bg-[#140B2D]"
                         sizes="220px"
