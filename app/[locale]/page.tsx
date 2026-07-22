@@ -55,6 +55,7 @@ export default async function Home({ params }: HomePageProps) {
         mostOwnedGames={communityData.mostOwnedGames}
         registeredUserCount={communityData.registeredUserCount}
         communityLeaderboard={communityData.communityLeaderboard}
+        topRatedGames={communityData.topRatedGames}
         recentPlayer={communityData.recentPlayer}
         latestReview={communityData.latestReview}
       />

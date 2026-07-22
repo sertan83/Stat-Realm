@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { AmbientGlow } from "@/components/AmbientGlow";
 import { BackgroundGlow } from "@/components/BackgroundGlow";
 import { CommunityLeaderboard } from "@/components/CommunityLeaderboard";
+import { CommunityTopGames } from "@/components/CommunityTopGames";
 import { GameGrid } from "@/components/GameGrid";
 import { GameRankPanel } from "@/components/GameRankPanel";
 import { LatestReviewCard } from "@/components/LatestReviewCard";
@@ -15,6 +16,7 @@ import { Link } from "@/i18n/navigation";
 import type {
   CommunityLeaderboardPlayer,
   LandingRecentPlayer,
+  LandingTopRatedGame,
   RankedCommunityGame,
 } from "@/lib/community/rankings";
 import type { LandingLatestReview } from "@/lib/reviews/latest-review";
@@ -28,6 +30,7 @@ type HeroProps = {
   mostOwnedGames?: RankedCommunityGame[];
   registeredUserCount?: number;
   communityLeaderboard?: CommunityLeaderboardPlayer[];
+  topRatedGames?: LandingTopRatedGame[];
   recentPlayer?: LandingRecentPlayer | null;
   latestReview?: LandingLatestReview | null;
 };
@@ -39,6 +42,7 @@ export function Hero({
   mostOwnedGames = [],
   registeredUserCount = 0,
   communityLeaderboard = [],
+  topRatedGames = [],
   recentPlayer = null,
   latestReview = null,
 }: HeroProps) {
@@ -121,6 +125,7 @@ export function Hero({
               />
               <div className="relative z-10">
                 <CommunityLeaderboard players={communityLeaderboard} />
+                <CommunityTopGames games={topRatedGames} />
               </div>
             </div>
           </div>

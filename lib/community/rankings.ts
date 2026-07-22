@@ -17,10 +17,12 @@ import {
   getLatestLandingReview,
   type LandingLatestReview,
 } from "@/lib/reviews/latest-review";
+import { getTopRatedLandingGames } from "@/lib/landing/top-rated-games";
 import { GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
 import { resolveGameDisplayBatch } from "@/lib/game-display/resolve";
 
 export type { LandingLatestReview } from "@/lib/reviews/latest-review";
+export type { LandingTopRatedGame } from "@/lib/landing/top-rated-games";
 
 export type CommunityLeaderboardPlayer = {
   rank: number;
@@ -146,12 +148,14 @@ export async function getCommunityLandingData() {
     aggregates,
     registeredUserCount,
     communityLeaderboard,
+    topRatedGames,
     recentPlayer,
     latestReview,
   ] = await Promise.all([
     readCommunityAggregates(),
     getRegisteredUserCount(),
     getTopCommunityLeaderboardPlayers(3),
+    getTopRatedLandingGames(3),
     getMostRecentLoggedInPlayer(),
     getLatestLandingReview(),
   ]);
@@ -166,6 +170,7 @@ export async function getCommunityLandingData() {
     mostOwnedGames,
     registeredUserCount,
     communityLeaderboard,
+    topRatedGames,
     recentPlayer,
     latestReview,
   };
