@@ -10,7 +10,9 @@
     "profileTitle": "{name} — StatRealm",
     "profileDescription": "{name} adlı kullanıcının herkese açık StatRealm oyun profilini görüntüle.",
     "reviewsTitle": "Yorumlar — StatRealm",
-    "reviewsDescription": "StatRealm oyuncularının en yeni topluluk yorumlarını keşfet."
+    "reviewsDescription": "StatRealm oyuncularının en yeni topluluk yorumlarını keşfet.",
+    "ratingsTitle": "Puanlar — StatRealm",
+    "ratingsDescription": "StatRealm topluluğunun puanladığı tüm oyunları keşfet."
   },
   "nav": {
     "signInWithSteam": "Steam ile Giriş Yap",
@@ -59,6 +61,7 @@
     "achievementTagline": "Her başarım bir hikâye anlatır.",
     "viewLeaderboards": "🏆 Liderlik Tablolarını Gör",
     "viewReviews": "⭐ Yorumlar",
+    "viewRatings": "🔥 Puanlar",
     "playersTracked": "Takip Edilen Oyuncular",
     "steamAccountsSynced": "Steam hesabı senkronize edildi",
     "recentPlayer": "Son Oyuncu",
@@ -469,6 +472,25 @@
     "steamLevelUnavailable": "Steam Seviyesi —",
     "ratingValue": "{rating} / 10",
     "helpful": "Faydalı ({count})"
+  },
+  "ratingsPage": {
+    "title": "Puanlar",
+    "subtitle": "StatRealm topluluğunun puanladığı tüm oyunlar, ortalama puana göre sıralanır.",
+    "empty": "Henüz topluluk puanı yok.",
+    "sortLabel": "Sırala",
+    "ratingValue": "{rating} / 10",
+    "totalRatings": "{count, plural, one {# puan} other {# puan}}",
+    "totalRatingsShort": "{count, plural, one {# puan} other {# puan}}",
+    "totalReviews": "{count, plural, one {# yazılı yorum} other {# yazılı yorum}}",
+    "openGame": "{name} oyununu aç",
+    "sort": {
+      "highestRated": "En yüksek puan",
+      "lowestRated": "En düşük puan",
+      "mostRated": "En çok puanlanan",
+      "leastRated": "En az puanlanan",
+      "alphabeticalAZ": "Alfabetik (A–Z)",
+      "alphabeticalZA": "Alfabetik (Z–A)"
+    }
   },
   "myRatingsPage": {
     "metadataTitle": "Puanlarım — StatRealm",

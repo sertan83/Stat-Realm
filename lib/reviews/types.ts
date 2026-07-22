@@ -85,3 +85,17 @@ export type UserRatingsPageData = {
   ratings: UserRatingEntry[];
   totalRatings: number;
 };
+
+export type CommunityRatingEntry = {
+  appId: number;
+  gameName: string;
+  capsuleImageUrl: string;
+  averageRating: number;
+  totalRatings: number;
+  totalReviews: number;
+};
+
+export type CommunityRatingsPageData = {
+  ratings: CommunityRatingEntry[];
+  totalGames: number;
+};

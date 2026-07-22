@@ -10,7 +10,9 @@
     "profileTitle": "{name} — StatRealm",
     "profileDescription": "Visualizza il profilo di gioco pubblico di {name} su StatRealm.",
     "reviewsTitle": "Recensioni — StatRealm",
-    "reviewsDescription": "Sfoglia le recensioni più recenti della community StatRealm."
+    "reviewsDescription": "Sfoglia le recensioni più recenti della community StatRealm.",
+    "ratingsTitle": "Valutazioni — StatRealm",
+    "ratingsDescription": "Esplora tutti i giochi valutati dalla community StatRealm."
   },
   "nav": {
     "signInWithSteam": "Accedi con Steam",
@@ -59,6 +61,7 @@
     "achievementTagline": "Ogni achievement racconta una storia.",
     "viewLeaderboards": "🏆 Vedi classifiche",
     "viewReviews": "⭐ Recensioni",
+    "viewRatings": "🔥 Valutazioni",
     "playersTracked": "Giocatori monitorati",
     "steamAccountsSynced": "Account Steam sincronizzati",
     "recentPlayer": "Giocatore recente",
@@ -469,6 +472,25 @@
     "steamLevelUnavailable": "Livello Steam —",
     "ratingValue": "{rating} / 10",
     "helpful": "Utile ({count})"
+  },
+  "ratingsPage": {
+    "title": "Valutazioni",
+    "subtitle": "Tutti i giochi valutati dalla community StatRealm, ordinati per punteggio medio.",
+    "empty": "Non ci sono ancora valutazioni della community.",
+    "sortLabel": "Ordina per",
+    "ratingValue": "{rating} / 10",
+    "totalRatings": "{count, plural, one {# valutazione} other {# valutazioni}}",
+    "totalRatingsShort": "{count, plural, one {# valutazione} other {# valutazioni}}",
+    "totalReviews": "{count, plural, one {# recensione scritta} other {# recensioni scritte}}",
+    "openGame": "Apri {name}",
+    "sort": {
+      "highestRated": "Più votati",
+      "lowestRated": "Meno votati",
+      "mostRated": "Più valutati",
+      "leastRated": "Meno valutati",
+      "alphabeticalAZ": "Alfabetico (A–Z)",
+      "alphabeticalZA": "Alfabetico (Z–A)"
+    }
   },
   "myRatingsPage": {
     "metadataTitle": "Le mie valutazioni — StatRealm",

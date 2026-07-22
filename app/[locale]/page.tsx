@@ -40,6 +40,12 @@ export default async function Home({ params }: HomePageProps) {
         >
           {t("viewReviews")}
         </Link>
+        <Link
+          href="/ratings"
+          className="rounded-lg border border-white/10 bg-[#1B2838]/90 px-3.5 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(107,47,214,0.12)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:bg-[#2A475E]"
+        >
+          {t("viewRatings")}
+        </Link>
       </div>
       <Hero
         mostPlayedGames={communityData.mostPlayedGames}

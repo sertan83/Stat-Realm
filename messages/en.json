@@ -10,7 +10,9 @@
     "profileTitle": "{name} — StatRealm",
     "profileDescription": "View {name}'s public StatRealm gaming profile.",
     "reviewsTitle": "Reviews — StatRealm",
-    "reviewsDescription": "Browse the newest community reviews from StatRealm players."
+    "reviewsDescription": "Browse the newest community reviews from StatRealm players.",
+    "ratingsTitle": "Ratings — StatRealm",
+    "ratingsDescription": "Browse every game rated by the StatRealm community."
   },
   "nav": {
     "signInWithSteam": "Sign in With Steam",
@@ -59,6 +61,7 @@
     "achievementTagline": "Every achievement tells a story.",
     "viewLeaderboards": "🏆 View Leaderboards",
     "viewReviews": "⭐ Reviews",
+    "viewRatings": "🔥 Ratings",
     "playersTracked": "Players Tracked",
     "steamAccountsSynced": "Steam accounts synced",
     "recentPlayer": "Recent Player",
@@ -469,6 +472,25 @@
     "steamLevelUnavailable": "Steam Level —",
     "ratingValue": "{rating} / 10",
     "helpful": "Helpful ({count})"
+  },
+  "ratingsPage": {
+    "title": "Ratings",
+    "subtitle": "Every game rated by the StatRealm community, sorted by average score.",
+    "empty": "No community ratings yet.",
+    "sortLabel": "Sort by",
+    "ratingValue": "{rating} / 10",
+    "totalRatings": "{count, plural, one {# rating} other {# ratings}}",
+    "totalRatingsShort": "{count, plural, one {# rating} other {# ratings}}",
+    "totalReviews": "{count, plural, one {# written review} other {# written reviews}}",
+    "openGame": "Open {name}",
+    "sort": {
+      "highestRated": "Highest Rated",
+      "lowestRated": "Lowest Rated",
+      "mostRated": "Most Rated",
+      "leastRated": "Least Rated",
+      "alphabeticalAZ": "Alphabetical (A–Z)",
+      "alphabeticalZA": "Alphabetical (Z–A)"
+    }
   },
   "myRatingsPage": {
     "metadataTitle": "My Ratings — StatRealm",

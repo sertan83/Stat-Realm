@@ -10,7 +10,9 @@
     "profileTitle": "{name} — StatRealm",
     "profileDescription": "Просмотрите публичный игровой профиль {name} на StatRealm.",
     "reviewsTitle": "Отзывы — StatRealm",
-    "reviewsDescription": "Просматривайте новейшие отзывы сообщества StatRealm."
+    "reviewsDescription": "Просматривайте новейшие отзывы сообщества StatRealm.",
+    "ratingsTitle": "Оценки — StatRealm",
+    "ratingsDescription": "Просматривайте все игры, оценённые сообществом StatRealm."
   },
   "nav": {
     "signInWithSteam": "Войти через Steam",
@@ -59,6 +61,7 @@
     "achievementTagline": "Каждое достижение — это история.",
     "viewLeaderboards": "🏆 Таблицы лидеров",
     "viewReviews": "⭐ Отзывы",
+    "viewRatings": "🔥 Оценки",
     "playersTracked": "Отслеживаемых игроков",
     "steamAccountsSynced": "Синхронизированных аккаунтов Steam",
     "recentPlayer": "Недавний игрок",
@@ -469,6 +472,25 @@
     "steamLevelUnavailable": "Уровень Steam —",
     "ratingValue": "{rating} / 10",
     "helpful": "Полезно ({count})"
+  },
+  "ratingsPage": {
+    "title": "Оценки",
+    "subtitle": "Все игры, оценённые сообществом StatRealm, отсортированные по среднему баллу.",
+    "empty": "Оценок сообщества пока нет.",
+    "sortLabel": "Сортировать",
+    "ratingValue": "{rating} / 10",
+    "totalRatings": "{count, plural, one {# оценка} few {# оценки} many {# оценок} other {# оценки}}",
+    "totalRatingsShort": "{count, plural, one {# оценка} few {# оценки} many {# оценок} other {# оценки}}",
+    "totalReviews": "{count, plural, one {# письменный отзыв} few {# письменных отзыва} many {# письменных отзывов} other {# письменного отзыва}}",
+    "openGame": "Открыть {name}",
+    "sort": {
+      "highestRated": "Сначала высокие",
+      "lowestRated": "Сначала низкие",
+      "mostRated": "Больше всего оценок",
+      "leastRated": "Меньше всего оценок",
+      "alphabeticalAZ": "По алфавиту (А–Я)",
+      "alphabeticalZA": "По алфавиту (Я–А)"
+    }
   },
   "myRatingsPage": {
     "metadataTitle": "Мои оценки — StatRealm",
