@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
 import { GameCard } from "@/components/GameCard";
@@ -30,6 +30,33 @@ const sortOptions: MyRatingsSortOption[] = [
   "alphabeticalAZ",
   "alphabeticalZA",
 ];
+
+const MY_RATINGS_SORT_STORAGE_KEY = "statrealm:my-ratings-sort";
+
+function isMyRatingsSortOption(value: string): value is MyRatingsSortOption {
+  return sortOptions.includes(value as MyRatingsSortOption);
+}
+
+function readStoredMyRatingsSort(): MyRatingsSortOption {
+  try {
+    const stored = localStorage.getItem(MY_RATINGS_SORT_STORAGE_KEY);
+    if (stored && isMyRatingsSortOption(stored)) {
+      return stored;
+    }
+  } catch {
+    // Ignore storage access errors in restricted browser contexts.
+  }
+
+  return "newest";
+}
+
+function writeStoredMyRatingsSort(sortBy: MyRatingsSortOption) {
+  try {
+    localStorage.setItem(MY_RATINGS_SORT_STORAGE_KEY, sortBy);
+  } catch {
+    // Ignore storage access errors in restricted browser contexts.
+  }
+}
 
 function compareByDateNewestFirst(
   first: UserRatingsPageData["ratings"][number],
@@ -102,10 +129,20 @@ function toGameCard(rating: UserRatingsPageData["ratings"][number]): Game {
 export function MyRatingsPanel({ data, locale }: MyRatingsPanelProps) {
   const t = useTranslations("myRatingsPage");
   const [sortBy, setSortBy] = useState<MyRatingsSortOption>("newest");
+
+  useEffect(() => {
+    setSortBy(readStoredMyRatingsSort());
+  }, []);
+
   const sortedRatings = useMemo(
     () => sortUserRatings(data.ratings, sortBy, locale),
     [data.ratings, locale, sortBy],
   );
+
+  function handleSortChange(value: MyRatingsSortOption) {
+    setSortBy(value);
+    writeStoredMyRatingsSort(value);
+  }
 
   if (data.totalRatings === 0) {
     return (
@@ -139,7 +176,7 @@ export function MyRatingsPanel({ data, locale }: MyRatingsPanelProps) {
         <span className="mb-2 block text-sm text-white/65">{t("sortLabel")}</span>
         <Select
           value={sortBy}
-          onValueChange={(value) => setSortBy(value as MyRatingsSortOption)}
+          onValueChange={(value) => handleSortChange(value as MyRatingsSortOption)}
           ariaLabel={t("sortLabel")}
           options={sortOptions.map((option) => ({
             value: option,
