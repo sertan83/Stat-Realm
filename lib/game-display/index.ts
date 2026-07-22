@@ -20,6 +20,8 @@ export { attachGameDisplay } from "@/lib/game-display/attach";
 
 export {
   attachGameListDisplay,
+  mapGameListDisplayToGame,
   resolveGameListBatch,
   resolveGameListGames,
+  resolveGameListGamesFromDisplays,
 } from "@/lib/game-display/game-list";

@@ -30,9 +30,9 @@ export function resolveGameLinkAppId(game: GameLinkTarget): number | null {
 export function getGameDetailsHref(game: GameLinkTarget) {
   const appId = resolveGameLinkAppId(game);
 
-  if (appId === null) {
-    throw new Error(`Unable to resolve Steam App ID for game link: ${game.id}`);
+  if (appId !== null) {
+    return `/game/${appId}`;
   }
 
-  return `/game/${appId}`;
+  return `/game/${game.id}`;
 }

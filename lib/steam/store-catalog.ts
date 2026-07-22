@@ -1,7 +1,6 @@
 import "server-only";
 
-import { resolveGameListBatch } from "@/lib/game-display/game-list";
-import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
+import { resolveGameListGamesFromDisplays } from "@/lib/game-display/game-list";
 import type { ExploreCatalogQuery } from "@/lib/explore/catalog-params";
 import {
   isSteamAppListCached,
@@ -311,27 +310,14 @@ function filterCatalogInputs(
 }
 
 export function buildExploreGames(inputs: CatalogGameInput[]) {
-  return resolveGameListBatch(
+  return resolveGameListGamesFromDisplays(
     inputs.map((input) => ({
       appId: input.appId,
       logoUrl: input.logoUrl,
+      title: input.title,
+      category: input.category,
     })),
     { persist: true },
-  ).then((displays) =>
-    inputs.map((input) => {
-      const display = displays.get(input.appId);
-
-      return {
-        id: String(input.appId),
-        title: display?.name ?? input.title,
-        slug: display?.slug ?? String(input.appId),
-        imageUrl: display?.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
-        imageCandidates: display?.imageCandidates?.length
-          ? display.imageCandidates
-          : [DEFAULT_GAME_FALLBACK_IMAGE],
-        category: input.category,
-      };
-    }),
   );
 }
 
@@ -340,34 +326,14 @@ async function enrichCatalogGames(games: Game[]) {
     return games;
   }
 
-  const displays = await resolveGameListBatch(
-    games.map((game) => ({ appId: Number(game.id) })),
+  return resolveGameListGamesFromDisplays(
+    games.map((game) => ({
+      appId: Number(game.id),
+      title: game.title,
+      category: game.category,
+    })),
     { persist: true },
   );
-
-  return games.map((game) => {
-    const display = displays.get(Number(game.id));
-
-    if (!display) {
-      return {
-        ...game,
-        imageUrl: game.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
-        imageCandidates: game.imageCandidates?.length
-          ? game.imageCandidates
-          : [DEFAULT_GAME_FALLBACK_IMAGE],
-      };
-    }
-
-    return {
-      ...game,
-      title: display.name || game.title,
-      slug: display.slug,
-      imageUrl: display.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
-      imageCandidates: display.imageCandidates.length
-        ? display.imageCandidates
-        : [DEFAULT_GAME_FALLBACK_IMAGE],
-    };
-  });
 }
 
 async function fetchCatalogFromAppListSearch(query: ExploreCatalogQuery) {

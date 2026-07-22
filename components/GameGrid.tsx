@@ -27,7 +27,7 @@ export function GameGrid({ games, className }: GameGridProps) {
           key={game.id}
           href={getGameDetailsHref(game)}
           aria-label={t("viewGameDetails", { name: game.title })}
-          className="rounded-lg transition duration-[250ms] hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E2363C]"
+          className="block w-full rounded-lg transition duration-[250ms] hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E2363C]"
         >
           <GameCard game={game} />
         </Link>

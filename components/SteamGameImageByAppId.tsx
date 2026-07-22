@@ -84,7 +84,14 @@ export function SteamGameImageByAppId({
         const display = payload[String(appId)];
 
         if (!cancelled && display) {
-          setResolvedCandidates(selectVariantCandidates(display, variant));
+          const candidates =
+            display.imageCandidates.length > 0
+              ? display.imageCandidates
+              : selectVariantCandidates(display, variant);
+
+          if (candidates.length > 0) {
+            setResolvedCandidates(candidates);
+          }
         }
       } catch {
         // Keep local fallback chain until a later retry or navigation refresh.

@@ -91,6 +91,17 @@ function pickPrimaryImageUrl(candidates: string[]) {
   );
 }
 
+function pickListPrimaryImageUrl(candidates: string[]) {
+  const wideCapsule = candidates.find(
+    (candidate) =>
+      candidate.trim().length > 0 &&
+      candidate !== DEFAULT_GAME_FALLBACK_IMAGE &&
+      /capsule_616x353|header\.jpg|library_hero|hero\.jpg/i.test(candidate),
+  );
+
+  return wideCapsule ?? pickPrimaryImageUrl(candidates);
+}
+
 function isValidImageCandidateList(candidates: string[] | undefined) {
   return Boolean(
     candidates?.some(
@@ -171,12 +182,16 @@ function toGameDisplay(
   variant: SteamGameImageVariant,
 ): GameDisplay {
   const imageCandidates = selectVariantCandidates(images, variant);
+  const pickPrimary =
+    variant === "capsule" || variant === "card"
+      ? pickListPrimaryImageUrl
+      : pickPrimaryImageUrl;
 
   return {
     appId,
     name,
     slug: slugifyGameName(name),
-    imageUrl: pickPrimaryImageUrl(imageCandidates),
+    imageUrl: pickPrimary(imageCandidates),
     imageCandidates,
     headerImageCandidates: images.header ?? [],
     capsuleImageCandidates: images.capsule ?? [],
