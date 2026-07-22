@@ -1,6 +1,7 @@
 import "server-only";
 
-import { resolveGameDisplay } from "@/lib/game-display/resolve";
+import { resolveGameListBatch } from "@/lib/game-display/game-list";
+import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import type { ExploreCatalogQuery } from "@/lib/explore/catalog-params";
 import {
   isSteamAppListCached,
@@ -310,24 +311,63 @@ function filterCatalogInputs(
 }
 
 export function buildExploreGames(inputs: CatalogGameInput[]) {
-  return Promise.all(
-    inputs.map(async (input) => {
-      const display = await resolveGameDisplay(input.appId, {
-        imageVariant: "card",
-        logoUrl: input.logoUrl,
-        persist: true,
-      });
+  return resolveGameListBatch(
+    inputs.map((input) => ({
+      appId: input.appId,
+      logoUrl: input.logoUrl,
+    })),
+    { persist: true },
+  ).then((displays) =>
+    inputs.map((input) => {
+      const display = displays.get(input.appId);
 
       return {
         id: String(input.appId),
-        title: display.name,
-        slug: display.slug,
-        imageUrl: display.imageUrl,
-        imageCandidates: display.imageCandidates,
+        title: display?.name ?? input.title,
+        slug: display?.slug ?? String(input.appId),
+        imageUrl: display?.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
+        imageCandidates: display?.imageCandidates?.length
+          ? display.imageCandidates
+          : [DEFAULT_GAME_FALLBACK_IMAGE],
         category: input.category,
       };
     }),
   );
+}
+
+async function enrichCatalogGames(games: Game[]) {
+  if (games.length === 0) {
+    return games;
+  }
+
+  const displays = await resolveGameListBatch(
+    games.map((game) => ({ appId: Number(game.id) })),
+    { persist: true },
+  );
+
+  return games.map((game) => {
+    const display = displays.get(Number(game.id));
+
+    if (!display) {
+      return {
+        ...game,
+        imageUrl: game.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
+        imageCandidates: game.imageCandidates?.length
+          ? game.imageCandidates
+          : [DEFAULT_GAME_FALLBACK_IMAGE],
+      };
+    }
+
+    return {
+      ...game,
+      title: display.name || game.title,
+      slug: display.slug,
+      imageUrl: display.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
+      imageCandidates: display.imageCandidates.length
+        ? display.imageCandidates
+        : [DEFAULT_GAME_FALLBACK_IMAGE],
+    };
+  });
 }
 
 async function fetchCatalogFromAppListSearch(query: ExploreCatalogQuery) {
@@ -422,7 +462,12 @@ export async function fetchExploreCatalog(
 
   const cacheKey = getCatalogCacheKey(query);
   const cached = cacheGet(pageCache, cacheKey);
-  if (cached) return cached;
+  if (cached) {
+    return {
+      ...cached,
+      games: await enrichCatalogGames(cached.games),
+    };
+  }
 
   const result =
     query.term && !usesStoreSearchFilters(query)

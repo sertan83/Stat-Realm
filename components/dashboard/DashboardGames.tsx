@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
 import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
+import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import type { DashboardGame } from "@/types/dashboard";
 import { getGameDetailsHref } from "@/lib/game-details/game-href";
 import { Link } from "@/i18n/navigation";
@@ -34,9 +35,8 @@ function DashboardGameCard({
         <SteamGameImageByAppId
           appId={appId}
           alt={game.title}
-          variant="card"
+          variant={GAME_LIST_IMAGE_VARIANT}
           initialCandidates={game.imageCandidates}
-          preferredUrls={[game.imageUrl, game.imageFallbackUrl, ...(game.imageCandidates ?? [])]}
           sizes={compact ? "128px" : "280px"}
           className="object-cover transition duration-300 group-hover:brightness-110"
           imageCacheRole="card"

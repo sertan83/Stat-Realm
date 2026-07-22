@@ -1,25 +1,30 @@
 import "server-only";
 
 import { featuredGames } from "@/data/games";
-import {
-  gameDisplayToGame,
-  resolveGameDisplayBatch,
-} from "@/lib/game-display/resolve";
+import { resolveGameListGames } from "@/lib/game-display/game-list";
+import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import type { Game } from "@/types/game";
 
 export async function loadFeaturedGames(): Promise<Game[]> {
-  const displays = await resolveGameDisplayBatch(
-    featuredGames.map((game) => ({ appId: Number(game.id) })),
-    { imageVariant: "card", persist: true },
+  const resolvedGames = await resolveGameListGames(
+    featuredGames.map((game) => ({
+      appId: Number(game.id),
+      category: game.category,
+    })),
+    { persist: true },
   );
 
-  return featuredGames.map((staticGame) => {
-    const display = displays.get(Number(staticGame.id));
+  return resolvedGames.map((game, index) => {
+    const staticGame = featuredGames[index];
 
-    if (!display) {
-      return staticGame;
-    }
-
-    return gameDisplayToGame(display, staticGame.category);
+    return {
+      ...game,
+      title: game.title || staticGame.title,
+      category: staticGame.category,
+      imageUrl: game.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
+      imageCandidates: game.imageCandidates?.length
+        ? game.imageCandidates
+        : [DEFAULT_GAME_FALLBACK_IMAGE],
+    };
   });
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import { resolveGameDisplayBatch } from "@/lib/game-display/resolve";
 import type { SteamGameImageVariant } from "@/lib/game-display/types";
 
@@ -28,7 +29,7 @@ function parseVariant(searchParams: URLSearchParams): SteamGameImageVariant {
     return rawValue as SteamGameImageVariant;
   }
 
-  return "card";
+  return GAME_LIST_IMAGE_VARIANT;
 }
 
 export async function GET(request: Request) {

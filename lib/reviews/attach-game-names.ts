@@ -1,6 +1,6 @@
 import "server-only";
 
-import { attachGameDisplay } from "@/lib/game-display/attach";
+import { attachGameListDisplay } from "@/lib/game-display/game-list";
 
 export async function attachResolvedGameNames<
   T extends {
@@ -8,7 +8,7 @@ export async function attachResolvedGameNames<
     gameName?: string;
   },
 >(entries: T[], options?: { steamId?: string | null }) {
-  const enriched = await attachGameDisplay(entries, options);
+  const enriched = await attachGameListDisplay(entries, options);
 
   return enriched.map(
     ({

@@ -540,6 +540,7 @@ export async function enrichDashboardGamesWithSteamImages<
   } = {},
 ): Promise<T[]> {
   const { resolveGameDisplay } = await import("@/lib/game-display/resolve");
+  const { GAME_LIST_IMAGE_VARIANT } = await import("@/lib/game-display/constants");
   const { slugifyGameName } = await import("@/lib/slugify-game-name");
 
   return Promise.all(
@@ -551,7 +552,7 @@ export async function enrichDashboardGamesWithSteamImages<
 
       const display = await resolveGameDisplay(appId, {
         steamId: options.steamId,
-        imageVariant: "card",
+        imageVariant: GAME_LIST_IMAGE_VARIANT,
         preferredUrls: [
           game.imageUrl,
           game.imageFallbackUrl,

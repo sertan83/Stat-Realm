@@ -1,10 +1,12 @@
 import "server-only";
 
+import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import {
   resolveGameDisplayBatch,
   type GameDisplay,
 } from "@/lib/game-display/resolve";
 import type { SteamGameImageVariant } from "@/lib/game-display/types";
+import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 
 function selectVariantCandidates(
   display: GameDisplay,
@@ -37,7 +39,7 @@ export async function attachGameDisplay<
     return [];
   }
 
-  const variant = options?.imageVariant ?? "card";
+  const variant = options?.imageVariant ?? GAME_LIST_IMAGE_VARIANT;
   const displays = await resolveGameDisplayBatch(
     entries.map((entry) => ({ appId: entry.appId })),
     {
@@ -54,10 +56,10 @@ export async function attachGameDisplay<
         appId: entry.appId,
         name: "",
         slug: String(entry.appId),
-        imageUrl: "",
-        imageCandidates: [],
-        headerImageCandidates: [],
-        capsuleImageCandidates: [],
+        imageUrl: DEFAULT_GAME_FALLBACK_IMAGE,
+        imageCandidates: [DEFAULT_GAME_FALLBACK_IMAGE],
+        headerImageCandidates: [DEFAULT_GAME_FALLBACK_IMAGE],
+        capsuleImageCandidates: [DEFAULT_GAME_FALLBACK_IMAGE],
       } satisfies GameDisplay);
 
     return {

@@ -26,12 +26,13 @@ const VARIANT_FILENAMES: Record<SteamGameImageVariant, string[]> = {
     "capsule_231x87.jpg",
   ],
   card: [
+    "capsule_231x87.jpg",
+    "capsule_184x69.jpg",
+    "capsule_616x353.jpg",
+    "library_capsule.jpg",
     "header.jpg",
     "library_hero.jpg",
     "hero.jpg",
-    "capsule_616x353.jpg",
-    "capsule_231x87.jpg",
-    "capsule_184x69.jpg",
   ],
 };
 

@@ -2,6 +2,7 @@
 
 import type { Game } from "@/types/game";
 import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
+import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import { cn } from "@/lib/utils";
 
 type GameCardProps = {
@@ -22,9 +23,8 @@ export function GameCard({ game, className }: GameCardProps) {
       <SteamGameImageByAppId
         appId={appId}
         alt={game.title}
-        variant="card"
+        variant={GAME_LIST_IMAGE_VARIANT}
         initialCandidates={game.imageCandidates}
-        preferredUrls={[game.imageUrl]}
         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 360px"
         className="object-cover transition duration-300 group-hover:brightness-110"
         imageCacheRole="card"

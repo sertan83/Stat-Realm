@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
 import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
+import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import { Select } from "@/components/ui/Select";
 import { Link } from "@/i18n/navigation";
 import type {
@@ -104,7 +105,7 @@ function RatingRow({
 
       <SteamGameImageByAppId
         appId={rating.appId}
-        variant="capsule"
+        variant={GAME_LIST_IMAGE_VARIANT}
         initialCandidates={rating.imageCandidates}
         wrapperClassName="h-[47px] w-[115px] shrink-0 overflow-hidden rounded-md border border-white/10 bg-[#140B2D] sm:h-[53px] sm:w-[130px]"
         sizes="130px"

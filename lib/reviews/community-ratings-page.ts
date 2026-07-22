@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getAllRatingAggregates } from "@/lib/db";
-import { attachGameDisplay } from "@/lib/game-display/attach";
+import { attachGameListDisplay } from "@/lib/game-display/game-list";
 import type { CommunityRatingsPageData } from "@/lib/reviews/types";
 
 export async function loadCommunityRatingsPage(): Promise<CommunityRatingsPageData> {
@@ -17,14 +17,13 @@ export async function loadCommunityRatingsPage(): Promise<CommunityRatingsPageDa
   );
 
   const ratings = (
-    await attachGameDisplay(
+    await attachGameListDisplay(
       sortedAggregates.map((aggregate) => ({
         appId: aggregate.appId,
         averageRating: aggregate.averageRating,
         totalRatings: aggregate.totalRatings,
         totalReviews: aggregate.totalReviews,
       })),
-      { imageVariant: "capsule", persist: true },
     )
   ).map((entry) => ({
     appId: entry.appId,

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import { getStoredGameMetadata, upsertStoredGameMetadata } from "@/lib/db";
 import type { StoredGameImages } from "@/lib/db/types";
 import type {
@@ -80,9 +81,31 @@ function mergePreferredUrls(
 
 function pickPrimaryImageUrl(candidates: string[]) {
   return (
-    candidates.find((candidate) => candidate !== DEFAULT_GAME_FALLBACK_IMAGE) ??
-    candidates[0] ??
+    candidates.find(
+      (candidate) =>
+        candidate.trim().length > 0 &&
+        candidate !== DEFAULT_GAME_FALLBACK_IMAGE,
+    ) ??
+    candidates.find((candidate) => candidate.trim().length > 0) ??
     DEFAULT_GAME_FALLBACK_IMAGE
+  );
+}
+
+function isValidImageCandidateList(candidates: string[] | undefined) {
+  return Boolean(
+    candidates?.some(
+      (candidate) =>
+        candidate.trim().length > 0 &&
+        candidate !== DEFAULT_GAME_FALLBACK_IMAGE,
+    ),
+  );
+}
+
+function isValidGameDisplay(display: GameDisplay) {
+  return (
+    display.name.trim().length > 0 &&
+    display.imageUrl.trim().length > 0 &&
+    isValidImageCandidateList(display.imageCandidates)
   );
 }
 
@@ -99,34 +122,28 @@ function buildImageSets(
   logoUrl?: string,
   preferredUrls?: string[],
 ): StoredGameImages {
-  const cardCandidates = getSteamExploreCardImageCandidates(
+  const exploreCandidates = getSteamExploreCardImageCandidates(
     appId,
     capsuleFilename,
     logoUrl,
     storeData,
+  );
+  const listCandidates = sortCapsuleFirst(exploreCandidates);
+  const listUrls = mergePreferredUrls(
+    candidatesToUrls(listCandidates),
+    preferredUrls,
   );
   const headerCandidates = getSteamBannerImageCandidates(
     appId,
     capsuleFilename,
     storeData,
   );
-  const capsuleCandidates = sortCapsuleFirst(
-    getSteamExploreCardImageCandidates(
-      appId,
-      capsuleFilename,
-      logoUrl,
-      storeData,
-    ),
-  );
 
   return {
-    card: mergePreferredUrls(candidatesToUrls(cardCandidates), preferredUrls),
+    card: listUrls,
+    capsule: listUrls,
     header: mergePreferredUrls(
       candidatesToUrls(headerCandidates),
-      preferredUrls,
-    ),
-    capsule: mergePreferredUrls(
-      candidatesToUrls(capsuleCandidates),
       preferredUrls,
     ),
   };
@@ -137,14 +154,14 @@ function selectVariantCandidates(
   variant: SteamGameImageVariant,
 ) {
   if (variant === "header") {
-    return images.header ?? images.card ?? [];
+    return images.header ?? images.capsule ?? images.card ?? [];
   }
 
-  if (variant === "capsule") {
+  if (variant === "capsule" || variant === "card") {
     return images.capsule ?? images.card ?? [];
   }
 
-  return images.card ?? [];
+  return images.card ?? images.capsule ?? [];
 }
 
 function toGameDisplay(
@@ -170,7 +187,7 @@ export async function resolveGameDisplay(
   appId: number,
   options?: ResolveGameDisplayOptions,
 ): Promise<GameDisplay> {
-  const variant = options?.imageVariant ?? "card";
+  const variant = options?.imageVariant ?? GAME_LIST_IMAGE_VARIANT;
   const persist = options?.persist ?? true;
 
   if (!Number.isInteger(appId) || appId <= 0) {
@@ -187,7 +204,11 @@ export async function resolveGameDisplay(
 
   const stored = await getStoredGameMetadata(appId);
   if (stored?.name && hasStoredImages(stored.images)) {
-    return toGameDisplay(appId, stored.name, stored.images!, variant);
+    const cachedDisplay = toGameDisplay(appId, stored.name, stored.images!, variant);
+
+    if (isValidGameDisplay(cachedDisplay)) {
+      return cachedDisplay;
+    }
   }
 
   const [{ name }, storeApp] = await Promise.all([
@@ -255,7 +276,7 @@ export async function resolveGameDisplayBatch(
 
 export async function resolveGameImageCandidates(
   appId: number,
-  variant: SteamGameImageVariant = "card",
+  variant: SteamGameImageVariant = GAME_LIST_IMAGE_VARIANT,
 ): Promise<string[]> {
   const display = await resolveGameDisplay(appId, {
     imageVariant: variant,
@@ -275,7 +296,7 @@ export async function resolveGameImageCandidates(
 
 export async function resolveGameImageCandidatesBatch(
   appIds: number[],
-  variant: SteamGameImageVariant = "card",
+  variant: SteamGameImageVariant = GAME_LIST_IMAGE_VARIANT,
 ): Promise<Map<number, string[]>> {
   const displays = await resolveGameDisplayBatch(
     appIds.map((appId) => ({ appId })),

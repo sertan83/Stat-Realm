@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import type { SteamGameImageVariant } from "@/lib/game-display/types";
+import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import type { GameImageRole } from "@/lib/steam/game-image-cache";
 import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
@@ -47,7 +48,7 @@ export function SteamGameImageByAppId({
   alt = "",
   className = "object-cover",
   sizes,
-  variant = "card",
+  variant = GAME_LIST_IMAGE_VARIANT,
   initialCandidates = [],
   preferredUrls = [],
   unoptimized = false,

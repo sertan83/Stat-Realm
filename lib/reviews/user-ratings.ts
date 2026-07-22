@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getUserGameRatings } from "@/lib/db";
-import { attachGameDisplay } from "@/lib/game-display/attach";
+import { attachGameListDisplay } from "@/lib/game-display/game-list";
 import type { UserRatingsPageData } from "@/lib/reviews/types";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 
@@ -15,13 +15,13 @@ export async function loadUserRatingsPage(
   );
 
   const ratings = (
-    await attachGameDisplay(
+    await attachGameListDisplay(
       sortedRatings.map((rating) => ({
         appId: rating.appId,
         rating: rating.rating,
         createdAt: rating.createdAt,
       })),
-      { steamId, imageVariant: "card", persist: true },
+      { steamId },
     )
   ).map((rating) => ({
     appId: rating.appId,
