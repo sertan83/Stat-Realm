@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { GameCard } from "@/components/GameCard";
-import { getGameDetailsHref } from "@/lib/game-details/game-href";
 import { Link } from "@/i18n/navigation";
 import type { Game } from "@/types/game";
 import { cn } from "@/lib/utils";
@@ -22,14 +21,14 @@ export function GameGrid({ games, className }: GameGridProps) {
         className,
       )}
     >
-      {games.map((game) => (
+      {games.map((game, index) => (
         <Link
           key={game.id}
-          href={getGameDetailsHref(game)}
+          href={`/game/${game.id}`}
           aria-label={t("viewGameDetails", { name: game.title })}
           className="block w-full rounded-lg transition duration-[250ms] hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E2363C]"
         >
-          <GameCard game={game} />
+          <GameCard game={game} priority={index < 4} />
         </Link>
       ))}
     </div>
