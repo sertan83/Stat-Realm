@@ -16,6 +16,7 @@
     "signInWithSteam": "Войти через Steam",
     "profile": "Профиль",
     "friends": "Друзья",
+    "myRatings": "Мои оценки",
     "logOut": "Выйти",
     "accountMenu": "Меню аккаунта",
     "logoAlt": "StatRealm",
@@ -468,5 +469,15 @@
     "steamLevelUnavailable": "Уровень Steam —",
     "ratingValue": "{rating} / 10",
     "helpful": "Полезно ({count})"
+  },
+  "myRatingsPage": {
+    "metadataTitle": "Мои оценки — StatRealm",
+    "metadataDescription": "Просмотрите все игры, которые вы оценили на StatRealm.",
+    "title": "Мои оценки",
+    "subtitle": "Все игры, которые вы оценили на StatRealm.",
+    "subtitleWithCount": "Вы оценили {count, plural, one {# игру} few {# игры} many {# игр} other {# игры}} на StatRealm.",
+    "empty": "Вы ещё не оценили ни одной игры.",
+    "ratingValue": "{rating} / 10",
+    "openGame": "Открыть {name}"
   }
 }

@@ -16,6 +16,7 @@
     "signInWithSteam": "Steam ile Giriş Yap",
     "profile": "Profil",
     "friends": "Arkadaşlar",
+    "myRatings": "Puanlarım",
     "logOut": "Çıkış Yap",
     "accountMenu": "Hesap menüsü",
     "logoAlt": "StatRealm",
@@ -468,5 +469,15 @@
     "steamLevelUnavailable": "Steam Seviyesi —",
     "ratingValue": "{rating} / 10",
     "helpful": "Faydalı ({count})"
+  },
+  "myRatingsPage": {
+    "metadataTitle": "Puanlarım — StatRealm",
+    "metadataDescription": "StatRealm'de puan verdiğin tüm oyunları görüntüle.",
+    "title": "Puanlarım",
+    "subtitle": "StatRealm'de puan verdiğin tüm oyunlar.",
+    "subtitleWithCount": "StatRealm'de {count, plural, one {# oyun} other {# oyun}} puanladın.",
+    "empty": "Henüz hiçbir oyunu puanlamadın.",
+    "ratingValue": "{rating} / 10",
+    "openGame": "{name} oyununu aç"
   }
 }

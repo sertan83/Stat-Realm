@@ -95,6 +95,14 @@ export function UserAccountDropdown({
           >
             {t("friends")}
           </Link>
+          <Link
+            href="/my-ratings"
+            role="menuitem"
+            className={menuItemClassName}
+            onClick={() => setIsOpen(false)}
+          >
+            {t("myRatings")}
+          </Link>
           <div
             aria-hidden="true"
             className="my-1 border-t border-white/10"

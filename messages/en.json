@@ -16,6 +16,7 @@
     "signInWithSteam": "Sign in With Steam",
     "profile": "Profile",
     "friends": "Friends",
+    "myRatings": "My Ratings",
     "logOut": "Log Out",
     "accountMenu": "Account menu",
     "logoAlt": "StatRealm",
@@ -468,5 +469,15 @@
     "steamLevelUnavailable": "Steam Level —",
     "ratingValue": "{rating} / 10",
     "helpful": "Helpful ({count})"
+  },
+  "myRatingsPage": {
+    "metadataTitle": "My Ratings — StatRealm",
+    "metadataDescription": "View every game you have rated on StatRealm.",
+    "title": "My Ratings",
+    "subtitle": "Every game you have rated on StatRealm.",
+    "subtitleWithCount": "You have rated {count, plural, one {# game} other {# games}} on StatRealm.",
+    "empty": "You haven't rated any games yet.",
+    "ratingValue": "{rating} / 10",
+    "openGame": "Open {name}"
   }
 }

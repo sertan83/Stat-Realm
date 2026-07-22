@@ -16,6 +16,7 @@
     "signInWithSteam": "Iniciar sesión con Steam",
     "profile": "Perfil",
     "friends": "Amigos",
+    "myRatings": "Mis puntuaciones",
     "logOut": "Cerrar sesión",
     "accountMenu": "Menú de cuenta",
     "logoAlt": "StatRealm",
@@ -468,5 +469,15 @@
     "steamLevelUnavailable": "Nivel de Steam —",
     "ratingValue": "{rating} / 10",
     "helpful": "Útil ({count})"
+  },
+  "myRatingsPage": {
+    "metadataTitle": "Mis puntuaciones — StatRealm",
+    "metadataDescription": "Consulta todos los juegos que has puntuado en StatRealm.",
+    "title": "Mis puntuaciones",
+    "subtitle": "Todos los juegos que has puntuado en StatRealm.",
+    "subtitleWithCount": "Has puntuado {count, plural, one {# juego} other {# juegos}} en StatRealm.",
+    "empty": "Aún no has puntuado ningún juego.",
+    "ratingValue": "{rating} / 10",
+    "openGame": "Abrir {name}"
   }
 }

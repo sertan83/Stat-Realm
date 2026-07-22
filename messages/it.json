@@ -16,6 +16,7 @@
     "signInWithSteam": "Accedi con Steam",
     "profile": "Profilo",
     "friends": "Amici",
+    "myRatings": "Le mie valutazioni",
     "logOut": "Esci",
     "accountMenu": "Menu account",
     "logoAlt": "StatRealm",
@@ -468,5 +469,15 @@
     "steamLevelUnavailable": "Livello Steam —",
     "ratingValue": "{rating} / 10",
     "helpful": "Utile ({count})"
+  },
+  "myRatingsPage": {
+    "metadataTitle": "Le mie valutazioni — StatRealm",
+    "metadataDescription": "Visualizza tutti i giochi che hai valutato su StatRealm.",
+    "title": "Le mie valutazioni",
+    "subtitle": "Tutti i giochi che hai valutato su StatRealm.",
+    "subtitleWithCount": "Hai valutato {count, plural, one {# gioco} other {# giochi}} su StatRealm.",
+    "empty": "Non hai ancora valutato nessun gioco.",
+    "ratingValue": "{rating} / 10",
+    "openGame": "Apri {name}"
   }
 }

@@ -72,3 +72,16 @@ export type CommunityReviewsPageData = {
   pageSize: number;
   totalPages: number;
 };
+
+export type UserRatingEntry = {
+  appId: number;
+  gameName: string;
+  imageUrl: string;
+  rating: number;
+  createdAt: string;
+};
+
+export type UserRatingsPageData = {
+  ratings: UserRatingEntry[];
+  totalRatings: number;
+};
