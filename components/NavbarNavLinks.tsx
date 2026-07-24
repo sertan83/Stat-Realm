@@ -41,10 +41,9 @@ export function NavbarNavLinks() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "text-sm transition-colors duration-200 hover:text-white hover:underline hover:underline-offset-4",
-                isActive
-                  ? "font-semibold text-white underline underline-offset-4 decoration-white/70"
-                  : "text-white/75",
+                "text-sm text-[#1B2838] transition-colors duration-200 hover:text-[#2A475E] hover:underline hover:underline-offset-4",
+                isActive &&
+                  "font-semibold text-[#2A475E] underline underline-offset-4 decoration-[#2A475E]/70",
               )}
             >
               {t(item.labelKey)}
