@@ -23,6 +23,10 @@
     "accountMenu": "Меню аккаунта",
     "logoAlt": "StatRealm",
     "language": "Язык",
+    "primaryNavigation": "Основная навигация",
+    "leaderboards": "Таблицы лидеров",
+    "reviews": "Отзывы",
+    "ratings": "Оценки",
     "languages": {
       "en": "English",
       "es": "Español",

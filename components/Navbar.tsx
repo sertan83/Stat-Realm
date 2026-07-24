@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { signInWithSteam } from "@/app/actions/auth";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { NavbarFrame } from "@/components/NavbarFrame";
+import { NavbarNavLinks } from "@/components/NavbarNavLinks";
 import { UserAccountDropdown } from "@/components/UserAccountDropdown";
 import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
@@ -25,7 +26,8 @@ export async function Navbar() {
           </div>
         </Link>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-4">
+          <NavbarNavLinks />
           <LanguageSelector />
           {session?.user ? (
             <UserAccountDropdown

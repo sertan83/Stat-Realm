@@ -5,7 +5,6 @@ import { Hero } from "@/components/Hero";
 import { LandingFooter } from "@/components/LandingFooter";
 import { SeeYourStatisticsCta } from "@/components/landing/SeeYourStatisticsCta";
 import { Navbar } from "@/components/Navbar";
-import { Link } from "@/i18n/navigation";
 import { getCommunityLandingData } from "@/lib/community/rankings";
 import { loadFeaturedGames } from "@/lib/landing/featured-games";
 
@@ -29,26 +28,6 @@ export default async function Home({ params }: HomePageProps) {
   return (
     <main className="relative min-h-screen text-white">
       <Navbar />
-      <div className="absolute top-[79px] left-4 z-20 flex flex-col gap-2.5">
-        <Link
-          href="/leaderboards"
-          className="rounded-lg border border-white/10 bg-[#1B2838]/90 px-3.5 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(107,47,214,0.12)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:bg-[#2A475E]"
-        >
-          {t("viewLeaderboards")}
-        </Link>
-        <Link
-          href="/reviews"
-          className="rounded-lg border border-white/10 bg-[#1B2838]/90 px-3.5 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(107,47,214,0.12)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:bg-[#2A475E]"
-        >
-          {t("viewReviews")}
-        </Link>
-        <Link
-          href="/ratings"
-          className="rounded-lg border border-white/10 bg-[#1B2838]/90 px-3.5 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(107,47,214,0.12)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:bg-[#2A475E]"
-        >
-          {t("viewRatings")}
-        </Link>
-      </div>
       <Hero
         featuredGames={featuredGames}
         mostPlayedGames={communityData.mostPlayedGames}

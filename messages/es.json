@@ -23,6 +23,10 @@
     "accountMenu": "Menú de cuenta",
     "logoAlt": "StatRealm",
     "language": "Idioma",
+    "primaryNavigation": "Navegación principal",
+    "leaderboards": "Ver clasificaciones",
+    "reviews": "Reseñas",
+    "ratings": "Puntuaciones",
     "languages": {
       "en": "English",
       "es": "Español",

@@ -23,6 +23,10 @@
     "accountMenu": "Hesap menüsü",
     "logoAlt": "StatRealm",
     "language": "Dil",
+    "primaryNavigation": "Ana gezinme",
+    "leaderboards": "Liderlik Tablolarını Gör",
+    "reviews": "Yorumlar",
+    "ratings": "Puanlar",
     "languages": {
       "en": "English",
       "es": "Español",
