@@ -1,6 +1,5 @@
 "use client";
 
-import { Fragment } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -22,33 +21,24 @@ export function NavbarNavLinks() {
   return (
     <nav
       aria-label={t("primaryNavigation")}
-      className="flex items-center"
+      className="flex items-center gap-8 sm:gap-10"
     >
-      {NAV_ITEMS.map((item, index) => {
+      {NAV_ITEMS.map((item) => {
         const isActive = isNavItemActive(pathname, item.href);
 
         return (
-          <Fragment key={item.href}>
-            {index > 0 ? (
-              <span
-                aria-hidden="true"
-                className="mx-3 text-sm text-white/25 select-none"
-              >
-                |
-              </span>
-            ) : null}
-            <Link
-              href={item.href}
-              aria-current={isActive ? "page" : undefined}
-              className={cn(
-                "text-sm text-[#1B2838] transition-colors duration-200 hover:text-[#2A475E] hover:underline hover:underline-offset-4",
-                isActive &&
-                  "font-semibold text-[#2A475E] underline underline-offset-4 decoration-[#2A475E]/70",
-              )}
-            >
-              {t(item.labelKey)}
-            </Link>
-          </Fragment>
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={isActive ? "page" : undefined}
+            className={cn(
+              "relative py-2 text-sm font-medium tracking-[0.02em] text-white/60 transition-colors duration-300 ease-out hover:text-white",
+              isActive &&
+                "text-white after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-[#E2363C] after:content-['']",
+            )}
+          >
+            {t(item.labelKey)}
+          </Link>
         );
       })}
     </nav>

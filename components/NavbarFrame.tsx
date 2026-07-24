@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-const NAVBAR_HEIGHT_CLASS = "h-[55px]";
+const NAVBAR_HEIGHT_CLASS = "h-[64px]";
 
 type NavbarFrameProps = {
   children: ReactNode;

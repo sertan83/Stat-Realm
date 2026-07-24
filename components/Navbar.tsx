@@ -7,15 +7,20 @@ import { NavbarNavLinks } from "@/components/NavbarNavLinks";
 import { UserAccountDropdown } from "@/components/UserAccountDropdown";
 import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
+import { cn } from "@/lib/utils";
 
 export async function Navbar() {
   const [session, t] = await Promise.all([auth(), getTranslations("nav")]);
 
   return (
     <NavbarFrame>
-      <div className="flex h-[55px] w-full items-center justify-between pl-4 pr-4">
-        <Link href="/" className="shrink-0">
-          <div className="relative flex h-[55px] w-[220px] items-center">
+      <div
+        className={cn(
+          "grid h-[64px] w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center px-4 sm:px-6",
+        )}
+      >
+        <Link href="/" className="justify-self-start shrink-0">
+          <div className="relative flex h-10 w-[220px] items-center sm:h-11">
             <Image
               src="/statrealmlogo.svg"
               alt={t("logoAlt")}
@@ -26,8 +31,11 @@ export async function Navbar() {
           </div>
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="justify-self-center">
           <NavbarNavLinks />
+        </div>
+
+        <div className="flex items-center justify-end gap-3 sm:gap-4">
           <LanguageSelector />
           {session?.user ? (
             <UserAccountDropdown
