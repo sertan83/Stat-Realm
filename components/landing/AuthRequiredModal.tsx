@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { signInWithSteam } from "@/app/actions/auth";
 
 const FEATURE_KEYS = [
@@ -18,6 +19,11 @@ type AuthRequiredModalProps = {
 
 export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
   const t = useTranslations("auth");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -41,16 +47,19 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) {
+  if (!isOpen || !mounted) {
     return null;
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6"
+      role="presentation"
+    >
       <button
         type="button"
         aria-label={t("closeDialog")}
-        className="statrealm-modal-backdrop absolute inset-0 bg-[#140B2D]/80 backdrop-blur-xl"
+        className="statrealm-modal-backdrop absolute inset-0 bg-[#07080f]/75 backdrop-blur-md"
         onClick={onClose}
       />
       <div
@@ -58,7 +67,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
         aria-modal="true"
         aria-labelledby="auth-required-title"
         aria-describedby="auth-required-description"
-        className="statrealm-modal-panel relative w-full max-w-[520px] overflow-hidden rounded-2xl border border-[#ffffff10] bg-[linear-gradient(160deg,#241445_0%,#1B2838_48%,#140B2D_100%)] p-7 shadow-[0_28px_80px_rgba(0,0,0,0.55),0_0_60px_rgba(107,47,214,0.18)] sm:p-9"
+        className="statrealm-modal-panel relative z-10 w-full max-w-[520px] overflow-hidden rounded-2xl border border-white/[0.08] bg-[linear-gradient(160deg,rgba(36,20,69,0.92)_0%,rgba(32,39,58,0.9)_48%,rgba(20,11,45,0.92)_100%)] p-7 shadow-[0_28px_80px_rgba(0,0,0,0.55),0_0_60px_rgba(107,47,214,0.18),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl sm:p-9"
       >
         <button
           type="button"
@@ -140,6 +149,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

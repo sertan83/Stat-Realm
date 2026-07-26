@@ -32,7 +32,9 @@ export function AppSidebar({
   const pathname = usePathname();
   const t = useTranslations("nav");
 
-  const visibleItems = SIDEBAR_NAV_ITEMS;
+  const visibleItems = SIDEBAR_NAV_ITEMS.filter(
+    (item) => !item.requiresAuth || user !== null,
+  );
 
   return (
     <>
