@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { SIDEBAR_NAV_ITEMS } from "@/lib/navigation/sidebar-config";
+import { StatRealmLogo } from "@/components/branding/StatRealmLogo";
 import { SidebarUserFooter } from "@/components/sidebar/SidebarUserFooter";
-import { STATREALM_LOGO_PATH } from "@/lib/branding/logo";
+import { SIDEBAR_NAV_ITEMS } from "@/lib/navigation/sidebar-config";
 import { cn } from "@/lib/utils";
 
 type AppSidebarProps = {
@@ -57,43 +56,13 @@ export function AppSidebar({
           "md:w-[72px] lg:w-[260px]",
         )}
       >
-        <div className="border-b border-white/[0.06] px-4 py-5 md:px-3 lg:px-5">
+        <div className="border-b border-white/[0.06] px-3 py-4 lg:px-4 lg:py-5">
           <Link
             href="/"
             onClick={onMobileClose}
-            className="group flex items-center gap-3 md:justify-center lg:justify-start"
+            className="group block w-full transition duration-250 hover:brightness-110 md:flex md:justify-center lg:block"
           >
-            <div className="relative hidden h-9 w-[180px] lg:block">
-              <Image
-                src={STATREALM_LOGO_PATH}
-                alt={t("logoAlt")}
-                fill
-                priority
-                unoptimized
-                className="object-contain object-left transition duration-250 group-hover:brightness-110"
-              />
-            </div>
-            <div className="relative h-9 w-9 overflow-hidden md:flex lg:hidden">
-              <Image
-                src={STATREALM_LOGO_PATH}
-                alt={t("logoAlt")}
-                width={108}
-                height={36}
-                priority
-                unoptimized
-                className="absolute top-1/2 left-0 h-9 w-auto max-w-none -translate-y-1/2 object-left"
-              />
-            </div>
-            <div className="relative h-8 w-[140px] md:hidden">
-              <Image
-                src={STATREALM_LOGO_PATH}
-                alt={t("logoAlt")}
-                fill
-                priority
-                unoptimized
-                className="object-contain object-left"
-              />
-            </div>
+            <StatRealmLogo variant="responsive" priority />
           </Link>
         </div>
 

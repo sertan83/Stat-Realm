@@ -3,10 +3,9 @@
 import { useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { Link } from "@/i18n/navigation";
-import { STATREALM_LOGO_PATH } from "@/lib/branding/logo";
+import { StatRealmLogo } from "@/components/branding/StatRealmLogo";
 
 type SidebarShellProps = {
   children: ReactNode;
@@ -47,14 +46,10 @@ export function SidebarShell({
             )}
           </button>
 
-          <Link href="/" className="relative h-8 w-[140px]">
-            <Image
-              src={STATREALM_LOGO_PATH}
-              alt={t("logoAlt")}
-              fill
+          <Link href="/" className="relative block h-10 w-[min(100%,220px)]">
+            <StatRealmLogo
               priority
-              unoptimized
-              className="object-contain object-center"
+              className="h-10 w-full object-contain object-center"
             />
           </Link>
 

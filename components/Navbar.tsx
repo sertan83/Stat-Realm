@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { signInWithSteam } from "@/app/actions/auth";
+import { StatRealmLogo } from "@/components/branding/StatRealmLogo";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { NavbarFrame } from "@/components/NavbarFrame";
 import { NavbarNavLinks } from "@/components/NavbarNavLinks";
 import { UserAccountDropdown } from "@/components/UserAccountDropdown";
 import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
-import { STATREALM_LOGO_PATH } from "@/lib/branding/logo";
 import { cn } from "@/lib/utils";
 
 export async function Navbar() {
@@ -21,16 +21,7 @@ export async function Navbar() {
         )}
       >
         <Link href="/" className="justify-self-start shrink-0">
-          <div className="relative flex h-10 w-[220px] items-center sm:h-11">
-            <Image
-              src={STATREALM_LOGO_PATH}
-              alt={t("logoAlt")}
-              fill
-              priority
-              unoptimized
-              className="object-contain object-left"
-            />
-          </div>
+          <StatRealmLogo priority className="h-10 w-[220px] sm:h-11" />
         </Link>
 
         <div className="justify-self-center">
