@@ -126,6 +126,13 @@
     "profileStatistics": "Profil İstatistikleri",
     "recentlyPlayed": "Son Oynananlar",
     "mostPlayedGames": "En Çok Oynanan Oyunlar",
+    "mostPlayedFilter": {
+      "label": "En çok oynanan oyunları filtrele",
+      "allTime": "Tüm Zamanlar",
+      "lastTwoWeeks": "Son 2 Hafta"
+    },
+    "noGamesPlayedLastTwoWeeks": "Son 2 haftada oynanan oyun yok.",
+    "noMostPlayedGames": "Oynama süresi verisi mevcut değil.",
     "noImageAvailable": "Görsel Mevcut Değil",
     "achievementSyncFailed": "Başarım senkronizasyonu başarısız",
     "completionUnavailable": "Tamamlama bilgisi yok",

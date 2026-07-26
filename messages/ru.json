@@ -126,6 +126,13 @@
     "profileStatistics": "Статистика профиля",
     "recentlyPlayed": "Недавно играли",
     "mostPlayedGames": "Самые играемые",
+    "mostPlayedFilter": {
+      "label": "Фильтр самых играемых игр",
+      "allTime": "За всё время",
+      "lastTwoWeeks": "Последние 2 недели"
+    },
+    "noGamesPlayedLastTwoWeeks": "За последние 2 недели игры не запускались.",
+    "noMostPlayedGames": "Данные об игровом времени недоступны.",
     "noImageAvailable": "Изображение недоступно",
     "achievementSyncFailed": "Ошибка синхронизации достижений",
     "completionUnavailable": "Прохождение недоступно",

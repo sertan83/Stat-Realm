@@ -126,6 +126,13 @@
     "profileStatistics": "Statistiche del profilo",
     "recentlyPlayed": "Giocati di recente",
     "mostPlayedGames": "Giochi più giocati",
+    "mostPlayedFilter": {
+      "label": "Filtra i giochi più giocati",
+      "allTime": "Sempre",
+      "lastTwoWeeks": "Ultime 2 settimane"
+    },
+    "noGamesPlayedLastTwoWeeks": "Nessun gioco giocato nelle ultime 2 settimane.",
+    "noMostPlayedGames": "Nessun dato sul tempo di gioco disponibile.",
     "noImageAvailable": "Immagine non disponibile",
     "achievementSyncFailed": "Sincronizzazione achievement non riuscita",
     "completionUnavailable": "Completamento non disponibile",

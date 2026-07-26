@@ -6,7 +6,7 @@ import { GameName } from "@/components/GameName";
 import type { DashboardGame } from "@/types/dashboard";
 import { Link } from "@/i18n/navigation";
 
-function DashboardGameCard({
+export function DashboardGameCard({
   game,
   rank,
   compact = false,

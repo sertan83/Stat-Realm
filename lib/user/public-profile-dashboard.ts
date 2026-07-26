@@ -14,7 +14,7 @@ import {
   resolveUserDisplayName,
 } from "@/lib/steam/profile-sync";
 import {
-  buildMostPlayedFromLibrary,
+  buildProfileMostPlayedCatalog,
   buildRecentlyPlayedFromLibrary,
   normalizeStoredGenrePlaytime,
 } from "@/lib/user/profile-snapshot";
@@ -46,9 +46,9 @@ export async function loadPublicProfileDashboard(
     getUserAchievementHistory(steamId),
     getUserProfileAnalytics(steamId),
   ]);
-  const [recentlyPlayed, mostPlayed] = await Promise.all([
+  const [recentlyPlayed, mostPlayedCatalog] = await Promise.all([
     buildRecentlyPlayedFromLibrary(library, formatters, steamGameCategory),
-    buildMostPlayedFromLibrary(library, formatters, steamGameCategory),
+    buildProfileMostPlayedCatalog(library, formatters, steamGameCategory),
   ]);
   const syncedStats = normalizeUserStats(user.stats ?? createEmptyUserStats());
   const hasLibraryData = library.length > 0;
@@ -65,7 +65,7 @@ export async function loadPublicProfileDashboard(
       tDashboard,
     ),
     recentlyPlayed,
-    mostPlayed,
+    mostPlayedCatalog,
     achievements,
     showAchievementEmptyState:
       achievements.length === 0 &&

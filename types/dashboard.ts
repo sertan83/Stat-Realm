@@ -26,6 +26,11 @@ export type DashboardGame = Game & {
   imageFallbackUrl?: string;
 };
 
+export type ProfileMostPlayedGame = DashboardGame & {
+  playtimeAllTimeMinutes: number;
+  playtimeTwoWeeksMinutes: number;
+};
+
 export type DashboardAchievement = {
   id: string;
   appId: number;

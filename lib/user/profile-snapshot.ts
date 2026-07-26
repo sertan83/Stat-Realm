@@ -12,6 +12,7 @@ import type {
   CompletionOverview,
   DashboardGame,
   GenrePlaytime,
+  ProfileMostPlayedGame,
 } from "@/types/dashboard";
 
 export function buildCompletionOverviewFromAchievementSummary(
@@ -166,6 +167,24 @@ export async function buildMostPlayedFromLibrary(
     .map((game) =>
       toDashboardGameFromLibraryGame(game, formatters, steamGameCategory),
     );
+
+  return enrichDashboardGamesWithSteamImages(games);
+}
+
+export async function buildProfileMostPlayedCatalog(
+  library: UserLibraryGame[],
+  formatters?: IntlFormatters,
+  steamGameCategory?: string,
+): Promise<ProfileMostPlayedGame[]> {
+  const games = library
+    .filter(
+      (game) => game.playtimeMinutes > 0 || game.playtimeTwoWeeksMinutes > 0,
+    )
+    .map((game) => ({
+      ...toDashboardGameFromLibraryGame(game, formatters, steamGameCategory),
+      playtimeAllTimeMinutes: game.playtimeMinutes,
+      playtimeTwoWeeksMinutes: game.playtimeTwoWeeksMinutes,
+    }));
 
   return enrichDashboardGamesWithSteamImages(games);
 }
