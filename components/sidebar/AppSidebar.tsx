@@ -47,9 +47,8 @@ export function AppSidebar({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-white/[0.06]",
-          "bg-[linear-gradient(180deg,rgba(18,18,31,0.98)_0%,rgba(11,11,20,0.98)_48%,rgba(10,10,18,0.98)_100%)]",
-          "shadow-[inset_-1px_0_0_rgba(255,255,255,0.03),4px_0_32px_rgba(0,0,0,0.35)] backdrop-blur-xl",
+          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-white/[0.06] bg-statrealm-sidebar",
+          "shadow-[4px_0_32px_rgba(0,0,0,0.35)]",
           "transition-[transform,width] duration-300 ease-out",
           "max-md:translate-x-[-100%]",
           mobileOpen && "max-md:translate-x-0",

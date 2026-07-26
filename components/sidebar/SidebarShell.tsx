@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { Link } from "@/i18n/navigation";
 import { StatRealmLogo } from "@/components/branding/StatRealmLogo";
+import { MainContentBackground } from "@/components/MainContentBackground";
 
 type SidebarShellProps = {
   children: ReactNode;
@@ -30,8 +31,10 @@ export function SidebarShell({
         user={user}
       />
 
-      <div className="flex min-h-screen w-full flex-col md:pl-[72px] lg:pl-[260px]">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-white/[0.06] bg-[#0b0b14]/90 px-4 backdrop-blur-xl md:hidden">
+      <div className="relative flex min-h-screen w-full flex-col bg-statrealm-main md:pl-[72px] lg:pl-[260px]">
+        <MainContentBackground />
+
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-white/[0.06] bg-statrealm-sidebar/95 px-4 backdrop-blur-xl md:hidden">
           <button
             type="button"
             aria-label={mobileOpen ? t("closeMenu") : t("openMenu")}

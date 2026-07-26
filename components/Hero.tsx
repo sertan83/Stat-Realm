@@ -134,7 +134,7 @@ export function Hero({
                 </div>
               </div>
 
-              <section className="relative mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center backdrop-blur-md sm:px-8">
+              <section className="statrealm-dashboard-card relative mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border px-6 py-10 text-center backdrop-blur-md sm:px-8">
                 <AmbientGlow
                   tone="purple"
                   className="statrealm-ambient-centered top-1/2 left-1/2 h-[min(72vw,680px)] w-[min(100%,920px)]"

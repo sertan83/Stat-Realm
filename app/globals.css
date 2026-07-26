@@ -1,14 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #120a2a;
-  --background-end: #1b1038;
+  --background: #171b26;
+  --background-end: #171b26;
   --foreground: #ffffff;
+  --statrealm-sidebar: #0d1017;
+  --statrealm-main: #171b26;
+  --statrealm-card: #20273a;
+  --statrealm-border: rgb(255 255 255 / 6%);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-statrealm-sidebar: #0d1017;
+  --color-statrealm-main: #171b26;
+  --color-statrealm-card: #20273a;
   --color-statrealm-purple: #120a2a;
   --color-statrealm-red: #c8102e;
   --color-statrealm-accent: #e2363c;
@@ -17,17 +24,39 @@
 }
 
 body {
-  background: linear-gradient(
-    180deg,
-    #0f0820 0%,
-    #120a2a 24%,
-    #181040 52%,
-    #1b1038 78%,
-    #160d30 100%
-  );
+  background: var(--statrealm-sidebar);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.statrealm-main-bg-base {
+  background:
+    radial-gradient(
+      ellipse 120% 80% at 12% 8%,
+      rgb(62 52 128 / 14%) 0%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 95% 70% at 88% 12%,
+      rgb(98 52 118 / 12%) 0%,
+      transparent 50%
+    ),
+    linear-gradient(180deg, #171b26 0%, #171b26 100%);
+}
+
+.statrealm-main-bg-vignette {
+  background: radial-gradient(
+    ellipse 88% 78% at 50% 42%,
+    transparent 32%,
+    rgb(8 10 18 / 28%) 68%,
+    rgb(6 8 14 / 48%) 100%
+  );
+}
+
+.statrealm-dashboard-card {
+  background-color: var(--statrealm-card);
+  border-color: var(--statrealm-border);
 }
 
 .statrealm-bg-base {

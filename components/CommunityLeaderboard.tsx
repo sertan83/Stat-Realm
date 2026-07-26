@@ -29,7 +29,7 @@ export function CommunityLeaderboard({
             <li key={player.steamId}>
               <Link
                 href={`/user/${player.steamId}`}
-                className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 shadow-[0_0_30px_rgba(107,47,214,0.08)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.01] hover:border-white/15 hover:bg-white/[0.07]"
+                className="statrealm-dashboard-card flex items-center gap-4 rounded-xl border px-4 py-3 shadow-[0_0_30px_rgba(107,47,214,0.08)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.01] hover:border-white/15 hover:bg-[#252d42]"
               >
                 <span className="w-6 shrink-0 text-center text-sm font-semibold text-white/45">
                   {player.rank}
@@ -64,7 +64,7 @@ export function CommunityLeaderboard({
           ))}
         </ol>
       ) : (
-        <p className="mt-5 rounded-xl border border-white/10 bg-white/5 px-4 py-5 text-sm text-white/60">
+        <p className="statrealm-dashboard-card mt-5 rounded-xl border px-4 py-5 text-sm text-white/60">
           {t("noSyncedPlayers")}
         </p>
       )}

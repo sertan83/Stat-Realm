@@ -8,7 +8,6 @@ import {
   getTranslations,
   setRequestLocale,
 } from "next-intl/server";
-import { SiteBackground } from "@/components/SiteBackground";
 import { AppShell } from "@/components/AppShell";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
@@ -66,7 +65,6 @@ export default async function LocaleLayout({
     >
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <SiteBackground />
           <div className="relative z-0 flex min-h-full flex-1 flex-col">
             <AppShell>{children}</AppShell>
           </div>

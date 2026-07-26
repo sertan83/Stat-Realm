@@ -85,7 +85,7 @@ export function LatestReviewCard({ review, className }: LatestReviewCardProps) {
   const t = useTranslations("landing");
 
   const cardClassName = cn(
-    "rounded-xl border border-white/10 bg-white/5 p-4 shadow-[0_0_40px_rgba(107,47,214,0.12)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:border-white/15",
+    "statrealm-dashboard-card rounded-xl border p-4 shadow-[0_0_40px_rgba(107,47,214,0.08)] backdrop-blur-md transition duration-[250ms] hover:scale-[1.02] hover:border-white/15",
     className,
   );
 

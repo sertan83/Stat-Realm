@@ -47,7 +47,7 @@ export function LandingFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 px-4 py-8 lg:px-6">
+      <footer className="relative overflow-hidden border-t border-white/[0.06] px-4 py-8 lg:px-6">
       <AmbientGlow
         tone="indigo"
         className="top-[20%] left-1/2 h-[min(68vw,560px)] w-[min(96vw,1100px)]"

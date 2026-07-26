@@ -15,7 +15,7 @@ export function GameRankPanel({ title, games, className }: GameRankPanelProps) {
   return (
     <aside
       className={cn(
-        "flex h-full w-full flex-col rounded-xl border border-white/10 bg-white/5 p-4 shadow-[0_0_40px_rgba(107,47,214,0.12)] backdrop-blur-md",
+        "statrealm-dashboard-card flex h-full w-full flex-col rounded-xl border p-4 shadow-[0_0_40px_rgba(107,47,214,0.08)] backdrop-blur-md",
         className,
       )}
     >
