@@ -36,6 +36,7 @@ import { createIntlFormatters } from "@/lib/i18n/formatters";
 import type {
   CompletionOverview,
   DashboardGame,
+  ProfileMostPlayedGame,
 } from "@/types/dashboard";
 import { auth } from "@/auth";
 
@@ -127,9 +128,6 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     capsule_filename:
       ownedGamesByAppId.get(game.appid)?.capsule_filename,
   }));
-  const topGames = [...ownedGames]
-    .sort((a, b) => b.playtime_forever - a.playtime_forever)
-    .slice(0, 10);
   const [syncResult, genreSummary] = hasOwnedGamesData
     ? await Promise.all([
         syncUserSteamLibrary(steamId, {
@@ -177,29 +175,32 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
             ),
           )
       : [];
-  const mostPlayedBase =
-    topGames.length > 0
-      ? topGames.map((game) =>
-          toDashboardGame(
-            game,
-            progressByAppId.get(game.appid) ?? null,
-            achievementSummary?.achievementStatusByAppId.get(
-              game.appid,
-            ) ?? "unavailable",
-            formatters,
-            steamGameCategory,
-          ),
-        )
-      : [];
+  const mostPlayedCatalogBase: ProfileMostPlayedGame[] = ownedGames
+    .filter(
+      (game) =>
+        game.playtime_forever > 0 || (game.playtime_2weeks ?? 0) > 0,
+    )
+    .map((game) => ({
+      ...toDashboardGame(
+        game,
+        progressByAppId.get(game.appid) ?? null,
+        achievementSummary?.achievementStatusByAppId.get(game.appid) ??
+          "unavailable",
+        formatters,
+        steamGameCategory,
+      ),
+      playtimeAllTimeMinutes: game.playtime_forever,
+      playtimeTwoWeeksMinutes: game.playtime_2weeks ?? 0,
+    }));
   const capsuleFilenameByAppId = new Map(
     ownedGames.map((game) => [game.appid, game.capsule_filename]),
   );
-  const [recentlyPlayed, mostPlayed] = await Promise.all([
+  const [recentlyPlayed, mostPlayedCatalog] = await Promise.all([
     enrichDashboardGamesWithSteamImages(recentlyPlayedBase, {
       capsuleFilenameByAppId,
       steamId,
     }),
-    enrichDashboardGamesWithSteamImages(mostPlayedBase, {
+    enrichDashboardGamesWithSteamImages(mostPlayedCatalogBase, {
       capsuleFilenameByAppId,
       steamId,
     }),
@@ -293,7 +294,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
           <RecentlyPlayed games={recentlyPlayed} />
 
           <div className="grid gap-12 lg:grid-cols-2">
-            <MostPlayedGames games={mostPlayed} />
+            <MostPlayedGames games={mostPlayedCatalog} />
             <RecentAchievements
               achievements={recentAchievementState.achievements}
               showEmptyState={recentAchievementState.showEmptyState}

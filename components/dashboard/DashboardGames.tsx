@@ -1,10 +1,47 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GameListImage } from "@/components/GameListImage";
 import { GameName } from "@/components/GameName";
-import type { DashboardGame } from "@/types/dashboard";
+import { Select } from "@/components/ui/Select";
+import { formatPlaytimeMinutes } from "@/lib/i18n/formatters";
+import type { DashboardGame, ProfileMostPlayedGame } from "@/types/dashboard";
 import { Link } from "@/i18n/navigation";
+
+const PLAYTIME_FILTERS = ["allTime", "lastTwoWeeks"] as const;
+
+type MostPlayedPlaytimeFilter = (typeof PLAYTIME_FILTERS)[number];
+
+function buildRankedMostPlayedGames(
+  games: ProfileMostPlayedGame[],
+  filter: MostPlayedPlaytimeFilter,
+) {
+  const ranked =
+    filter === "allTime"
+      ? games
+          .filter((game) => game.playtimeAllTimeMinutes > 0)
+          .sort(
+            (first, second) =>
+              second.playtimeAllTimeMinutes - first.playtimeAllTimeMinutes,
+          )
+          .map((game) => ({
+            ...game,
+            playtime: formatPlaytimeMinutes(game.playtimeAllTimeMinutes),
+          }))
+      : games
+          .filter((game) => game.playtimeTwoWeeksMinutes > 0)
+          .sort(
+            (first, second) =>
+              second.playtimeTwoWeeksMinutes - first.playtimeTwoWeeksMinutes,
+          )
+          .map((game) => ({
+            ...game,
+            playtime: formatPlaytimeMinutes(game.playtimeTwoWeeksMinutes),
+          }));
+
+  return ranked.slice(0, 10);
+}
 
 export function DashboardGameCard({
   game,
@@ -96,25 +133,59 @@ export function RecentlyPlayed({
 export function MostPlayedGames({
   games,
 }: {
-  games: DashboardGame[];
+  games: ProfileMostPlayedGame[];
 }) {
   const t = useTranslations("dashboard");
+  const [filter, setFilter] = useState<MostPlayedPlaytimeFilter>("allTime");
+
+  const displayedGames = useMemo(
+    () => buildRankedMostPlayedGames(games, filter),
+    [filter, games],
+  );
 
   return (
-    <section>
-      <h2 className="text-2xl font-bold text-white sm:text-3xl">
-        {t("mostPlayedGames")}
-      </h2>
-      <div className="mt-6 grid gap-4 xl:grid-cols-2">
-        {games.map((game, index) => (
-          <DashboardGameCard
-            key={game.id}
-            game={game}
-            rank={index + 1}
-            compact
+    <section className="min-w-0">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="min-w-0 text-2xl font-bold text-white sm:text-3xl">
+          {t("mostPlayedGames")}
+        </h2>
+
+        <div className="w-[11rem] shrink-0 sm:max-w-xs">
+          <Select
+            value={filter}
+            onValueChange={(value) =>
+              setFilter(value as MostPlayedPlaytimeFilter)
+            }
+            options={PLAYTIME_FILTERS.map((option) => ({
+              value: option,
+              label: t(`mostPlayedFilter.${option}`),
+            }))}
+            ariaLabel={t("mostPlayedFilter.label")}
           />
-        ))}
+        </div>
       </div>
+
+      {displayedGames.length === 0 ? (
+        <p className="mt-6 rounded-xl border border-white/10 bg-white/5 px-4 py-8 text-center text-sm text-white/60 backdrop-blur-md">
+          {filter === "lastTwoWeeks"
+            ? t("noGamesPlayedLastTwoWeeks")
+            : t("noMostPlayedGames")}
+        </p>
+      ) : (
+        <div
+          key={filter}
+          className="mt-6 grid gap-4 transition-opacity duration-300 ease-out xl:grid-cols-2"
+        >
+          {displayedGames.map((game, index) => (
+            <DashboardGameCard
+              key={game.id}
+              game={game}
+              rank={index + 1}
+              compact
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

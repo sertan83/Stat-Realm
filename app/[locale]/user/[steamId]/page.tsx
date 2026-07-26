@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { ProfileMostPlayedGames } from "@/components/profile/ProfileMostPlayedGames";
 import {
+  MostPlayedGames,
   RecentlyPlayed,
 } from "@/components/dashboard/DashboardGames";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
@@ -109,7 +109,7 @@ export default async function UserProfilePage({
                 <RecentlyPlayed games={profile.recentlyPlayed} />
 
                 <div className="grid gap-12 lg:grid-cols-2">
-                  <ProfileMostPlayedGames games={profile.mostPlayedCatalog} />
+                  <MostPlayedGames games={profile.mostPlayedCatalog} />
                   <RecentAchievements
                     achievements={profile.achievements}
                     showEmptyState={profile.showAchievementEmptyState}
