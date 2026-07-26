@@ -34,7 +34,10 @@ export function LandingCommunitySidebar({
   return (
     <aside
       aria-label={t("communitySidebar")}
-      className={cn("flex w-full min-w-0 flex-col gap-3", className)}
+      className={cn(
+        "flex w-full max-w-[280px] flex-col gap-3 xl:w-[270px] xl:max-w-[270px]",
+        className,
+      )}
     >
       <GameRankPanel title={t("mostPlayed")} games={mostPlayedGames} />
       <GameRankPanel title={t("mostOwned")} games={mostOwnedGames} />
