@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { signIn } from "@/auth";
 import {
@@ -49,10 +49,19 @@ export async function GET(request: NextRequest) {
 
   try {
     const profile = await syncSteamUserProfile(steamId, { recordLogin: true });
-    await syncUserSteamLibrary(steamId, {
-      profile,
-      forceAchievementRefresh: true,
-      recordLogin: true,
+    after(async () => {
+      try {
+        await syncUserSteamLibrary(steamId, {
+          profile,
+          forceAchievementRefresh: true,
+          recordLogin: true,
+        });
+      } catch (error) {
+        console.error("[StatRealm] Failed to sync Steam library on sign-in", {
+          steamId,
+          error,
+        });
+      }
     });
   } catch (error) {
     console.error("[StatRealm] Failed to sync Steam library on sign-in", {

@@ -7,13 +7,11 @@ import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { Link } from "@/i18n/navigation";
 import { StatRealmLogo } from "@/components/branding/StatRealmLogo";
 import { MainContentBackground } from "@/components/MainContentBackground";
+import type { AuthenticatedShellUser } from "@/lib/navigation/authenticated-user";
 
 type SidebarShellProps = {
   children: ReactNode;
-  user: {
-    name: string;
-    image?: string | null;
-  } | null;
+  user: AuthenticatedShellUser | null;
 };
 
 export function SidebarShell({

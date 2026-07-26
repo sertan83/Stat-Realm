@@ -84,7 +84,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.steamId) {
     redirect({ href: "/", locale });
   }
 

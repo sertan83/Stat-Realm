@@ -8,6 +8,7 @@ import {
   PrimaryButton,
 } from "@/components/PrimaryButton";
 import { Link } from "@/i18n/navigation";
+import { getAuthenticatedDashboardPath } from "@/lib/navigation/authenticated-user";
 import { cn } from "@/lib/utils";
 
 type SeeYourStatisticsCtaProps = {
@@ -23,7 +24,7 @@ export function SeeYourStatisticsCta({
   if (isAuthenticated) {
     return (
       <Link
-        href="/dashboard"
+        href={getAuthenticatedDashboardPath()}
         className={cn(PRIMARY_BUTTON_CLASSNAME, "mt-8 inline-block")}
       >
         {t("seeYourStatistics")}

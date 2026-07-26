@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { logOut } from "@/app/actions/auth";
 import { Link } from "@/i18n/navigation";
+import { getAuthenticatedDashboardPath } from "@/lib/navigation/authenticated-user";
 
 type UserAccountDropdownProps = {
   displayName: string;
@@ -80,7 +81,7 @@ export function UserAccountDropdown({
           className="statrealm-account-dropdown absolute top-[calc(100%+8px)] right-0 z-50 min-w-[168px] overflow-hidden rounded-lg border border-white/10 bg-[#1B2838] py-1 shadow-[0_12px_32px_rgba(0,0,0,0.35)]"
         >
           <Link
-            href="/dashboard"
+            href={getAuthenticatedDashboardPath()}
             role="menuitem"
             className={menuItemClassName}
             onClick={() => setIsOpen(false)}

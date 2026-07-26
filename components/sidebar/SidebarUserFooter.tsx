@@ -5,19 +5,26 @@ import { useTranslations } from "next-intl";
 import { logOut, signInWithSteam } from "@/app/actions/auth";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Link } from "@/i18n/navigation";
+import {
+  getAuthenticatedDashboardPath,
+  type AuthenticatedShellUser,
+} from "@/lib/navigation/authenticated-user";
 import { cn } from "@/lib/utils";
 
 type SidebarUserFooterProps = {
   collapsed: boolean;
-  user: {
-    name: string;
-    image?: string | null;
-  } | null;
+  user: AuthenticatedShellUser | null;
+  onNavigate?: () => void;
 };
 
-export function SidebarUserFooter({ collapsed, user }: SidebarUserFooterProps) {
+export function SidebarUserFooter({
+  collapsed,
+  user,
+  onNavigate,
+}: SidebarUserFooterProps) {
   const t = useTranslations("nav");
   const tAuth = useTranslations("auth");
+  const profileHref = user ? getAuthenticatedDashboardPath() : null;
 
   return (
     <div className="border-t border-white/[0.06] p-3">
@@ -34,10 +41,11 @@ export function SidebarUserFooter({ collapsed, user }: SidebarUserFooterProps) {
         />
       </div>
 
-      {user ? (
+      {user && profileHref ? (
         <div className="space-y-2">
           <Link
-            href="/dashboard"
+            href={profileHref}
+            onClick={onNavigate}
             className={cn(
               "group flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] p-2.5 transition-all duration-250 hover:border-[#6B2FD6]/30 hover:bg-white/[0.06]",
               collapsed && "md:justify-center md:p-2 lg:justify-start lg:p-2.5",

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { SidebarShell } from "@/components/sidebar/SidebarShell";
+import { resolveAuthenticatedShellUser } from "@/lib/navigation/authenticated-user";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -7,12 +8,7 @@ type AppShellProps = {
 
 export async function AppShell({ children }: AppShellProps) {
   const session = await auth();
-  const user = session?.user
-    ? {
-        name: session.user.name ?? session.user.steamId ?? "Player",
-        image: session.user.image,
-      }
-    : null;
+  const user = resolveAuthenticatedShellUser(session?.user ?? null);
 
   return (
     <SidebarShell user={user}>{children}</SidebarShell>

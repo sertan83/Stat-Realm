@@ -5,6 +5,7 @@ import { recordStatRealmSteamLogin } from "@/lib/db";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
+  trustHost: true,
   providers: [
     Credentials({
       id: "steam",
