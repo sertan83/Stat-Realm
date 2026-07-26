@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Navbar } from "@/components/Navbar";
 import { CommunityRatingsPanel } from "@/components/ratings/CommunityRatingsPanel";
 import { loadCommunityRatingsPage } from "@/lib/reviews/community-ratings-page";
 
@@ -31,8 +30,6 @@ export default async function RatingsPage({ params }: RatingsPageProps) {
 
   return (
     <div className="min-h-screen text-white">
-      <Navbar />
-
       <main className="relative min-h-[calc(100vh-55px)] overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
         <div className="relative z-10 mx-auto w-full max-w-4xl">
           <header>

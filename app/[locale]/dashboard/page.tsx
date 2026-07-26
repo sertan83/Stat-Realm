@@ -1,6 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { Navbar } from "@/components/Navbar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import {
   MostPlayedGames,
@@ -271,8 +270,6 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
   return (
     <div className="min-h-screen text-white">
-      <Navbar />
-
       <main className="relative overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
         <div className="relative z-10 mx-auto w-full max-w-7xl space-y-20">
           <DashboardHeader

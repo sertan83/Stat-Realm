@@ -4,7 +4,6 @@ import { AmbientGlow } from "@/components/AmbientGlow";
 import { Hero } from "@/components/Hero";
 import { LandingFooter } from "@/components/LandingFooter";
 import { SeeYourStatisticsCta } from "@/components/landing/SeeYourStatisticsCta";
-import { Navbar } from "@/components/Navbar";
 import { getCommunityLandingData } from "@/lib/community/rankings";
 import { loadFeaturedGames } from "@/lib/landing/featured-games";
 
@@ -27,7 +26,6 @@ export default async function Home({ params }: HomePageProps) {
 
   return (
     <main className="relative min-h-screen text-white">
-      <Navbar />
       <Hero
         featuredGames={featuredGames}
         mostPlayedGames={communityData.mostPlayedGames}

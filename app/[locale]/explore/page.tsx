@@ -1,5 +1,4 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Navbar } from "@/components/Navbar";
 import { ExploreCatalog } from "@/components/ExploreCatalog";
 import {
   fetchExploreCatalog,
@@ -36,8 +35,6 @@ export default async function ExplorePage({
 
   return (
     <div className="min-h-screen text-white">
-      <Navbar />
-
       <main className="relative min-h-[calc(100vh-55px)] overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
         <div className="relative z-10 mx-auto w-full max-w-7xl">
           <header>

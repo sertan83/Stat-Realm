@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
-import { Navbar } from "@/components/Navbar";
 import { AchievementList } from "@/components/game-details/AchievementList";
 import { GameDetailsHero } from "@/components/game-details/GameDetailsHero";
 import { GameReviewsSection } from "@/components/game-details/GameReviewsSection";
@@ -409,8 +408,6 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
 
   return (
     <div className="min-h-screen text-white">
-      <Navbar />
-
       <main className="relative overflow-hidden px-4 py-8 sm:px-6 lg:px-8">
         <div className="relative z-10 mx-auto w-full max-w-7xl">
           <Link

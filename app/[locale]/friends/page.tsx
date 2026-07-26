@@ -1,5 +1,4 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Navbar } from "@/components/Navbar";
 import { StatRealmFriendsPanel } from "@/components/friends/StatRealmFriendsPanel";
 import { redirect } from "@/i18n/navigation";
 import { auth } from "@/auth";
@@ -24,8 +23,6 @@ export default async function FriendsPage({ params }: FriendsPageProps) {
 
   return (
     <div className="min-h-screen text-white">
-      <Navbar />
-
       <main className="relative overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
         <div className="relative z-10 mx-auto w-full max-w-7xl">
           <StatRealmFriendsPanel friendsResult={friendsResult} />

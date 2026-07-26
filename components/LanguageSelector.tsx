@@ -17,7 +17,15 @@ function sortLocalesByDisplayName(
   );
 }
 
-export function LanguageSelector({ className }: { className?: string }) {
+export function LanguageSelector({
+  className,
+  variant = "navbar",
+  collapsed = false,
+}: {
+  className?: string;
+  variant?: "navbar" | "sidebar";
+  collapsed?: boolean;
+}) {
   const locale = useLocale() as AppLocale;
   const router = useRouter();
   const pathname = usePathname();
@@ -47,7 +55,8 @@ export function LanguageSelector({ className }: { className?: string }) {
         }))}
         ariaLabel={t("language")}
         size="sm"
-        variant="navbar"
+        variant={variant}
+        className={cn(collapsed && variant === "sidebar" && "md:max-w-[52px] lg:max-w-none")}
       />
     </div>
   );

@@ -18,7 +18,7 @@ type SelectProps = {
   ariaLabel?: string;
   disabled?: boolean;
   size?: "sm" | "md";
-  variant?: "default" | "navbar";
+  variant?: "default" | "navbar" | "sidebar";
   className?: string;
   name?: string;
 };
@@ -36,6 +36,8 @@ const triggerVariants = {
     "border-white/10 bg-white/5 backdrop-blur-md hover:border-white/20 focus:border-white/25",
   navbar:
     "border-white/10 bg-[#1B2838]/90 hover:bg-[#2A475E] focus:border-white/25",
+  sidebar:
+    "border-white/[0.08] bg-white/[0.04] hover:border-white/[0.12] hover:bg-white/[0.06] focus:border-[#6B2FD6]/30",
 } as const;
 
 const sizeVariants = {

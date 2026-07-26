@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { Navbar } from "@/components/Navbar";
 import { Link } from "@/i18n/navigation";
 
 export default async function NotFound() {
@@ -7,7 +6,6 @@ export default async function NotFound() {
 
   return (
     <div className="min-h-screen text-white">
-      <Navbar />
       <main className="mx-auto flex min-h-[calc(100vh-55px)] max-w-3xl flex-col items-center justify-center px-4 text-center">
         <p className="text-sm font-semibold tracking-[0.2em] text-[#EFA5A8] uppercase">
           {t("notFoundCode")}
