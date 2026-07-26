@@ -3,7 +3,7 @@ import path from "node:path";
 import sharp from "sharp";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
-const SOURCE = path.join(ROOT, "app", "favicon.ico");
+const SOURCE = path.join(ROOT, "public", "statrealmlogo.png");
 const OUTPUT_ICO = path.join(ROOT, "app", "favicon.ico");
 const OUTPUT_PNG = path.join(ROOT, "public", "favicon-64.png");
 const FILL_RATIO = 0.875;

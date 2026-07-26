@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { STATREALM_LOGO_PATH } from "@/lib/branding/logo";
 import { cn } from "@/lib/utils";
 
 type LogoProps = {
@@ -15,7 +16,7 @@ export function Logo({ className }: LogoProps) {
   return (
     <Link href="/" className={cn("inline-flex shrink-0 items-center", className)}>
       <Image
-        src="/logo.svg"
+        src={STATREALM_LOGO_PATH}
         alt={t("logoAlt")}
         width={180}
         height={32}

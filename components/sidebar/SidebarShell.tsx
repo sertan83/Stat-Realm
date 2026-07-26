@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { Link } from "@/i18n/navigation";
+import { STATREALM_LOGO_PATH } from "@/lib/branding/logo";
 
 type SidebarShellProps = {
   children: ReactNode;
@@ -48,10 +49,11 @@ export function SidebarShell({
 
           <Link href="/" className="relative h-8 w-[140px]">
             <Image
-              src="/statrealmlogo.svg"
+              src={STATREALM_LOGO_PATH}
               alt={t("logoAlt")}
               fill
               priority
+              unoptimized
               className="object-contain object-center"
             />
           </Link>

@@ -7,6 +7,7 @@ import { NavbarNavLinks } from "@/components/NavbarNavLinks";
 import { UserAccountDropdown } from "@/components/UserAccountDropdown";
 import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
+import { STATREALM_LOGO_PATH } from "@/lib/branding/logo";
 import { cn } from "@/lib/utils";
 
 export async function Navbar() {
@@ -22,10 +23,11 @@ export async function Navbar() {
         <Link href="/" className="justify-self-start shrink-0">
           <div className="relative flex h-10 w-[220px] items-center sm:h-11">
             <Image
-              src="/statrealmlogo.svg"
+              src={STATREALM_LOGO_PATH}
               alt={t("logoAlt")}
               fill
               priority
+              unoptimized
               className="object-contain object-left"
             />
           </div>

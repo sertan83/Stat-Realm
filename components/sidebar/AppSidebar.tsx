@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { SIDEBAR_NAV_ITEMS } from "@/lib/navigation/sidebar-config";
 import { SidebarUserFooter } from "@/components/sidebar/SidebarUserFooter";
+import { STATREALM_LOGO_PATH } from "@/lib/branding/logo";
 import { cn } from "@/lib/utils";
 
 type AppSidebarProps = {
@@ -64,19 +65,35 @@ export function AppSidebar({
           >
             <div className="relative hidden h-9 w-[180px] lg:block">
               <Image
-                src="/statrealmlogo.svg"
+                src={STATREALM_LOGO_PATH}
                 alt={t("logoAlt")}
                 fill
                 priority
+                unoptimized
                 className="object-contain object-left transition duration-250 group-hover:brightness-110"
               />
             </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#6B2FD6] to-[#E2363C] text-xs font-bold tracking-[0.12em] text-white shadow-[0_0_20px_rgba(107,47,214,0.25)] md:flex lg:hidden">
-              SR
+            <div className="relative h-9 w-9 overflow-hidden md:flex lg:hidden">
+              <Image
+                src={STATREALM_LOGO_PATH}
+                alt={t("logoAlt")}
+                width={108}
+                height={36}
+                priority
+                unoptimized
+                className="absolute top-1/2 left-0 h-9 w-auto max-w-none -translate-y-1/2 object-left"
+              />
             </div>
-            <span className="truncate text-lg font-bold tracking-[0.08em] text-white uppercase md:hidden">
-              StatRealm
-            </span>
+            <div className="relative h-8 w-[140px] md:hidden">
+              <Image
+                src={STATREALM_LOGO_PATH}
+                alt={t("logoAlt")}
+                fill
+                priority
+                unoptimized
+                className="object-contain object-left"
+              />
+            </div>
           </Link>
         </div>
 
