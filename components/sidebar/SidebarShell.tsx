@@ -59,7 +59,7 @@ export function SidebarShell({
           <div className="h-10 w-10" aria-hidden="true" />
         </header>
 
-        <div className="flex min-h-[calc(100vh-3.5rem)] flex-1 flex-col md:min-h-screen">
+        <div className="flex min-h-[calc(100vh-3.5rem)] flex-1 flex-col overflow-x-hidden md:min-h-screen">
           {children}
         </div>
       </div>

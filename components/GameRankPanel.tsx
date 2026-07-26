@@ -23,7 +23,7 @@ export function GameRankPanel({ title, games, className }: GameRankPanelProps) {
         {title}
       </h3>
 
-      <ol className="mt-3 flex flex-1 flex-col justify-between gap-0.5">
+      <ol className="mt-3 flex flex-col gap-0.5">
         {games.map((game, index) => (
           <li
             key={game.appId}

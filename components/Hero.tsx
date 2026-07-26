@@ -6,11 +6,8 @@ import { BackgroundGlow } from "@/components/BackgroundGlow";
 import { CommunityLeaderboard } from "@/components/CommunityLeaderboard";
 import { CommunityTopGames } from "@/components/CommunityTopGames";
 import { GameGrid } from "@/components/GameGrid";
-import { GameRankPanel } from "@/components/GameRankPanel";
-import { LatestReviewCard } from "@/components/LatestReviewCard";
-import { PlayersTrackedCard } from "@/components/PlayersTrackedCard";
-import { RecentPlayerCard } from "@/components/RecentPlayerCard";
-import { ScrollIndicator } from "@/components/ScrollIndicator";
+import { LandingCommunitySidebar } from "@/components/landing/LandingCommunitySidebar";
+import { SeeYourStatisticsCta } from "@/components/landing/SeeYourStatisticsCta";
 import { StatsRow } from "@/components/StatsRow";
 import { Link } from "@/i18n/navigation";
 import type {
@@ -33,6 +30,7 @@ type HeroProps = {
   topRatedGames?: LandingTopRatedGame[];
   recentPlayer?: LandingRecentPlayer | null;
   latestReview?: LandingLatestReview | null;
+  isAuthenticated?: boolean;
 };
 
 export function Hero({
@@ -45,6 +43,7 @@ export function Hero({
   topRatedGames = [],
   recentPlayer = null,
   latestReview = null,
+  isAuthenticated = false,
 }: HeroProps) {
   const t = useTranslations("landing");
 
@@ -53,97 +52,118 @@ export function Hero({
     { value: "100,000+", label: t("statAchievements") },
   ];
 
+  const sidebarProps = {
+    mostPlayedGames,
+    mostOwnedGames,
+    registeredUserCount,
+    recentPlayer,
+    latestReview,
+  };
+
   return (
     <section
       className={cn(
-        "relative flex min-h-[calc(100vh-55px)] flex-col px-4 pt-[110px] pb-28 lg:px-6",
+        "relative w-full min-w-0 overflow-x-hidden px-4 py-8 sm:py-10 lg:px-6",
         className,
       )}
     >
       <BackgroundGlow variant="hero" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center">
-        <div className="flex w-full flex-col items-center text-center">
-          <h1 className="max-w-5xl text-5xl font-bold tracking-[0.12em] text-white uppercase sm:text-6xl lg:text-7xl">
-            {t("heroTitle")}
-          </h1>
+      <div className="relative z-10 mx-auto w-full max-w-[1600px]">
+        <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(260px,28%)] xl:gap-6">
+          <div className="min-w-0 space-y-12">
+            <header className="text-center xl:text-left">
+              <h1 className="text-4xl font-bold tracking-[0.1em] text-white uppercase sm:text-5xl lg:text-6xl">
+                {t("heroTitle")}
+              </h1>
 
-          <p className="mt-8 max-w-3xl text-lg leading-relaxed text-white/65 sm:text-xl">
-            {t("heroSubtitle")}
-          </p>
+              <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-white/65 sm:text-lg xl:mx-0">
+                {t("heroSubtitle")}
+              </p>
 
-          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-white/65 sm:text-xl">
-            {t("steamPrivacyHint")}{" "}
-            <a
-              href="https://steamcommunity.com/my/edit/settings"
-              target="_blank"
-              rel="noreferrer"
-              className="transition hover:underline hover:underline-offset-2"
-            >
-              {t("steamPrivacyLearnHow")}
-            </a>
-          </p>
+              <p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-white/65 sm:text-lg xl:mx-0">
+                {t("steamPrivacyHint")}{" "}
+                <a
+                  href="https://steamcommunity.com/my/edit/settings"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition hover:underline hover:underline-offset-2"
+                >
+                  {t("steamPrivacyLearnHow")}
+                </a>
+              </p>
 
-          <StatsRow stats={heroStats} className="mt-11" />
-        </div>
+              <StatsRow stats={heroStats} className="mt-8 justify-center xl:justify-start" />
+            </header>
 
-        <div className="relative mt-20 w-screen overflow-hidden">
-          <AmbientGlow
-            tone="blue"
-            className="top-[4%] left-1/2 h-[min(70vw,720px)] w-[min(92vw,1040px)]"
-          />
+            <div className="relative min-w-0 overflow-hidden">
+              <AmbientGlow
+                tone="blue"
+                className="top-[4%] left-1/2 h-[min(70vw,720px)] w-[min(100%,1040px)]"
+              />
 
-          <div className="absolute top-0 left-4 hidden w-[220px] flex-col gap-3 min-[1700px]:flex">
-            <GameRankPanel
-              title={t("mostPlayed")}
-              games={mostPlayedGames}
-              className="h-[380px]"
-            />
-            <PlayersTrackedCard count={registeredUserCount} />
-            <RecentPlayerCard player={recentPlayer} />
-          </div>
+              <div className="relative z-10 min-w-0">
+                <div className="mb-5 flex min-w-0 items-center justify-between gap-4">
+                  <h2 className="truncate text-xl font-semibold tracking-wide text-white sm:text-2xl">
+                    {t("popularGames")}
+                  </h2>
+                  <Link
+                    href="/explore"
+                    className="shrink-0 text-sm font-medium text-white/65 transition hover:text-white sm:text-base"
+                  >
+                    {t("viewAllGames")}
+                  </Link>
+                </div>
 
-          <div className="mx-auto w-[calc(100%-2rem)] max-w-6xl">
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <h2 className="text-xl font-semibold tracking-wide text-white sm:text-2xl">
-                {t("popularGames")}
-              </h2>
-              <Link
-                href="/explore"
-                className="shrink-0 text-sm font-medium text-white/65 transition hover:text-white sm:text-base"
-              >
-                {t("viewAllGames")}
-              </Link>
+                <GameGrid games={featuredGames} />
+              </div>
             </div>
 
-            <GameGrid games={featuredGames} />
-
-            <div className="relative">
+            <div className="relative min-w-0 overflow-hidden">
               <AmbientGlow
                 tone="red-purple"
-                className="top-[8%] left-1/2 h-[min(62vw,640px)] w-[min(88vw,960px)]"
+                className="top-[8%] left-1/2 h-[min(62vw,640px)] w-[min(100%,960px)]"
               />
-              <div className="relative z-10">
-                <CommunityLeaderboard players={communityLeaderboard} />
+              <div className="relative z-10 min-w-0">
+                <CommunityLeaderboard
+                  players={communityLeaderboard}
+                  className="mt-0"
+                />
                 <CommunityTopGames games={topRatedGames} />
               </div>
             </div>
+
+            <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center backdrop-blur-md sm:px-8">
+              <AmbientGlow
+                tone="purple"
+                className="statrealm-ambient-centered top-1/2 left-1/2 h-[min(72vw,680px)] w-[min(100%,920px)]"
+              />
+              <div className="relative z-10 mx-auto max-w-3xl">
+                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                  {t("ctaTitle")}
+                </h2>
+                <p className="mt-4 text-base leading-relaxed text-white/70 sm:text-lg">
+                  {t("ctaDescription")}
+                </p>
+                <SeeYourStatisticsCta isAuthenticated={isAuthenticated} />
+              </div>
+            </section>
+
+            <p className="text-center text-sm text-white/70 sm:text-base xl:text-left">
+              {t("achievementTagline")}
+            </p>
           </div>
 
-          <div className="absolute top-0 right-4 hidden w-[220px] flex-col gap-3 min-[1700px]:flex">
-            <GameRankPanel
-              title={t("mostOwned")}
-              games={mostOwnedGames}
-              className="h-[380px]"
-            />
-            <LatestReviewCard review={latestReview} />
-          </div>
+          <LandingCommunitySidebar
+            {...sidebarProps}
+            className="hidden min-w-0 xl:flex"
+          />
         </div>
 
-        <p className="mt-20 text-center text-sm text-white/70 sm:text-base">
-          {t("achievementTagline")}
-        </p>
-        <ScrollIndicator className="mt-12 mb-0" />
+        <LandingCommunitySidebar
+          {...sidebarProps}
+          className="mt-8 xl:hidden"
+        />
       </div>
     </section>
   );
