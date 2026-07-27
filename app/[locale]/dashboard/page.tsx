@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -9,6 +10,7 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { PlaytimeAnalytics } from "@/components/dashboard/PlaytimeAnalytics";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
+import { DashboardSyncRefresh } from "@/components/dashboard/DashboardSyncRefresh";
 import {
   getAuthenticatedSteamProfile,
   getOwnedGamesLibrary,
@@ -21,12 +23,22 @@ import { enrichDashboardGamesWithSteamImages } from "@/lib/steam/game-images";
 import { getGenrePlaytimeSummary } from "@/lib/steam/genre-sync";
 import { resolveDashboardAchievementHistory } from "@/lib/steam/achievement-history";
 import { syncUserSteamLibrary } from "@/lib/steam/library-sync";
-import { saveUserProfileAnalytics } from "@/lib/db";
+import {
+  getStatRealmUser,
+  getUserLibrary,
+  getUserProfileAnalytics,
+  saveUserProfileAnalytics,
+} from "@/lib/db";
+import type { UserLibraryGame } from "@/lib/db/types";
 import {
   ensureStatRealmUserProfileFresh,
   resolveUserAvatarUrl,
   resolveUserDisplayName,
 } from "@/lib/steam/profile-sync";
+import {
+  buildCompletionOverviewFromLibrary,
+  normalizeStoredGenrePlaytime,
+} from "@/lib/user/profile-snapshot";
 import {
   buildDashboardMetricsFromSyncedStats,
   createEmptyUserStats,
@@ -34,7 +46,6 @@ import {
 } from "@/lib/user/synced-statistics";
 import { createIntlFormatters } from "@/lib/i18n/formatters";
 import type {
-  CompletionOverview,
   DashboardGame,
   ProfileMostPlayedGame,
 } from "@/types/dashboard";
@@ -49,6 +60,8 @@ const PERSONA_STATE_KEYS = [
   "lookingToTrade",
   "lookingToPlay",
 ] as const;
+
+const BACKGROUND_SYNC_MIN_INTERVAL_MS = 60_000;
 
 type DashboardPageProps = {
   params: Promise<{ locale: string }>;
@@ -78,6 +91,53 @@ function toDashboardGame(
   };
 }
 
+function getLibraryProgressMaps(library: UserLibraryGame[]) {
+  const progressByAppId = new Map<number, SteamAchievementProgress>();
+  const achievementStatusByAppId = new Map<
+    number,
+    "complete" | "unsupported" | "unavailable"
+  >();
+
+  for (const game of library) {
+    if (game.achievementsTotal === 0) {
+      progressByAppId.set(game.appId, {
+        unlocked: 0,
+        total: 0,
+        percentage: 0,
+        achievements: [],
+      });
+      achievementStatusByAppId.set(game.appId, "unsupported");
+      continue;
+    }
+
+    if (game.achievementsTotal !== null && game.achievementsTotal > 0) {
+      progressByAppId.set(game.appId, {
+        unlocked: game.achievementsUnlocked ?? 0,
+        total: game.achievementsTotal,
+        percentage: game.completionPercentage ?? 0,
+        achievements: [],
+      });
+      achievementStatusByAppId.set(game.appId, "complete");
+      continue;
+    }
+
+    achievementStatusByAppId.set(game.appId, "unavailable");
+  }
+
+  return { progressByAppId, achievementStatusByAppId };
+}
+
+function shouldScheduleBackgroundSync(lastSyncedAt: string | null | undefined) {
+  if (!lastSyncedAt) {
+    return true;
+  }
+
+  return (
+    Date.now() - new Date(lastSyncedAt).getTime() >=
+    BACKGROUND_SYNC_MIN_INTERVAL_MS
+  );
+}
+
 export default async function DashboardPage({ params }: DashboardPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -97,13 +157,23 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const steamGameCategory = tDashboard("steamGameCategory");
 
   const steamId = session!.user!.steamId;
-  const [profileResult, ownedResult, recentResult, levelResult] =
-    await Promise.allSettled([
-      getAuthenticatedSteamProfile(steamId),
-      getOwnedGamesLibrary(steamId),
-      getRecentlyPlayedGames(steamId, 8),
-      getSteamLevel(steamId),
-    ]);
+  const [
+    profileResult,
+    ownedResult,
+    recentResult,
+    levelResult,
+    storedUserResult,
+    storedLibraryResult,
+    profileAnalyticsResult,
+  ] = await Promise.allSettled([
+    getAuthenticatedSteamProfile(steamId),
+    getOwnedGamesLibrary(steamId),
+    getRecentlyPlayedGames(steamId, 8),
+    getSteamLevel(steamId),
+    getStatRealmUser(steamId),
+    getUserLibrary(steamId),
+    getUserProfileAnalytics(steamId),
+  ]);
   const profile =
     profileResult.status === "fulfilled" ? profileResult.value : null;
   const hasOwnedGamesData = ownedResult.status === "fulfilled";
@@ -111,6 +181,52 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const ownedGameCount = hasOwnedGamesData
     ? ownedResult.value.gameCount
     : 0;
+  const storedUser =
+    storedUserResult.status === "fulfilled" ? storedUserResult.value : null;
+  const storedLibrary =
+    storedLibraryResult.status === "fulfilled" ? storedLibraryResult.value : [];
+  const profileAnalytics =
+    profileAnalyticsResult.status === "fulfilled"
+      ? profileAnalyticsResult.value
+      : null;
+  const initialLastSyncedAt = storedUser?.lastSyncedAt ?? null;
+  const backgroundSyncScheduled =
+    hasOwnedGamesData &&
+    shouldScheduleBackgroundSync(initialLastSyncedAt);
+
+  if (backgroundSyncScheduled) {
+    after(async () => {
+      try {
+        const [syncResult, genreSummary] = await Promise.all([
+          syncUserSteamLibrary(steamId, {
+            games: ownedGames,
+            profile,
+            gameCount: ownedGameCount,
+          }),
+          getGenrePlaytimeSummary(steamId, ownedGames, session!.expires),
+        ]);
+
+        if (genreSummary?.status === "complete") {
+          await saveUserProfileAnalytics(steamId, {
+            genrePlaytime:
+              genreSummary.genres.length > 0 ? genreSummary.genres : null,
+          });
+        }
+
+      } catch (error) {
+        console.error(
+          "[StatRealm] Failed to sync Steam library on dashboard",
+          {
+            steamId,
+            error,
+          },
+        );
+      }
+    });
+  }
+
+  const { progressByAppId, achievementStatusByAppId } =
+    getLibraryProgressMaps(storedLibrary);
   const rawRecentGames =
     recentResult.status === "fulfilled" && recentResult.value.length > 0
       ? recentResult.value
@@ -128,37 +244,6 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     capsule_filename:
       ownedGamesByAppId.get(game.appid)?.capsule_filename,
   }));
-  const [syncResult, genreSummary] = hasOwnedGamesData
-    ? await Promise.all([
-        syncUserSteamLibrary(steamId, {
-          games: ownedGames,
-          profile,
-          gameCount: ownedGameCount,
-        }).catch((error) => {
-          console.error(
-            "[StatRealm] Failed to sync Steam library on dashboard",
-            {
-              steamId,
-              error,
-            },
-          );
-          return null;
-        }),
-        getGenrePlaytimeSummary(steamId, ownedGames, session!.expires),
-      ])
-    : [null, null];
-
-  if (hasOwnedGamesData && genreSummary?.status === "complete") {
-    await saveUserProfileAnalytics(steamId, {
-      genrePlaytime:
-        genreSummary.genres.length > 0 ? genreSummary.genres : null,
-    });
-  }
-
-  const achievementSummary = syncResult?.achievementSummary ?? null;
-  const progressByAppId =
-    achievementSummary?.progressByAppId ??
-    new Map<number, SteamAchievementProgress>();
   const recentlyPlayedBase =
     recentGames.length > 0
       ? recentGames
@@ -167,9 +252,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
             toDashboardGame(
               game,
               progressByAppId.get(game.appid) ?? null,
-              achievementSummary?.achievementStatusByAppId.get(
-                game.appid,
-              ) ?? "unavailable",
+              achievementStatusByAppId.get(game.appid) ?? "unavailable",
               formatters,
               steamGameCategory,
             ),
@@ -184,8 +267,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       ...toDashboardGame(
         game,
         progressByAppId.get(game.appid) ?? null,
-        achievementSummary?.achievementStatusByAppId.get(game.appid) ??
-          "unavailable",
+        achievementStatusByAppId.get(game.appid) ?? "unavailable",
         formatters,
         steamGameCategory,
       ),
@@ -218,40 +300,22 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   }
   const recentAchievementState = await resolveDashboardAchievementHistory({
     steamId,
-    summary: achievementSummary,
+    summary: null,
   });
-  const completionGames = achievementSummary
-    ? Array.from(achievementSummary.progressByAppId.values()).filter(
-        (progress: SteamAchievementProgress) => progress.total > 0,
-      )
-    : null;
-  let realCompletionOverview: CompletionOverview | null = null;
-
-  if (completionGames && completionGames.length > 0) {
-    const completedGames = completionGames.filter(
-      (progress) => progress.unlocked === progress.total,
-    ).length;
-    const inProgressGames = completionGames.filter(
-      (progress) =>
-        progress.unlocked > 0 && progress.unlocked < progress.total,
-    ).length;
-    const untouchedGames =
-      completionGames.length - completedGames - inProgressGames;
-
-    realCompletionOverview = {
-      completed: (completedGames / completionGames.length) * 100,
-      inProgress: (inProgressGames / completionGames.length) * 100,
-      untouched: (untouchedGames / completionGames.length) * 100,
-    };
-  }
-  const realGenrePlaytime =
-    genreSummary && genreSummary.genres.length > 0
-      ? genreSummary.genres
-      : null;
+  const realCompletionOverview =
+    buildCompletionOverviewFromLibrary(storedLibrary);
+  const realGenrePlaytime = normalizeStoredGenrePlaytime(
+    profileAnalytics?.genrePlaytime,
+  );
   const syncedUser = await ensureStatRealmUserProfileFresh(steamId);
   const syncedStats = normalizeUserStats(
-    syncedUser?.stats ?? createEmptyUserStats(),
+    syncedUser?.stats ?? storedUser?.stats ?? createEmptyUserStats(),
   );
+  const showAchievementEmptyState =
+    recentAchievementState.showEmptyState ||
+    (recentAchievementState.achievements.length === 0 &&
+      syncedStats.achievementTotalsStatus === "complete" &&
+      (syncedStats.totalUnlockedAchievements ?? 0) === 0);
   const profileMetrics = buildDashboardMetricsFromSyncedStats(
     syncedStats,
     hasOwnedGamesData,
@@ -262,6 +326,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     : profile?.personaname ?? tDashboard("steamPlayerFallback");
   const profileUrl =
     syncedUser?.profileUrl ??
+    storedUser?.profileUrl ??
     profile?.profileurl ??
     `https://steamcommunity.com/profiles/${session!.user!.steamId}`;
   const personaState = profile?.personastate ?? 0;
@@ -271,6 +336,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
   return (
     <div className="min-h-screen text-white">
+      <DashboardSyncRefresh
+        initialLastSyncedAt={initialLastSyncedAt}
+        enabled={hasOwnedGamesData}
+      />
       <main className="relative overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
         <div className="relative z-10 mx-auto w-full max-w-7xl space-y-20">
           <DashboardHeader
@@ -297,7 +366,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
             <MostPlayedGames games={mostPlayedCatalog} />
             <RecentAchievements
               achievements={recentAchievementState.achievements}
-              showEmptyState={recentAchievementState.showEmptyState}
+              showEmptyState={showAchievementEmptyState}
             />
           </div>
 
