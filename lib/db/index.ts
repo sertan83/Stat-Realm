@@ -1083,6 +1083,24 @@ export async function getStoredGameMetadata(
   return db.gameMetadata[String(appId)] ?? null;
 }
 
+export async function getStoredGameMetadataForAppIds(appIds: number[]) {
+  const db = await readDbFile();
+  const metadataByAppId = new Map<number, StoredGameMetadata>();
+
+  for (const appId of appIds) {
+    if (!Number.isInteger(appId) || appId <= 0) {
+      continue;
+    }
+
+    const metadata = db.gameMetadata[String(appId)];
+    if (metadata) {
+      metadataByAppId.set(appId, metadata);
+    }
+  }
+
+  return metadataByAppId;
+}
+
 export async function upsertStoredGameMetadata(
   appId: number,
   input:

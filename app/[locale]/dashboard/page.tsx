@@ -17,8 +17,15 @@ import {
 import { getGenrePlaytimeSummary, shouldScheduleGenreSync } from "@/lib/steam/genre-sync";
 import { resolveDashboardAchievementHistory } from "@/lib/steam/achievement-history";
 import { syncUserSteamLibrary } from "@/lib/steam/library-sync";
+import { enrichMissingDashboardGameImagesInBackground } from "@/lib/dashboard/background-game-images";
+import {
+  applyStoredMetadataToDashboardGame,
+  collectUniqueDashboardGames,
+  selectGamesForBackgroundImageEnrichment,
+} from "@/lib/dashboard/game-images";
 import {
   getStatRealmUser,
+  getStoredGameMetadataForAppIds,
   getUserAchievementHistory,
   getUserLibrary,
   getUserProfileAnalytics,
@@ -404,21 +411,90 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   }
 
   const buildGameListsStartedAt = performance.now();
-  const recentlyPlayed = hasStoredLibraryData
+  let recentlyPlayed = hasStoredLibraryData
     ? buildRecentlyPlayedGamesFromLibrary(
         storedLibrary,
         formatters,
         steamGameCategory,
       )
     : [];
-  const mostPlayedCatalog = hasStoredLibraryData
+  let mostPlayedCatalog = hasStoredLibraryData
     ? buildMostPlayedCatalogFromLibrary(
         storedLibrary,
         formatters,
         steamGameCategory,
       )
     : [];
+  const dashboardAppIds = collectUniqueDashboardGames(
+    recentlyPlayed,
+    mostPlayedCatalog,
+  )
+    .map((game) => Number(game.id))
+    .filter((appId) => Number.isInteger(appId) && appId > 0);
+  const storedGameMetadataByAppId =
+    dashboardAppIds.length > 0
+      ? await measureDashboardStep(
+          "getStoredGameMetadataForAppIds",
+          steamId,
+          () => getStoredGameMetadataForAppIds(dashboardAppIds),
+        )
+      : new Map();
+  recentlyPlayed = recentlyPlayed.map((game) =>
+    applyStoredMetadataToDashboardGame(
+      game,
+      storedGameMetadataByAppId.get(Number(game.id)),
+    ),
+  );
+  mostPlayedCatalog = mostPlayedCatalog.map((game) =>
+    applyStoredMetadataToDashboardGame(
+      game,
+      storedGameMetadataByAppId.get(Number(game.id)),
+    ),
+  );
+  const gamesNeedingImageEnrichment = selectGamesForBackgroundImageEnrichment(
+    recentlyPlayed,
+    mostPlayedCatalog,
+    collectUniqueDashboardGames(recentlyPlayed, mostPlayedCatalog),
+  );
+  const imageEnrichmentScheduled = gamesNeedingImageEnrichment.length > 0;
   logDashboardStepDuration("buildGameLists", steamId, buildGameListsStartedAt);
+
+  if (imageEnrichmentScheduled) {
+    console.info(
+      dashboardTimingLabel("background:scheduleImageEnrichment", steamId),
+      {
+        scheduled: true,
+        pendingGames: gamesNeedingImageEnrichment.length,
+      },
+    );
+
+    after(async () => {
+      const imageEnrichmentStartedAt = performance.now();
+
+      try {
+        await measureDashboardStep(
+          "background:enrichMissingDashboardGameImages",
+          steamId,
+          () =>
+            enrichMissingDashboardGameImagesInBackground(
+              steamId,
+              gamesNeedingImageEnrichment,
+            ),
+        );
+      } finally {
+        logDashboardStepDuration(
+          "background:imageEnrichment:total",
+          steamId,
+          imageEnrichmentStartedAt,
+        );
+      }
+    });
+  } else {
+    console.info(
+      dashboardTimingLabel("background:scheduleImageEnrichment", steamId),
+      { scheduled: false },
+    );
+  }
 
   const recentAchievementState = await measureDashboardStep(
     "resolveDashboardAchievementHistory",
@@ -463,7 +539,12 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     <div className="min-h-screen text-white">
       <DashboardSyncRefresh
         initialLastSyncedAt={initialRefreshMarker}
-        enabled={backgroundSyncScheduled || genreSyncScheduled || !hasLibraryData}
+        enabled={
+          backgroundSyncScheduled ||
+          genreSyncScheduled ||
+          imageEnrichmentScheduled ||
+          !hasLibraryData
+        }
       />
       <main className="relative overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
         <div className="relative z-10 mx-auto w-full max-w-7xl space-y-20">
