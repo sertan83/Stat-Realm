@@ -114,10 +114,26 @@ export async function syncUserSteamLibrary(
     recordLogin?: boolean;
   },
 ) {
-  const ownedLibraryResult =
-    options?.games === undefined
-      ? await getOwnedGamesLibrary(steamId).catch(() => null)
-      : null;
+  let ownedLibrary: SteamOwnedGame[];
+  let gameCount: number;
+
+  if (options?.games !== undefined) {
+    ownedLibrary = options.games;
+    gameCount = options.gameCount ?? ownedLibrary.length;
+  } else {
+    try {
+      const ownedLibraryResult = await getOwnedGamesLibrary(steamId);
+      ownedLibrary = ownedLibraryResult.games;
+      gameCount = ownedLibraryResult.gameCount;
+    } catch (error) {
+      console.error(
+        "[StatRealm] Steam library sync failed: could not fetch owned games",
+        { steamId, error },
+      );
+      throw error;
+    }
+  }
+
   const [profile, steamLevel, storedAchievementHistory] = await Promise.all([
     options?.profile === undefined
       ? getAuthenticatedSteamProfile(steamId)
@@ -125,9 +141,6 @@ export async function syncUserSteamLibrary(
     getSteamLevel(steamId).catch(() => null),
     getUserAchievementHistory(steamId),
   ]);
-  const ownedLibrary = options?.games ?? ownedLibraryResult?.games ?? [];
-  const gameCount =
-    options?.gameCount ?? ownedLibraryResult?.gameCount ?? ownedLibrary.length;
   const forceAchievementRefresh =
     options?.forceAchievementRefresh === true ||
     shouldRefreshAchievementHistory(steamId, storedAchievementHistory.length);
