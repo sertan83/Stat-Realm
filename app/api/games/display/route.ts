@@ -32,6 +32,11 @@ function parseVariant(searchParams: URLSearchParams): SteamGameImageVariant {
   return GAME_LIST_IMAGE_VARIANT;
 }
 
+function parseRefresh(searchParams: URLSearchParams) {
+  const rawValue = searchParams.get("refresh");
+  return rawValue === "1" || rawValue === "true";
+}
+
 export async function GET(request: Request) {
   const searchParams = new URL(request.url).searchParams;
   const appIds = parseAppIds(searchParams);
@@ -41,9 +46,10 @@ export async function GET(request: Request) {
   }
 
   const variant = parseVariant(searchParams);
+  const refresh = parseRefresh(searchParams);
   const displays = await resolveGameDisplayBatch(
     appIds.map((appId) => ({ appId })),
-    { imageVariant: variant, persist: true },
+    { imageVariant: variant, persist: true, refresh },
   );
 
   return NextResponse.json(

@@ -10,6 +10,7 @@ import type {
   ResolveGameDisplayOptions,
 } from "@/lib/game-display/types";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
+import { isTrustedStoredGameImageUrl } from "@/lib/steam/game-image-urls";
 import { resolveGameMetadata } from "@/lib/steam/game-metadata";
 import {
   getSteamBannerImageCandidates,
@@ -120,6 +121,16 @@ function isValidGameDisplay(display: GameDisplay) {
   );
 }
 
+function hasTrustedStoredImages(images: StoredGameImages | undefined) {
+  const urls = [
+    ...(images?.card ?? []),
+    ...(images?.capsule ?? []),
+    ...(images?.header ?? []),
+  ];
+
+  return urls.some((url) => isTrustedStoredGameImageUrl(url));
+}
+
 function hasStoredImages(images: StoredGameImages | undefined) {
   return Boolean(
     images?.card?.length || images?.header?.length || images?.capsule?.length,
@@ -218,7 +229,12 @@ export async function resolveGameDisplay(
   }
 
   const stored = await getStoredGameMetadata(appId);
-  if (stored?.name && hasStoredImages(stored.images)) {
+  if (
+    !options?.refresh &&
+    stored?.name &&
+    hasStoredImages(stored.images) &&
+    hasTrustedStoredImages(stored.images)
+  ) {
     const cachedDisplay = toGameDisplay(appId, stored.name, stored.images!, variant);
 
     if (isValidGameDisplay(cachedDisplay)) {
@@ -251,7 +267,12 @@ export async function resolveGameDisplay(
     options?.preferredUrls,
   );
 
-  if (persist) {
+  if (
+    persist &&
+    (storeData !== null ||
+      Boolean(capsuleFilename) ||
+      hasTrustedStoredImages(images))
+  ) {
     await upsertStoredGameMetadata(appId, {
       name,
       capsuleFilename,

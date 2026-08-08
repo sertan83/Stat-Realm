@@ -5,11 +5,12 @@ import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import type { StoredGameImages, StoredGameMetadata } from "@/lib/db/types";
 import {
   buildSteamGameImageCandidateUrls,
+  isTrustedStoredGameImageUrl,
   isUsableGameImageUrl,
 } from "@/lib/steam/game-image-urls";
 import { slugifyGameName } from "@/lib/slugify-game-name";
 
-const IMAGE_ENRICHMENT_BATCH_SIZE = 12;
+const IMAGE_ENRICHMENT_BATCH_SIZE = 20;
 
 type DashboardGameWithImages = {
   id: string;
@@ -44,7 +45,7 @@ export function hasValidStoredGameImages(
     GAME_LIST_IMAGE_VARIANT,
   );
 
-  return candidates.some((candidate) => isUsableGameImageUrl(candidate));
+  return candidates.some((candidate) => isTrustedStoredGameImageUrl(candidate));
 }
 
 function buildCandidatesFromMetadata(
@@ -53,7 +54,9 @@ function buildCandidatesFromMetadata(
   game: DashboardGameWithImages,
 ) {
   const storedImageUrls = metadata?.images
-    ? selectVariantCandidates(metadata.images, GAME_LIST_IMAGE_VARIANT)
+    ? selectVariantCandidates(metadata.images, GAME_LIST_IMAGE_VARIANT).filter(
+        isTrustedStoredGameImageUrl,
+      )
     : [];
 
   return buildSteamGameImageCandidateUrls(appId, {

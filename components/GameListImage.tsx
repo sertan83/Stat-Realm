@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
 import {
   isGenericFallbackImage,
+  isLegacySteamCdnGuessUrl,
+  isTrustedStoredGameImageUrl,
   isUsableGameImageUrl,
 } from "@/lib/steam/game-image-urls";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
@@ -58,8 +60,35 @@ function buildLocalCandidates(
       ...(options.imageCandidates ?? []),
     ],
     capsuleFilename: options.capsuleFilename,
-    storedImageUrls: options.imageCandidates,
+    storedImageUrls: options.imageCandidates?.filter(isTrustedStoredGameImageUrl),
   });
+}
+
+function shouldForceImageRefresh(
+  imageUrl?: string,
+  imageCandidates?: string[],
+  capsuleFilename?: string | null,
+) {
+  if (capsuleFilename?.trim()) {
+    return false;
+  }
+
+  if (isTrustedStoredGameImageUrl(imageUrl)) {
+    return false;
+  }
+
+  if (imageCandidates?.some(isTrustedStoredGameImageUrl)) {
+    return false;
+  }
+
+  return (
+    !imageUrl?.trim() ||
+    isLegacySteamCdnGuessUrl(imageUrl) ||
+    imageCandidates?.every(
+      (candidate) =>
+        isLegacySteamCdnGuessUrl(candidate) || isGenericFallbackImage(candidate),
+    ) === true
+  );
 }
 
 export function GameListImage({
@@ -75,18 +104,25 @@ export function GameListImage({
 }: GameListImageProps) {
   const [candidateIndex, setCandidateIndex] = useState(0);
   const [resolvedCandidates, setResolvedCandidates] = useState<string[]>([]);
+  const [refreshAttempt, setRefreshAttempt] = useState(0);
 
-  useEffect(() => {
-    if (!Number.isInteger(appId) || appId <= 0) {
-      return;
-    }
+  const needsInitialRefresh = useMemo(
+    () =>
+      shouldForceImageRefresh(imageUrl, imageCandidates, capsuleFilename),
+    [capsuleFilename, imageCandidates, imageUrl],
+  );
 
-    let cancelled = false;
+  const fetchResolvedDisplay = useCallback(
+    async (forceRefresh: boolean, cancelled: () => boolean) => {
+      if (!Number.isInteger(appId) || appId <= 0) {
+        return;
+      }
 
-    async function fetchResolvedDisplay() {
       try {
+        const refreshQuery =
+          forceRefresh || needsInitialRefresh ? "&refresh=1" : "";
         const response = await fetch(
-          `/api/games/display?appIds=${appId}&variant=${GAME_LIST_IMAGE_VARIANT}`,
+          `/api/games/display?appIds=${appId}&variant=${GAME_LIST_IMAGE_VARIANT}${refreshQuery}`,
           { cache: "no-store" },
         );
 
@@ -104,7 +140,7 @@ export function GameListImage({
         >;
         const display = payload[String(appId)];
 
-        if (cancelled || !display) {
+        if (cancelled() || !display) {
           return;
         }
 
@@ -116,18 +152,38 @@ export function GameListImage({
 
         if (fetchedCandidates.length > 0) {
           setResolvedCandidates(fetchedCandidates);
+          setCandidateIndex(0);
         }
       } catch {
         // Keep local Steam candidate chain.
       }
-    }
+    },
+    [appId, needsInitialRefresh],
+  );
 
-    void fetchResolvedDisplay();
+  useEffect(() => {
+    let cancelled = false;
+
+    void fetchResolvedDisplay(false, () => cancelled);
 
     return () => {
       cancelled = true;
     };
-  }, [appId]);
+  }, [fetchResolvedDisplay]);
+
+  useEffect(() => {
+    if (refreshAttempt === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void fetchResolvedDisplay(true, () => cancelled);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchResolvedDisplay, refreshAttempt]);
 
   const candidates = useMemo(() => {
     const localCandidates = buildLocalCandidates(appId, {
@@ -138,7 +194,12 @@ export function GameListImage({
     }).filter((candidate) => !isGenericFallbackImage(candidate));
 
     const merged = mergeCandidateLists(
-      resolvedCandidates,
+      resolvedCandidates.filter(isTrustedStoredGameImageUrl),
+      resolvedCandidates.filter(
+        (candidate) =>
+          isUsableGameImageUrl(candidate) &&
+          !isTrustedStoredGameImageUrl(candidate),
+      ),
       localCandidates,
     );
 
@@ -179,6 +240,11 @@ export function GameListImage({
       onError={() => {
         if (candidateIndex + 1 < candidates.length) {
           setCandidateIndex((currentIndex) => currentIndex + 1);
+          return;
+        }
+
+        if (refreshAttempt === 0) {
+          setRefreshAttempt(1);
         }
       }}
     />

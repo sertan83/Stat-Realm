@@ -21,6 +21,7 @@ export type ResolveGameDisplayInput = {
 export type ResolveGameDisplayOptions = {
   steamId?: string | null;
   persist?: boolean;
+  refresh?: boolean;
   imageVariant?: SteamGameImageVariant;
   logoUrl?: string;
   preferredUrls?: string[];

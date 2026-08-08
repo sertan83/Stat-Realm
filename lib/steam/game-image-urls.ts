@@ -69,6 +69,53 @@ export function isGenericFallbackImage(url: string | undefined | null) {
   );
 }
 
+const LEGACY_STEAM_CDN_GUESS_PATTERN =
+  /\/steam\/apps\/\d+\/(?:header|library_hero|hero|library_capsule|capsule_\d+x\d+|icon)\.jpg$/i;
+
+export function isLegacySteamCdnGuessUrl(url: string | undefined | null) {
+  const normalized = url?.trim();
+  if (!normalized || normalized.startsWith("/")) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(normalized);
+
+    if (parsed.pathname.includes("/store_item_assets/")) {
+      return false;
+    }
+
+    return (
+      /steamstatic\.com|akamaihd\.net|akamai\.steamstatic\.com/i.test(
+        parsed.hostname,
+      ) && LEGACY_STEAM_CDN_GUESS_PATTERN.test(parsed.pathname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function isTrustedStoredGameImageUrl(url: string | undefined | null) {
+  const normalized = url?.trim();
+  if (!normalized || isGenericFallbackImage(normalized)) {
+    return false;
+  }
+
+  if (isLegacySteamCdnGuessUrl(normalized)) {
+    return false;
+  }
+
+  if (normalized.includes("/store_item_assets/steam/apps/")) {
+    return true;
+  }
+
+  if (/media\.steamstatic\.com/i.test(normalized)) {
+    return true;
+  }
+
+  return !normalized.startsWith("/");
+}
+
 export function isUsableGameImageUrl(url: string | undefined | null) {
   const normalized = url?.trim();
   if (!normalized) {
@@ -109,6 +156,26 @@ function appendStoreAssetUrls(
   appendUnique(urls, seen, `${LEGACY_STEAM_CDN}/steam/apps/${appId}/${filename}`);
   appendUnique(urls, seen, `${STEAM_AKAMAI_CDN}/steam/apps/${appId}/${filename}`);
   appendUnique(urls, seen, `${STEAM_CLOUD_CDN}/steam/apps/${appId}/${filename}`);
+}
+
+function sortCandidatesByTrust(urls: string[]) {
+  const fallback = urls.filter(isGenericFallbackImage);
+  const nonFallback = urls.filter((url) => !isGenericFallbackImage(url));
+  const trusted: string[] = [];
+  const legacy: string[] = [];
+  const other: string[] = [];
+
+  for (const url of nonFallback) {
+    if (isTrustedStoredGameImageUrl(url)) {
+      trusted.push(url);
+    } else if (isLegacySteamCdnGuessUrl(url)) {
+      legacy.push(url);
+    } else {
+      other.push(url);
+    }
+  }
+
+  return [...trusted, ...other, ...legacy, ...fallback];
 }
 
 export function buildSteamGameImageCandidateUrls(
@@ -160,5 +227,5 @@ export function buildSteamGameImageCandidateUrls(
     appendUnique(urls, seen, DEFAULT_GAME_FALLBACK_IMAGE);
   }
 
-  return urls;
+  return sortCandidatesByTrust(urls);
 }
