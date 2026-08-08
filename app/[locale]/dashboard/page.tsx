@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { after } from "next/server";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
@@ -7,30 +8,29 @@ import {
   RecentlyPlayed,
 } from "@/components/dashboard/DashboardGames";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
-import { PlaytimeAnalytics } from "@/components/dashboard/PlaytimeAnalytics";
+import {
+  DashboardPlaytimeAnalyticsSection,
+  DashboardPlaytimeAnalyticsSkeleton,
+  DashboardRecentAchievementsSection,
+  DashboardRecentAchievementsSkeleton,
+} from "@/components/dashboard/DashboardDeferredSections";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
 import { DashboardSyncRefresh } from "@/components/dashboard/DashboardSyncRefresh";
 import {
   type SteamOwnedGame,
 } from "@/lib/steam/api";
 import { getGenrePlaytimeSummary, shouldScheduleGenreSync } from "@/lib/steam/genre-sync";
-import { resolveDashboardAchievementHistory } from "@/lib/steam/achievement-history";
 import { syncUserSteamLibrary } from "@/lib/steam/library-sync";
 import { enrichMissingDashboardGameImagesInBackground } from "@/lib/dashboard/background-game-images";
+import {
+  loadDashboardCoreSnapshot,
+} from "@/lib/dashboard/load-snapshot";
 import {
   applyStoredMetadataToDashboardGame,
   collectUniqueDashboardGames,
   selectGamesForBackgroundImageEnrichment,
 } from "@/lib/dashboard/game-images";
-import {
-  getStatRealmUser,
-  getStoredGameMetadataForAppIds,
-  getUserAchievementHistory,
-  getUserLibrary,
-  getUserProfileAnalytics,
-  saveUserProfileAnalytics,
-} from "@/lib/db";
+import { saveUserProfileAnalytics } from "@/lib/db";
 import type { StatRealmUserStats, UserLibraryGame } from "@/lib/db/types";
 import {
   refreshSteamProfilesFromApi,
@@ -39,8 +39,6 @@ import {
   userNeedsProfileRefresh,
 } from "@/lib/steam/profile-sync";
 import {
-  buildCompletionOverviewFromLibrary,
-  normalizeStoredGenrePlaytime,
   toDashboardGameFromLibraryGame,
 } from "@/lib/user/profile-snapshot";
 import {
@@ -247,35 +245,15 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const steamGameCategory = tDashboard("steamGameCategory");
 
   const dataFetchStartedAt = performance.now();
-  const [
-    storedUserResult,
-    storedLibraryResult,
-    profileAnalyticsResult,
-    achievementHistoryResult,
-  ] = await Promise.allSettled([
-    measureDashboardStep("getStatRealmUser", steamId, () =>
-      getStatRealmUser(steamId),
-    ),
-    measureDashboardStep("getUserLibrary", steamId, () =>
-      getUserLibrary(steamId),
-    ),
-    measureDashboardStep("getUserProfileAnalytics", steamId, () =>
-      getUserProfileAnalytics(steamId),
-    ),
-    measureDashboardStep("getUserAchievementHistory", steamId, () =>
-      getUserAchievementHistory(steamId),
-    ),
-  ]);
+  const coreSnapshot = await measureDashboardStep(
+    "loadDashboardCoreSnapshot",
+    steamId,
+    () => loadDashboardCoreSnapshot(steamId),
+  );
   logDashboardStepDuration("parallel:dataFetch", steamId, dataFetchStartedAt);
 
-  const storedUser =
-    storedUserResult.status === "fulfilled" ? storedUserResult.value : null;
-  const storedLibrary =
-    storedLibraryResult.status === "fulfilled" ? storedLibraryResult.value : [];
-  const storedAchievementHistory =
-    achievementHistoryResult.status === "fulfilled"
-      ? achievementHistoryResult.value
-      : [];
+  const storedUser = coreSnapshot.user;
+  const storedLibrary = coreSnapshot.library;
   const storedStatsSnapshot = normalizeUserStats(
     storedUser?.stats ?? createEmptyUserStats(),
   );
@@ -284,10 +262,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     storedStatsSnapshot,
   );
   const hasLibraryData = hasStoredLibraryData;
-  const profileAnalytics =
-    profileAnalyticsResult.status === "fulfilled"
-      ? profileAnalyticsResult.value
-      : null;
+  const profileAnalytics = coreSnapshot.profileAnalytics;
   const initialLastSyncedAt = storedUser?.lastSyncedAt ?? null;
   const initialProfileAnalyticsSyncedAt = profileAnalytics?.syncedAt ?? null;
   const initialRefreshMarker = getLatestIsoTimestamp([
@@ -420,42 +395,22 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     : [];
   let mostPlayedCatalog = hasStoredLibraryData
     ? buildMostPlayedCatalogFromLibrary(
-        storedLibrary,
+        coreSnapshot.mostPlayedLibrary,
         formatters,
         steamGameCategory,
       )
     : [];
-  const dashboardAppIds = collectUniqueDashboardGames(
-    recentlyPlayed,
-    mostPlayedCatalog,
-  )
-    .map((game) => Number(game.id))
-    .filter((appId) => Number.isInteger(appId) && appId > 0);
-  const storedGameMetadataByAppId =
-    dashboardAppIds.length > 0
-      ? await measureDashboardStep(
-          "getStoredGameMetadataForAppIds",
-          steamId,
-          () => getStoredGameMetadataForAppIds(dashboardAppIds),
-        )
-      : new Map();
   recentlyPlayed = recentlyPlayed.map((game) =>
-    applyStoredMetadataToDashboardGame(
-      game,
-      storedGameMetadataByAppId.get(Number(game.id)),
-    ),
+    applyStoredMetadataToDashboardGame(game, undefined),
   );
   mostPlayedCatalog = mostPlayedCatalog.map((game) =>
-    applyStoredMetadataToDashboardGame(
-      game,
-      storedGameMetadataByAppId.get(Number(game.id)),
-    ),
+    applyStoredMetadataToDashboardGame(game, undefined),
   );
   const gamesNeedingImageEnrichment = selectGamesForBackgroundImageEnrichment(
     recentlyPlayed,
     mostPlayedCatalog,
     collectUniqueDashboardGames(recentlyPlayed, mostPlayedCatalog),
-    storedGameMetadataByAppId,
+    new Map(),
   );
   const imageEnrichmentScheduled = gamesNeedingImageEnrichment.length > 0;
   logDashboardStepDuration("buildGameLists", steamId, buildGameListsStartedAt);
@@ -497,30 +452,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     );
   }
 
-  const recentAchievementState = await measureDashboardStep(
-    "resolveDashboardAchievementHistory",
-    steamId,
-    () =>
-      resolveDashboardAchievementHistory({
-        steamId,
-        summary: null,
-        storedHistory: storedAchievementHistory,
-      }),
-  );
-  const realCompletionOverview =
-    buildCompletionOverviewFromLibrary(storedLibrary);
-  const realGenrePlaytime = normalizeStoredGenrePlaytime(
-    profileAnalytics?.genrePlaytime,
-  );
   const syncedStats = enrichStatsFromStoredLibrary(
     normalizeUserStats(storedUser?.stats ?? createEmptyUserStats()),
     storedLibrary,
   );
-  const showAchievementEmptyState =
-    recentAchievementState.showEmptyState ||
-    (recentAchievementState.achievements.length === 0 &&
-      syncedStats.achievementTotalsStatus === "complete" &&
-      (syncedStats.totalUnlockedAchievements ?? 0) === 0);
   const profileMetrics = buildDashboardMetricsFromSyncedStats(
     syncedStats,
     hasLibraryData,
@@ -568,16 +503,14 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
           <div className="grid gap-12 lg:grid-cols-2">
             <MostPlayedGames games={mostPlayedCatalog} />
-            <RecentAchievements
-              achievements={recentAchievementState.achievements}
-              showEmptyState={showAchievementEmptyState}
-            />
+            <Suspense fallback={<DashboardRecentAchievementsSkeleton />}>
+              <DashboardRecentAchievementsSection steamId={steamId} />
+            </Suspense>
           </div>
 
-          <PlaytimeAnalytics
-            genres={realGenrePlaytime}
-            completion={realCompletionOverview}
-          />
+          <Suspense fallback={<DashboardPlaytimeAnalyticsSkeleton />}>
+            <DashboardPlaytimeAnalyticsSection steamId={steamId} />
+          </Suspense>
 
           <QuickActions profileUrl={profileUrl} />
         </div>

@@ -77,6 +77,15 @@ export async function persistAchievementHistory(
   );
 }
 
+export function buildDashboardAchievementsFromStored(
+  storedHistory: StoredUnlockedAchievement[],
+) {
+  return {
+    achievements: toDashboardAchievements(storedHistory),
+    showEmptyState: storedHistory.length === 0,
+  };
+}
+
 export async function resolveDashboardAchievementHistory({
   steamId,
   summary,

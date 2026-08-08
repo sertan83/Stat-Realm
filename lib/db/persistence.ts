@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { mkdir, readFile, rename, writeFile } from "fs/promises";
 import path from "path";
 import {
@@ -124,7 +125,7 @@ async function writeDbToFile(db: StatRealmDb) {
   await rename(tempPath, DB_FILE_PATH);
 }
 
-export async function readPersistedDb(): Promise<StatRealmDb> {
+async function fetchPersistedDbFromStorage(): Promise<StatRealmDb> {
   const kvConfig = getKvRestConfig();
 
   if (kvConfig) {
@@ -154,6 +155,13 @@ export async function readPersistedDb(): Promise<StatRealmDb> {
   }
 
   return globalState.__statrealmDb;
+}
+
+/** One persisted DB fetch per request (dedupes parallel dashboard reads). */
+export const getPersistedDbSnapshot = cache(fetchPersistedDbFromStorage);
+
+export async function readPersistedDb(): Promise<StatRealmDb> {
+  return getPersistedDbSnapshot();
 }
 
 export async function writePersistedDb(db: StatRealmDb) {
