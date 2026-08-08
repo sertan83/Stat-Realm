@@ -6,6 +6,10 @@ import type { SteamGameImageVariant } from "@/lib/game-display/types";
 import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import type { GameImageRole } from "@/lib/steam/game-image-cache";
 import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
+import {
+  isGenericFallbackImage,
+  isUsableGameImageUrl,
+} from "@/lib/steam/game-image-urls";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import { reportSuccessfulGameImage } from "@/lib/steam/report-game-image-cache";
 import { cn } from "@/lib/utils";
@@ -18,11 +22,31 @@ type SteamGameImageByAppIdProps = {
   variant?: SteamGameImageVariant;
   initialCandidates?: string[];
   preferredUrls?: Array<string | null | undefined>;
+  capsuleFilename?: string | null;
   unoptimized?: boolean;
   priority?: boolean;
   imageCacheRole?: GameImageRole;
   wrapperClassName?: string;
 };
+
+function mergeCandidateLists(...lists: string[][]) {
+  const seen = new Set<string>();
+  const merged: string[] = [];
+
+  for (const list of lists) {
+    for (const url of list) {
+      const normalized = url?.trim();
+      if (!normalized || seen.has(normalized)) {
+        continue;
+      }
+
+      seen.add(normalized);
+      merged.push(normalized);
+    }
+  }
+
+  return merged;
+}
 
 function selectVariantCandidates(
   payload: {
@@ -51,6 +75,7 @@ export function SteamGameImageByAppId({
   variant = GAME_LIST_IMAGE_VARIANT,
   initialCandidates = [],
   preferredUrls = [],
+  capsuleFilename,
   unoptimized = false,
   priority = false,
   imageCacheRole,
@@ -60,6 +85,10 @@ export function SteamGameImageByAppId({
   const [candidateIndex, setCandidateIndex] = useState(0);
 
   useEffect(() => {
+    if (!Number.isInteger(appId) || appId <= 0) {
+      return;
+    }
+
     let cancelled = false;
 
     async function fetchResolvedDisplay() {
@@ -76,6 +105,7 @@ export function SteamGameImageByAppId({
         const payload = (await response.json()) as Record<
           string,
           {
+            imageUrl?: string;
             imageCandidates: string[];
             headerImageCandidates: string[];
             capsuleImageCandidates: string[];
@@ -83,18 +113,21 @@ export function SteamGameImageByAppId({
         >;
         const display = payload[String(appId)];
 
-        if (!cancelled && display) {
-          const candidates =
-            display.imageCandidates.length > 0
-              ? display.imageCandidates
-              : selectVariantCandidates(display, variant);
+        if (cancelled || !display) {
+          return;
+        }
 
-          if (candidates.length > 0) {
-            setResolvedCandidates(candidates);
-          }
+        const fetchedCandidates = mergeCandidateLists(
+          display.imageUrl ? [display.imageUrl] : [],
+          selectVariantCandidates(display, variant),
+          display.imageCandidates ?? [],
+        ).filter(isUsableGameImageUrl);
+
+        if (fetchedCandidates.length > 0) {
+          setResolvedCandidates(fetchedCandidates);
         }
       } catch {
-        // Keep local fallback chain until a later retry or navigation refresh.
+        // Keep local Steam candidate chain.
       }
     }
 
@@ -106,19 +139,36 @@ export function SteamGameImageByAppId({
   }, [appId, variant]);
 
   const candidates = useMemo(() => {
-    if (resolvedCandidates.length > 0) {
-      return resolvedCandidates;
-    }
-
-    if (initialCandidates.length > 0) {
-      return initialCandidates;
-    }
-
-    return buildSteamGameImageCandidates(appId, {
+    const localCandidates = buildSteamGameImageCandidates(appId, {
       variant,
       preferredUrls,
-    });
-  }, [appId, initialCandidates, preferredUrls, resolvedCandidates, variant]);
+      capsuleFilename,
+      storedImageUrls: initialCandidates,
+    }).filter((candidate) => !isGenericFallbackImage(candidate));
+
+    const merged = mergeCandidateLists(
+      resolvedCandidates,
+      initialCandidates.filter(isUsableGameImageUrl),
+      localCandidates,
+    );
+
+    if (merged.length === 0) {
+      return [DEFAULT_GAME_FALLBACK_IMAGE];
+    }
+
+    if (!merged.includes(DEFAULT_GAME_FALLBACK_IMAGE)) {
+      merged.push(DEFAULT_GAME_FALLBACK_IMAGE);
+    }
+
+    return merged;
+  }, [
+    appId,
+    capsuleFilename,
+    initialCandidates,
+    preferredUrls,
+    resolvedCandidates,
+    variant,
+  ]);
 
   useEffect(() => {
     setCandidateIndex(0);

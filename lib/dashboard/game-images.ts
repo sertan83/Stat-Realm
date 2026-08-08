@@ -1,8 +1,12 @@
 import "server-only";
 
+import { getStoredGameMetadataForAppIds } from "@/lib/db";
 import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
 import type { StoredGameImages, StoredGameMetadata } from "@/lib/db/types";
-import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
+import {
+  buildSteamGameImageCandidateUrls,
+  isUsableGameImageUrl,
+} from "@/lib/steam/game-image-urls";
 import { slugifyGameName } from "@/lib/slugify-game-name";
 
 const IMAGE_ENRICHMENT_BATCH_SIZE = 12;
@@ -14,19 +18,8 @@ type DashboardGameWithImages = {
   imageUrl: string;
   imageFallbackUrl?: string;
   imageCandidates?: string[];
+  capsuleFilename?: string;
 };
-
-function isUsableImageUrl(url: string | undefined) {
-  const normalized = url?.trim();
-  if (!normalized) {
-    return false;
-  }
-
-  return (
-    normalized !== DEFAULT_GAME_FALLBACK_IMAGE &&
-    !normalized.startsWith("/images/game-image-fallback")
-  );
-}
 
 function selectVariantCandidates(
   images: StoredGameImages,
@@ -51,42 +44,86 @@ export function hasValidStoredGameImages(
     GAME_LIST_IMAGE_VARIANT,
   );
 
-  return candidates.some((candidate) => isUsableImageUrl(candidate));
+  return candidates.some((candidate) => isUsableGameImageUrl(candidate));
+}
+
+function buildCandidatesFromMetadata(
+  appId: number,
+  metadata: StoredGameMetadata | undefined,
+  game: DashboardGameWithImages,
+) {
+  const storedImageUrls = metadata?.images
+    ? selectVariantCandidates(metadata.images, GAME_LIST_IMAGE_VARIANT)
+    : [];
+
+  return buildSteamGameImageCandidateUrls(appId, {
+    variant: GAME_LIST_IMAGE_VARIANT,
+    preferredUrls: [
+      game.imageUrl,
+      game.imageFallbackUrl,
+      ...(game.imageCandidates ?? []),
+    ],
+    capsuleFilename: metadata?.capsuleFilename,
+    storedImageUrls,
+    includeGenericFallback: false,
+  }).filter(isUsableGameImageUrl);
 }
 
 export function applyStoredMetadataToDashboardGame<
   T extends DashboardGameWithImages,
 >(game: T, metadata: StoredGameMetadata | undefined): T {
-  if (!hasValidStoredGameImages(metadata) || !metadata) {
+  const appId = Number(game.id);
+  const candidates =
+    Number.isInteger(appId) && appId > 0
+      ? buildCandidatesFromMetadata(appId, metadata, game)
+      : [];
+
+  if (candidates.length === 0) {
     return game;
   }
 
-  const candidates = selectVariantCandidates(
-    metadata.images!,
-    GAME_LIST_IMAGE_VARIANT,
-  ).filter((candidate) => isUsableImageUrl(candidate));
-  const imageUrl = candidates[0] ?? game.imageUrl;
-
   return {
     ...game,
-    title: metadata.name.trim() || game.title,
-    slug: slugifyGameName(metadata.name.trim() || game.title),
-    imageUrl,
+    title: metadata?.name.trim() || game.title,
+    slug: slugifyGameName(metadata?.name.trim() || game.title),
+    imageUrl: candidates[0] ?? game.imageUrl,
     imageFallbackUrl: candidates[1] ?? game.imageFallbackUrl,
-    imageCandidates: candidates.length > 0 ? candidates : game.imageCandidates,
+    imageCandidates: candidates,
+    capsuleFilename: metadata?.capsuleFilename ?? game.capsuleFilename,
   };
+}
+
+export async function applyStoredMetadataToDashboardGames<
+  T extends DashboardGameWithImages,
+>(games: T[]): Promise<T[]> {
+  const appIds = games
+    .map((game) => Number(game.id))
+    .filter((appId) => Number.isInteger(appId) && appId > 0);
+
+  if (appIds.length === 0) {
+    return games;
+  }
+
+  const metadataByAppId = await getStoredGameMetadataForAppIds(appIds);
+
+  return games.map((game) =>
+    applyStoredMetadataToDashboardGame(
+      game,
+      metadataByAppId.get(Number(game.id)),
+    ),
+  );
 }
 
 export function dashboardGameNeedsImageEnrichment(
   game: DashboardGameWithImages,
+  metadata?: StoredGameMetadata,
 ) {
-  if (isUsableImageUrl(game.imageUrl)) {
+  if (hasValidStoredGameImages(metadata)) {
     return false;
   }
 
-  return !game.imageCandidates?.some((candidate) =>
-    isUsableImageUrl(candidate),
-  );
+  const appId = Number(game.id);
+  return Number.isInteger(appId) && appId > 0;
 }
 
 export function collectUniqueDashboardGames<
@@ -109,6 +146,7 @@ export function selectGamesForBackgroundImageEnrichment<
   recentlyPlayed: T[],
   mostPlayedCatalog: T[],
   candidates: T[],
+  metadataByAppId: Map<number, StoredGameMetadata>,
 ) {
   const priorityById = new Map<string, number>();
 
@@ -122,7 +160,12 @@ export function selectGamesForBackgroundImageEnrichment<
   });
 
   return candidates
-    .filter((game) => dashboardGameNeedsImageEnrichment(game))
+    .filter((game) =>
+      dashboardGameNeedsImageEnrichment(
+        game,
+        metadataByAppId.get(Number(game.id)),
+      ),
+    )
     .sort(
       (first, second) =>
         (priorityById.get(first.id) ?? Number.MAX_SAFE_INTEGER) -

@@ -24,6 +24,7 @@ export type DashboardGame = Game & {
   completion: number | null;
   completionStatus?: "complete" | "unsupported" | "unavailable";
   imageFallbackUrl?: string;
+  capsuleFilename?: string;
 };
 
 export type ProfileMostPlayedGame = DashboardGame & {

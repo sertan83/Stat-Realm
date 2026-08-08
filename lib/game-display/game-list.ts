@@ -7,6 +7,7 @@ import {
   resolveGameDisplayBatch,
 } from "@/lib/game-display/resolve";
 import type { ResolveGameDisplayInput } from "@/lib/game-display/types";
+import { buildSteamGameImageCandidateUrls } from "@/lib/steam/game-image-urls";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 import type { Game } from "@/types/game";
 
@@ -54,14 +55,27 @@ export function mapGameListDisplayToGame(
   display: GameListDisplayFields | undefined,
   fallbacks: { title?: string; category?: string } = {},
 ): Game {
+  const heuristicCandidates = buildSteamGameImageCandidateUrls(appId, {
+    variant: GAME_LIST_IMAGE_VARIANT,
+    preferredUrls: display
+      ? [display.imageUrl, ...(display.imageCandidates ?? [])]
+      : [],
+    includeGenericFallback: false,
+  });
+
   return {
     id: String(appId),
     title: display?.gameName || fallbacks.title || "",
     slug: display?.slug || String(appId),
-    imageUrl: display?.imageUrl || DEFAULT_GAME_FALLBACK_IMAGE,
+    imageUrl:
+      display?.imageUrl ||
+      heuristicCandidates[0] ||
+      DEFAULT_GAME_FALLBACK_IMAGE,
     imageCandidates: display?.imageCandidates?.length
       ? display.imageCandidates
-      : [DEFAULT_GAME_FALLBACK_IMAGE],
+      : heuristicCandidates.length > 0
+        ? heuristicCandidates
+        : [DEFAULT_GAME_FALLBACK_IMAGE],
     category: fallbacks.category ?? "",
   };
 }

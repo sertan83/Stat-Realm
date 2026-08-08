@@ -7,7 +7,7 @@ import {
   formatPlaytime,
 } from "@/lib/steam/api";
 import type { IntlFormatters } from "@/lib/i18n/formatters";
-import { enrichDashboardGamesWithSteamImages } from "@/lib/steam/game-images";
+import { applyStoredMetadataToDashboardGames } from "@/lib/dashboard/game-images";
 import type {
   CompletionOverview,
   DashboardGame,
@@ -153,7 +153,7 @@ export async function buildRecentlyPlayedFromLibrary(
           .slice(0, 5)
           .map(mapGame);
 
-  return enrichDashboardGamesWithSteamImages(baseGames);
+  return applyStoredMetadataToDashboardGames(baseGames);
 }
 
 export async function buildMostPlayedFromLibrary(
@@ -168,7 +168,7 @@ export async function buildMostPlayedFromLibrary(
       toDashboardGameFromLibraryGame(game, formatters, steamGameCategory),
     );
 
-  return enrichDashboardGamesWithSteamImages(games);
+  return applyStoredMetadataToDashboardGames(games);
 }
 
 export async function buildProfileMostPlayedCatalog(
@@ -186,7 +186,7 @@ export async function buildProfileMostPlayedCatalog(
       playtimeTwoWeeksMinutes: game.playtimeTwoWeeksMinutes,
     }));
 
-  return enrichDashboardGamesWithSteamImages(games);
+  return applyStoredMetadataToDashboardGames(games);
 }
 
 export function normalizeStoredGenrePlaytime(

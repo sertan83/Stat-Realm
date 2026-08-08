@@ -73,6 +73,7 @@ export function DashboardGameCard({
           imageUrl={game.imageUrl}
           imageCandidates={game.imageCandidates}
           preferredUrls={[game.imageUrl, game.imageFallbackUrl]}
+          capsuleFilename={game.capsuleFilename}
           sizes={compact ? "128px" : "280px"}
           className="object-cover transition duration-300 group-hover:brightness-110"
         />

@@ -455,6 +455,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     recentlyPlayed,
     mostPlayedCatalog,
     collectUniqueDashboardGames(recentlyPlayed, mostPlayedCatalog),
+    storedGameMetadataByAppId,
   );
   const imageEnrichmentScheduled = gamesNeedingImageEnrichment.length > 0;
   logDashboardStepDuration("buildGameLists", steamId, buildGameListsStartedAt);

@@ -6,6 +6,7 @@ import {
   type GameDisplay,
 } from "@/lib/game-display/resolve";
 import type { SteamGameImageVariant } from "@/lib/game-display/types";
+import { buildSteamGameImageCandidateUrls } from "@/lib/steam/game-image-urls";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
 
 function selectVariantCandidates(
@@ -52,15 +53,35 @@ export async function attachGameDisplay<
   return entries.map((entry) => {
     const display =
       displays.get(entry.appId) ??
-      ({
-        appId: entry.appId,
-        name: "",
-        slug: String(entry.appId),
-        imageUrl: DEFAULT_GAME_FALLBACK_IMAGE,
-        imageCandidates: [DEFAULT_GAME_FALLBACK_IMAGE],
-        headerImageCandidates: [DEFAULT_GAME_FALLBACK_IMAGE],
-        capsuleImageCandidates: [DEFAULT_GAME_FALLBACK_IMAGE],
-      } satisfies GameDisplay);
+      (() => {
+        const heuristicCandidates = buildSteamGameImageCandidateUrls(
+          entry.appId,
+          {
+            variant,
+            includeGenericFallback: false,
+          },
+        );
+
+        return {
+          appId: entry.appId,
+          name: "",
+          slug: String(entry.appId),
+          imageUrl:
+            heuristicCandidates[0] ?? DEFAULT_GAME_FALLBACK_IMAGE,
+          imageCandidates:
+            heuristicCandidates.length > 0
+              ? heuristicCandidates
+              : [DEFAULT_GAME_FALLBACK_IMAGE],
+          headerImageCandidates:
+            heuristicCandidates.length > 0
+              ? heuristicCandidates
+              : [DEFAULT_GAME_FALLBACK_IMAGE],
+          capsuleImageCandidates:
+            heuristicCandidates.length > 0
+              ? heuristicCandidates
+              : [DEFAULT_GAME_FALLBACK_IMAGE],
+        } satisfies GameDisplay;
+      })();
 
     return {
       ...entry,
