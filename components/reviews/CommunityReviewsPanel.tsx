@@ -8,6 +8,7 @@ import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
 import { voteReviewHelpfulAction } from "@/app/actions/game-reviews";
 import { Link, useRouter } from "@/i18n/navigation";
 import { buildCommunityReviewsHref } from "@/lib/reviews/community-reviews-params";
+import { buildMyReviewsHref } from "@/lib/reviews/my-reviews-params";
 import type {
   CommunityReviewEntry,
   CommunityReviewsPageData,
@@ -19,7 +20,7 @@ type CommunityReviewsPanelProps = {
   locale: string;
   isAuthenticated: boolean;
   translationsNamespace?: "reviewsPage" | "myReviewsPage";
-  buildPageHref?: (input: { page?: number }) => string;
+  paginationVariant?: "community" | "my";
 };
 
 function formatReviewDate(value: string, locale: string) {
@@ -46,7 +47,7 @@ export function CommunityReviewsPanel({
   locale,
   isAuthenticated,
   translationsNamespace = "reviewsPage",
-  buildPageHref = buildCommunityReviewsHref,
+  paginationVariant = "community",
 }: CommunityReviewsPanelProps) {
   const t = useTranslations(translationsNamespace);
   const tGameReviews = useTranslations("gameReviews");
@@ -54,6 +55,8 @@ export function CommunityReviewsPanel({
   const [reviews, setReviews] = useState(data.reviews);
   const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const buildPageHref =
+    paginationVariant === "my" ? buildMyReviewsHref : buildCommunityReviewsHref;
 
   useEffect(() => {
     setReviews(data.reviews);

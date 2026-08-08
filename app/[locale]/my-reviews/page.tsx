@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
 import { CommunityReviewsPanel } from "@/components/reviews/CommunityReviewsPanel";
 import { redirect } from "@/i18n/navigation";
-import { parseMyReviewsQuery, buildMyReviewsHref } from "@/lib/reviews/my-reviews-params";
+import { parseMyReviewsQuery } from "@/lib/reviews/my-reviews-params";
 import { loadMyReviewsPage } from "@/lib/reviews/my-reviews-page";
 
 type MyReviewsPageProps = {
@@ -70,7 +70,7 @@ export default async function MyReviewsPage({
               locale={locale}
               isAuthenticated
               translationsNamespace="myReviewsPage"
-              buildPageHref={buildMyReviewsHref}
+              paginationVariant="my"
             />
           </div>
         </div>
