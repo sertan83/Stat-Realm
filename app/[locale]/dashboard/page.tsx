@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { after } from "next/server";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
+
+export const dynamic = "force-dynamic";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import {
   MostPlayedGames,

@@ -184,7 +184,6 @@ export function GameReviewsSection({
           appId,
           rating: Number(ratingValue),
           reviewText,
-          gameName,
         });
         navigateReviews({ page: 1 });
       } catch (error) {

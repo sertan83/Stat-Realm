@@ -10,6 +10,12 @@ import {
 import { routing } from "@/i18n/routing";
 import { normalizeOptionalReviewText } from "@/lib/reviews/sanitize";
 import { userOwnsGameInLibrary } from "@/lib/reviews/library-ownership";
+import { parseRatingKey } from "@/lib/security/rating-key";
+import {
+  assertHelpfulVoteRateLimit,
+} from "@/lib/security/request";
+import { RateLimitError } from "@/lib/security/rate-limit";
+import { resolveGameDisplayName } from "@/lib/steam/game-metadata";
 import type { ReviewFilterOption, ReviewSortOption } from "@/lib/reviews/types";
 
 function parseRating(value: number) {
@@ -45,7 +51,6 @@ export async function submitGameReviewAction(input: {
   appId: number;
   rating: number;
   reviewText?: string | null;
-  gameName?: string;
 }) {
   const session = await auth();
   const steamId = session?.user?.steamId;
@@ -63,12 +68,14 @@ export async function submitGameReviewAction(input: {
     throw new Error("GAME_NOT_IN_LIBRARY");
   }
 
+  const gameName = await resolveGameDisplayName(appId, { steamId });
+
   await upsertGameRating({
     steamId,
     appId,
     rating,
     reviewText,
-    gameName: input.gameName,
+    gameName,
   });
 
   revalidateGameReviewPaths(appId);
@@ -98,13 +105,23 @@ export async function voteReviewHelpfulAction(ratingKey: string, appId: number) 
   }
 
   const parsedAppId = parseAppId(appId);
-  const [ratingSteamId] = ratingKey.split(":");
+  const { ratingSteamId } = parseRatingKey(ratingKey, parsedAppId);
 
   if (ratingSteamId === steamId) {
     throw new Error("CANNOT_VOTE_OWN_REVIEW");
   }
 
-  await markReviewHelpful(steamId, ratingKey);
+  try {
+    assertHelpfulVoteRateLimit(steamId);
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      throw new Error("RATE_LIMIT_HOURLY");
+    }
+
+    throw error;
+  }
+
+  await markReviewHelpful(steamId, `${ratingSteamId}:${parsedAppId}`);
   revalidateGameReviewPaths(parsedAppId);
 }
 

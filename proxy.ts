@@ -41,6 +41,8 @@ function isProtectedAuthPath(pathname: string) {
   const normalizedPath = stripLocalePrefix(pathname);
 
   return (
+    normalizedPath === "/dashboard" ||
+    normalizedPath.startsWith("/dashboard/") ||
     normalizedPath === "/friends" ||
     normalizedPath.startsWith("/friends/") ||
     normalizedPath === "/my-ratings" ||
