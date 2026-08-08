@@ -480,6 +480,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
                 gameName={personalizedDetails.game.title}
                 initialData={reviewsData}
                 isAuthenticated={isAuthenticated}
+                canSubmitReview={Boolean(syncedGame)}
                 locale={locale}
                 sort={reviewsQuery.sort}
                 filter={reviewsQuery.filter}

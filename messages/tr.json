@@ -442,6 +442,7 @@
     "saveChanges": "Değişiklikleri kaydet",
     "deleteReview": "Puanı sil",
     "signInToRate": "Bu oyunu puanlamak ve yorum yazmak için Steam ile giriş yap.",
+    "libraryRequired": "Yalnızca Steam kütüphanendeki oyunları puanlayabilir ve yorum yazabilirsin.",
     "sortLabel": "Yorumları sırala",
     "filterLabel": "Yorumları filtrele",
     "noReviewsFound": "Bu filtrelerle eşleşen yorum yok.",
@@ -468,7 +469,8 @@
       "generic": "Bir şeyler ters gitti. Lütfen tekrar dene.",
       "unauthorized": "Devam etmek için Steam ile giriş yap.",
       "rateLimitInterval": "Başka bir puan göndermeden önce lütfen biraz bekle.",
-      "rateLimitHourly": "Saatlik puan limitine ulaştın. Lütfen daha sonra tekrar dene."
+      "rateLimitHourly": "Saatlik puan limitine ulaştın. Lütfen daha sonra tekrar dene.",
+      "libraryRequired": "Yalnızca Steam kütüphanendeki oyunları puanlayabilir ve yorum yazabilirsin."
     }
   },
   "profileReviews": {

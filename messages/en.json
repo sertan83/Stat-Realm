@@ -442,6 +442,7 @@
     "saveChanges": "Save changes",
     "deleteReview": "Delete rating",
     "signInToRate": "Sign in with Steam to rate this game and write a review.",
+    "libraryRequired": "You can only rate and review games in your Steam library.",
     "sortLabel": "Sort reviews",
     "filterLabel": "Filter reviews",
     "noReviewsFound": "No reviews match these filters yet.",
@@ -468,7 +469,8 @@
       "generic": "Something went wrong. Please try again.",
       "unauthorized": "Sign in with Steam to continue.",
       "rateLimitInterval": "Please wait a moment before submitting another rating.",
-      "rateLimitHourly": "You have reached the hourly rating limit. Please try again later."
+      "rateLimitHourly": "You have reached the hourly rating limit. Please try again later.",
+      "libraryRequired": "You can only rate and review games in your Steam library."
     }
   },
   "profileReviews": {

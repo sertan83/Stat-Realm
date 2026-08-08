@@ -27,6 +27,7 @@ type GameReviewsSectionProps = {
   filter: ReviewFilterOption;
   page: number;
   highlightReviewKey?: string | null;
+  canSubmitReview?: boolean;
 };
 
 const sortOptions: ReviewSortOption[] = [
@@ -103,6 +104,7 @@ export function GameReviewsSection({
   filter,
   page,
   highlightReviewKey = null,
+  canSubmitReview = false,
 }: GameReviewsSectionProps) {
   const t = useTranslations("gameReviews");
   const router = useRouter();
@@ -193,6 +195,8 @@ export function GameReviewsSection({
           setFormError(t("errors.rateLimitHourly"));
         } else if (message === "UNAUTHORIZED") {
           setFormError(t("errors.unauthorized"));
+        } else if (message === "GAME_NOT_IN_LIBRARY") {
+          setFormError(t("errors.libraryRequired"));
         } else {
           setFormError(t("errors.generic"));
         }
@@ -261,7 +265,7 @@ export function GameReviewsSection({
         </div>
       </div>
 
-      {isAuthenticated ? (
+      {isAuthenticated && canSubmitReview ? (
         <form
           onSubmit={handleSubmit}
           className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-md sm:p-6"
@@ -328,6 +332,30 @@ export function GameReviewsSection({
             ) : null}
           </div>
         </form>
+      ) : isAuthenticated && data.currentUserRating ? (
+        <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-md sm:p-6">
+          <h3 className="text-lg font-semibold text-white">
+            {t("editYourReview")}
+          </h3>
+          <p className="mt-3 text-sm text-white/65">{t("libraryRequired")}</p>
+          {formError ? (
+            <p className="mt-4 text-sm text-[#EFA5A8]">{formError}</p>
+          ) : null}
+          <div className="mt-5">
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={handleDelete}
+              className="inline-flex h-10 items-center rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-medium text-white/75 transition hover:border-white/20 hover:text-white disabled:opacity-60"
+            >
+              {t("deleteReview")}
+            </button>
+          </div>
+        </div>
+      ) : isAuthenticated ? (
+        <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-sm text-white/65 backdrop-blur-md sm:p-6">
+          {t("libraryRequired")}
+        </div>
       ) : (
         <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-sm text-white/65 backdrop-blur-md sm:p-6">
           {t("signInToRate")}

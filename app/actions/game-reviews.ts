@@ -9,6 +9,7 @@ import {
 } from "@/lib/db";
 import { routing } from "@/i18n/routing";
 import { normalizeOptionalReviewText } from "@/lib/reviews/sanitize";
+import { userOwnsGameInLibrary } from "@/lib/reviews/library-ownership";
 import type { ReviewFilterOption, ReviewSortOption } from "@/lib/reviews/types";
 
 function parseRating(value: number) {
@@ -56,6 +57,11 @@ export async function submitGameReviewAction(input: {
   const appId = parseAppId(input.appId);
   const rating = parseRating(input.rating);
   const reviewText = normalizeOptionalReviewText(input.reviewText);
+
+  const ownsGame = await userOwnsGameInLibrary(steamId, appId);
+  if (!ownsGame) {
+    throw new Error("GAME_NOT_IN_LIBRARY");
+  }
 
   await upsertGameRating({
     steamId,

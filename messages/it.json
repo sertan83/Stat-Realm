@@ -442,6 +442,7 @@
     "saveChanges": "Salva modifiche",
     "deleteReview": "Elimina valutazione",
     "signInToRate": "Accedi con Steam per valutare questo gioco e scrivere una recensione.",
+    "libraryRequired": "Puoi valutare e recensire solo i giochi presenti nella tua libreria Steam.",
     "sortLabel": "Ordina recensioni",
     "filterLabel": "Filtra recensioni",
     "noReviewsFound": "Nessuna recensione corrisponde a questi filtri.",
@@ -468,7 +469,8 @@
       "generic": "Qualcosa è andato storto. Riprova.",
       "unauthorized": "Accedi con Steam per continuare.",
       "rateLimitInterval": "Attendi un momento prima di inviare un'altra valutazione.",
-      "rateLimitHourly": "Hai raggiunto il limite orario di valutazioni. Riprova più tardi."
+      "rateLimitHourly": "Hai raggiunto il limite orario di valutazioni. Riprova più tardi.",
+      "libraryRequired": "Puoi valutare e recensire solo i giochi presenti nella tua libreria Steam."
     }
   },
   "profileReviews": {
