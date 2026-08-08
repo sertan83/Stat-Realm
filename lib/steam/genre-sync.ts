@@ -11,6 +11,7 @@ import type { GenrePlaytime } from "@/types/dashboard";
 const REQUEST_DELAY_MS = 500;
 const GENRE_BATCH_SIZE = 6;
 const MAX_ATTEMPTS = 3;
+const GENRE_SYNC_MIN_INTERVAL_MS = 30 * 60 * 1000;
 
 type GenreSyncResult =
   | { status: "complete"; genres: GenrePlaytime[] }
@@ -257,11 +258,60 @@ async function synchronizeGenres(games: SteamOwnedGame[]) {
   return { status: "complete" as const, genres };
 }
 
+function allPlayedGamesHaveGenreCache(games: SteamOwnedGame[]) {
+  const playedGames = games.filter((game) => Number(game.playtime_forever) > 0);
+
+  if (playedGames.length === 0) {
+    return false;
+  }
+
+  return playedGames.every((game) => {
+    const appId = Number(game.appid);
+    const genres = getCachedStoreAppGenres(appId) ?? appGenreCache.get(appId);
+    return genres !== undefined && genres.length > 0;
+  });
+}
+
+export function shouldScheduleGenreSync(
+  profileAnalyticsSyncedAt: string | null | undefined,
+  hasStoredGenrePlaytime: boolean,
+) {
+  if (!hasStoredGenrePlaytime) {
+    return true;
+  }
+
+  if (!profileAnalyticsSyncedAt) {
+    return true;
+  }
+
+  const syncedAtMs = new Date(profileAnalyticsSyncedAt).getTime();
+  if (!Number.isFinite(syncedAtMs)) {
+    return true;
+  }
+
+  return Date.now() - syncedAtMs >= GENRE_SYNC_MIN_INTERVAL_MS;
+}
+
 export async function getGenrePlaytimeSummary(
   steamId: string,
   games: SteamOwnedGame[],
   syncVersion: string,
 ) {
+  const cachedFromAppCache = buildGenrePlaytimeFromCache(games);
+  if (
+    cachedFromAppCache.genres.length > 0 &&
+    allPlayedGamesHaveGenreCache(games)
+  ) {
+    console.info("[Steam Genre Sync] Served from app genre cache", {
+      totalOwnedGames: games.length,
+      genres: cachedFromAppCache.genres.length,
+    });
+    return {
+      status: "complete" as const,
+      genres: cachedFromAppCache.genres,
+    };
+  }
+
   const cacheKey = `${steamId}:${syncVersion}`;
   const cached = genreCache.get(cacheKey);
   if (cached?.status === "complete") {

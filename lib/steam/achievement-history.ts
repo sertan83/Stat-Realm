@@ -80,11 +80,14 @@ export async function persistAchievementHistory(
 export async function resolveDashboardAchievementHistory({
   steamId,
   summary,
+  storedHistory: preloadedHistory,
 }: {
   steamId: string;
   summary: SteamAchievementLibrarySummary | null;
+  storedHistory?: StoredUnlockedAchievement[];
 }) {
-  const storedHistory = await getUserAchievementHistory(steamId);
+  const storedHistory =
+    preloadedHistory ?? (await getUserAchievementHistory(steamId));
 
   if (
     summary?.historySyncCompleted &&

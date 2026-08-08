@@ -1,7 +1,28 @@
 "use server";
 
 import { auth } from "@/auth";
-import { getStatRealmUser } from "@/lib/db";
+import { getStatRealmUser, getUserProfileAnalytics } from "@/lib/db";
+
+function getLatestIsoTimestamp(
+  timestamps: Array<string | null | undefined>,
+) {
+  let latest: string | null = null;
+  let latestMs = -1;
+
+  for (const timestamp of timestamps) {
+    if (!timestamp) {
+      continue;
+    }
+
+    const parsed = new Date(timestamp).getTime();
+    if (Number.isFinite(parsed) && parsed > latestMs) {
+      latestMs = parsed;
+      latest = timestamp;
+    }
+  }
+
+  return latest;
+}
 
 export async function getDashboardLastSyncedAt(): Promise<string | null> {
   const session = await auth();
@@ -11,6 +32,13 @@ export async function getDashboardLastSyncedAt(): Promise<string | null> {
     return null;
   }
 
-  const user = await getStatRealmUser(steamId);
-  return user?.lastSyncedAt ?? null;
+  const [user, profileAnalytics] = await Promise.all([
+    getStatRealmUser(steamId),
+    getUserProfileAnalytics(steamId),
+  ]);
+
+  return getLatestIsoTimestamp([
+    user?.lastSyncedAt,
+    profileAnalytics?.syncedAt,
+  ]);
 }
