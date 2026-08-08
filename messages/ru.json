@@ -19,6 +19,7 @@
     "profile": "Профиль",
     "friends": "Друзья",
     "myRatings": "Мои оценки",
+    "myReviews": "Мои отзывы",
     "logOut": "Выйти",
     "accountMenu": "Меню аккаунта",
     "logoAlt": "StatRealm",
@@ -140,6 +141,7 @@
     "recentAchievements": "Недавние достижения",
     "noRecentAchievements": "Недавних достижений не найдено.",
     "viewAllAchievements": "Все достижения →",
+    "showMore": "Показать ещё →",
     "showLess": "Свернуть ←",
     "playtimeAnalytics": "Аналитика времени в игре",
     "playtimeByGenre": "Время в игре по жанрам",
@@ -531,5 +533,19 @@
       "alphabeticalAZ": "По алфавиту (А–Я)",
       "alphabeticalZA": "По алфавиту (Я–А)"
     }
+  },
+  "myReviewsPage": {
+    "metadataTitle": "Мои отзывы — StatRealm",
+    "metadataDescription": "Просмотрите все написанные отзывы, которые вы опубликовали на StatRealm.",
+    "title": "Мои отзывы",
+    "subtitle": "Все написанные отзывы, которые вы опубликовали на StatRealm.",
+    "subtitleWithCount": "Вы опубликовали {count, plural, one {# написанный отзыв} few {# написанных отзыва} many {# написанных отзывов} other {# написанных отзыва}} на StatRealm.",
+    "empty": "Вы ещё не написали ни одного отзыва.",
+    "previous": "Назад",
+    "next": "Далее",
+    "pageNumber": "Страница {page} из {totalPages}",
+    "steamLevel": "Уровень Steam {level}",
+    "steamLevelUnavailable": "Уровень Steam —",
+    "ratingValue": "{rating} / 10"
   }
 }

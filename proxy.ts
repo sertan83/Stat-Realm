@@ -46,7 +46,9 @@ function isProtectedAuthPath(pathname: string) {
     normalizedPath === "/friends" ||
     normalizedPath.startsWith("/friends/") ||
     normalizedPath === "/my-ratings" ||
-    normalizedPath.startsWith("/my-ratings/")
+    normalizedPath.startsWith("/my-ratings/") ||
+    normalizedPath === "/my-reviews" ||
+    normalizedPath.startsWith("/my-reviews/")
   );
 }
 

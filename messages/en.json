@@ -19,6 +19,7 @@
     "profile": "Profile",
     "friends": "Friends",
     "myRatings": "My Ratings",
+    "myReviews": "My Reviews",
     "logOut": "Log Out",
     "accountMenu": "Account menu",
     "logoAlt": "StatRealm",
@@ -140,6 +141,7 @@
     "recentAchievements": "Recent Achievements",
     "noRecentAchievements": "No recent achievements found.",
     "viewAllAchievements": "View All Achievements →",
+    "showMore": "Show More →",
     "showLess": "Show Less ←",
     "playtimeAnalytics": "Playtime Analytics",
     "playtimeByGenre": "Playtime by Genre",
@@ -531,5 +533,19 @@
       "alphabeticalAZ": "Alphabetical (A–Z)",
       "alphabeticalZA": "Alphabetical (Z–A)"
     }
+  },
+  "myReviewsPage": {
+    "metadataTitle": "My Reviews — StatRealm",
+    "metadataDescription": "View every written review you have posted on StatRealm.",
+    "title": "My Reviews",
+    "subtitle": "Every written review you have posted on StatRealm.",
+    "subtitleWithCount": "You have posted {count, plural, one {# written review} other {# written reviews}} on StatRealm.",
+    "empty": "You haven't written any reviews yet.",
+    "previous": "Previous",
+    "next": "Next",
+    "pageNumber": "Page {page} of {totalPages}",
+    "steamLevel": "Steam Level {level}",
+    "steamLevelUnavailable": "Steam Level —",
+    "ratingValue": "{rating} / 10"
   }
 }

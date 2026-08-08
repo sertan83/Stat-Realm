@@ -19,6 +19,7 @@
     "profile": "Perfil",
     "friends": "Amigos",
     "myRatings": "Mis puntuaciones",
+    "myReviews": "Mis reseñas",
     "logOut": "Cerrar sesión",
     "accountMenu": "Menú de cuenta",
     "logoAlt": "StatRealm",
@@ -140,6 +141,7 @@
     "recentAchievements": "Logros recientes",
     "noRecentAchievements": "No se encontraron logros recientes.",
     "viewAllAchievements": "Ver todos los logros →",
+    "showMore": "Mostrar más →",
     "showLess": "Mostrar menos ←",
     "playtimeAnalytics": "Análisis de tiempo de juego",
     "playtimeByGenre": "Tiempo de juego por género",
@@ -531,5 +533,19 @@
       "alphabeticalAZ": "Alfabético (A–Z)",
       "alphabeticalZA": "Alfabético (Z–A)"
     }
+  },
+  "myReviewsPage": {
+    "metadataTitle": "Mis reseñas — StatRealm",
+    "metadataDescription": "Consulta todas las reseñas escritas que has publicado en StatRealm.",
+    "title": "Mis reseñas",
+    "subtitle": "Todas las reseñas escritas que has publicado en StatRealm.",
+    "subtitleWithCount": "Has publicado {count, plural, one {# reseña escrita} other {# reseñas escritas}} en StatRealm.",
+    "empty": "Aún no has escrito ninguna reseña.",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageNumber": "Página {page} de {totalPages}",
+    "steamLevel": "Nivel de Steam {level}",
+    "steamLevelUnavailable": "Nivel de Steam —",
+    "ratingValue": "{rating} / 10"
   }
 }

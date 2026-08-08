@@ -18,6 +18,8 @@ type CommunityReviewsPanelProps = {
   data: CommunityReviewsPageData;
   locale: string;
   isAuthenticated: boolean;
+  translationsNamespace?: "reviewsPage" | "myReviewsPage";
+  buildPageHref?: (input: { page?: number }) => string;
 };
 
 function formatReviewDate(value: string, locale: string) {
@@ -43,8 +45,10 @@ export function CommunityReviewsPanel({
   data,
   locale,
   isAuthenticated,
+  translationsNamespace = "reviewsPage",
+  buildPageHref = buildCommunityReviewsHref,
 }: CommunityReviewsPanelProps) {
-  const t = useTranslations("reviewsPage");
+  const t = useTranslations(translationsNamespace);
   const tGameReviews = useTranslations("gameReviews");
   const router = useRouter();
   const [reviews, setReviews] = useState(data.reviews);
@@ -56,7 +60,7 @@ export function CommunityReviewsPanel({
   }, [data.reviews]);
 
   function navigate(page: number) {
-    const href = buildCommunityReviewsHref({ page });
+    const href = buildPageHref({ page });
 
     startTransition(() => {
       router.push(href);

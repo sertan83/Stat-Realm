@@ -2,6 +2,7 @@ import {
   BookmarkCheck,
   Compass,
   MessageSquareText,
+  NotebookPen,
   Star,
   Trophy,
   UserCircle,
@@ -23,6 +24,7 @@ export type SidebarNavItem = {
     | "exploreGames"
     | "leaderboards"
     | "reviews"
+    | "myReviews"
     | "friends"
     | "profile"
     | "ratings"
@@ -34,19 +36,25 @@ export type SidebarNavItem = {
 export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
   { href: "/explore", labelKey: "exploreGames", icon: Compass },
   { href: "/leaderboards", labelKey: "leaderboards", icon: Trophy },
-  { href: "/reviews", labelKey: "reviews", icon: MessageSquareText },
-  { href: "/friends", labelKey: "friends", icon: Users, requiresAuth: true },
-  {
-    resolveHref: () => getAuthenticatedDashboardPath(),
-    labelKey: "profile",
-    icon: UserCircle,
-    requiresAuth: true,
-  },
   { href: "/ratings", labelKey: "ratings", icon: Star },
   {
     href: "/my-ratings",
     labelKey: "myRatings",
     icon: BookmarkCheck,
+    requiresAuth: true,
+  },
+  { href: "/reviews", labelKey: "reviews", icon: MessageSquareText },
+  {
+    href: "/my-reviews",
+    labelKey: "myReviews",
+    icon: NotebookPen,
+    requiresAuth: true,
+  },
+  { href: "/friends", labelKey: "friends", icon: Users, requiresAuth: true },
+  {
+    resolveHref: () => getAuthenticatedDashboardPath(),
+    labelKey: "profile",
+    icon: UserCircle,
     requiresAuth: true,
   },
 ];

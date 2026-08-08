@@ -19,6 +19,7 @@
     "profile": "Profil",
     "friends": "Arkadaşlar",
     "myRatings": "Puanlarım",
+    "myReviews": "Yorumlarım",
     "logOut": "Çıkış Yap",
     "accountMenu": "Hesap menüsü",
     "logoAlt": "StatRealm",
@@ -140,6 +141,7 @@
     "recentAchievements": "Son Başarımlar",
     "noRecentAchievements": "Son başarım bulunamadı.",
     "viewAllAchievements": "Tüm Başarımları Gör →",
+    "showMore": "Daha Fazla Göster →",
     "showLess": "Daha Az Göster ←",
     "playtimeAnalytics": "Oynama Süresi Analizi",
     "playtimeByGenre": "Türe Göre Oynama Süresi",
@@ -531,5 +533,19 @@
       "alphabeticalAZ": "Alfabetik (A–Z)",
       "alphabeticalZA": "Alfabetik (Z–A)"
     }
+  },
+  "myReviewsPage": {
+    "metadataTitle": "Yorumlarım — StatRealm",
+    "metadataDescription": "StatRealm'de yazdığın tüm yorumları görüntüle.",
+    "title": "Yorumlarım",
+    "subtitle": "StatRealm'de yazdığın tüm yorumlar.",
+    "subtitleWithCount": "StatRealm'de {count, plural, one {# yazılı yorum} other {# yazılı yorum}} yazdın.",
+    "empty": "Henüz hiçbir oyuna yorum yazmadın.",
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "pageNumber": "Sayfa {page} / {totalPages}",
+    "steamLevel": "Steam Seviyesi {level}",
+    "steamLevelUnavailable": "Steam Seviyesi —",
+    "ratingValue": "{rating} / 10"
   }
 }

@@ -6,6 +6,9 @@ import { useMemo, useState } from "react";
 import { GameName } from "@/components/GameName";
 import type { DashboardAchievement } from "@/types/dashboard";
 
+const INITIAL_VISIBLE_COUNT = 10;
+const LOAD_MORE_BATCH_SIZE = 30;
+
 function getUnlockDate(timestamp: number) {
   if (!Number.isFinite(timestamp) || timestamp <= 0) return null;
 
@@ -31,7 +34,7 @@ export function RecentAchievements({
   showEmptyState?: boolean;
 }) {
   const t = useTranslations("dashboard");
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
   const sortedAchievements = useMemo(
     () =>
       [...achievements].sort(
@@ -39,9 +42,26 @@ export function RecentAchievements({
       ),
     [achievements],
   );
-  const visibleAchievements = isExpanded
-    ? sortedAchievements
-    : sortedAchievements.slice(0, 10);
+  const visibleAchievements = sortedAchievements.slice(0, visibleCount);
+  const hasMore = visibleCount < sortedAchievements.length;
+  const isExpanded = visibleCount > INITIAL_VISIBLE_COUNT;
+
+  function handleShowMore() {
+    setVisibleCount((current) => {
+      if (current <= INITIAL_VISIBLE_COUNT) {
+        return Math.min(LOAD_MORE_BATCH_SIZE, sortedAchievements.length);
+      }
+
+      return Math.min(
+        current + LOAD_MORE_BATCH_SIZE,
+        sortedAchievements.length,
+      );
+    });
+  }
+
+  function handleShowLess() {
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
+  }
 
   return (
     <section>
@@ -95,16 +115,27 @@ export function RecentAchievements({
           <p className="text-sm text-white/50">{t("noRecentAchievements")}</p>
         ) : null}
 
-        {sortedAchievements.length > 10 && (
-          <div className="mt-5 border-t border-white/10 pt-4 text-right">
-            <button
-              type="button"
-              aria-expanded={isExpanded}
-              onClick={() => setIsExpanded((expanded) => !expanded)}
-              className="text-sm font-medium text-white/65 transition hover:text-white"
-            >
-              {isExpanded ? t("showLess") : t("viewAllAchievements")}
-            </button>
+        {sortedAchievements.length > INITIAL_VISIBLE_COUNT && (
+          <div className="mt-5 flex flex-wrap items-center justify-end gap-4 border-t border-white/10 pt-4">
+            {isExpanded ? (
+              <button
+                type="button"
+                onClick={handleShowLess}
+                className="text-sm font-medium text-white/65 transition hover:text-white"
+              >
+                {t("showLess")}
+              </button>
+            ) : null}
+            {hasMore ? (
+              <button
+                type="button"
+                aria-expanded={isExpanded}
+                onClick={handleShowMore}
+                className="text-sm font-medium text-white/65 transition hover:text-white"
+              >
+                {isExpanded ? t("showMore") : t("viewAllAchievements")}
+              </button>
+            ) : null}
           </div>
         )}
       </div>

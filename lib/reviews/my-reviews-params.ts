@@ -1,0 +1,29 @@
+export type MyReviewsQuery = {
+  page: number;
+};
+
+export function parseMyReviewsQuery(
+  searchParams: Record<string, string | string[] | undefined>,
+): MyReviewsQuery {
+  const readParam = (key: string) => {
+    const value = searchParams[key];
+    return typeof value === "string" ? value : "";
+  };
+
+  const page = Math.max(1, Number(readParam("page")) || 1);
+
+  return {
+    page: Number.isFinite(page) ? page : 1,
+  };
+}
+
+export function buildMyReviewsHref(input: { page?: number }) {
+  const params = new URLSearchParams();
+
+  if (input.page && input.page > 1) {
+    params.set("page", String(input.page));
+  }
+
+  const query = params.toString();
+  return query ? `/my-reviews?${query}` : "/my-reviews";
+}
