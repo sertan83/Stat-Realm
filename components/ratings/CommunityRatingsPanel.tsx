@@ -3,8 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GameName } from "@/components/GameName";
-import { SteamGameImageByAppId } from "@/components/SteamGameImageByAppId";
-import { GAME_LIST_IMAGE_VARIANT } from "@/lib/game-display/constants";
+import { GameListImage } from "@/components/GameListImage";
 import { Select } from "@/components/ui/Select";
 import { Link } from "@/i18n/navigation";
 import type {
@@ -103,15 +102,17 @@ function RatingRow({
         </span>
       </div>
 
-      <SteamGameImageByAppId
-        appId={rating.appId}
-        variant={GAME_LIST_IMAGE_VARIANT}
-        initialCandidates={rating.imageCandidates}
-        wrapperClassName="h-[47px] w-[115px] shrink-0 overflow-hidden rounded-md border border-white/10 bg-[#140B2D] sm:h-[53px] sm:w-[130px]"
-        sizes="130px"
-        unoptimized
-        className="object-cover transition duration-[250ms] group-hover:scale-[1.03]"
-      />
+      <div className="relative h-[47px] w-[115px] shrink-0 overflow-hidden rounded-md border border-white/10 bg-[#140B2D] sm:h-[53px] sm:w-[130px]">
+        <GameListImage
+          appId={rating.appId}
+          alt={rating.gameName}
+          imageUrl={rating.imageUrl}
+          imageCandidates={rating.imageCandidates}
+          preferredUrls={[rating.imageUrl, ...rating.imageCandidates]}
+          sizes="130px"
+          className="object-cover transition duration-[250ms] group-hover:scale-[1.03]"
+        />
+      </div>
 
       <div className="min-w-0 flex-1">
         <h2 className="truncate text-base font-semibold text-white transition group-hover:text-white/85 sm:text-lg">

@@ -91,6 +91,7 @@ export type UserRatingsPageData = {
 export type CommunityRatingEntry = {
   appId: number;
   gameName: string;
+  imageUrl: string;
   imageCandidates: string[];
   averageRating: number;
   totalRatings: number;

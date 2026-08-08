@@ -8,6 +8,8 @@ import type { GameImageRole } from "@/lib/steam/game-image-cache";
 import { buildSteamGameImageCandidates } from "@/lib/steam/game-image-candidates-client";
 import {
   isGenericFallbackImage,
+  isLegacySteamCdnGuessUrl,
+  isTrustedStoredGameImageUrl,
   isUsableGameImageUrl,
 } from "@/lib/steam/game-image-urls";
 import { DEFAULT_GAME_FALLBACK_IMAGE } from "@/lib/steam/image-constants";
@@ -83,6 +85,15 @@ export function SteamGameImageByAppId({
 }: SteamGameImageByAppIdProps) {
   const [resolvedCandidates, setResolvedCandidates] = useState<string[]>([]);
   const [candidateIndex, setCandidateIndex] = useState(0);
+  const [loadedUrl, setLoadedUrl] = useState<string | null>(null);
+  const [refreshAttempt, setRefreshAttempt] = useState(0);
+
+  useEffect(() => {
+    setLoadedUrl(null);
+    setCandidateIndex(0);
+    setResolvedCandidates([]);
+    setRefreshAttempt(0);
+  }, [appId, variant]);
 
   useEffect(() => {
     if (!Number.isInteger(appId) || appId <= 0) {
@@ -93,8 +104,16 @@ export function SteamGameImageByAppId({
 
     async function fetchResolvedDisplay() {
       try {
+        const needsRefresh =
+          refreshAttempt > 0 ||
+          initialCandidates.every(
+            (candidate) =>
+              isLegacySteamCdnGuessUrl(candidate) ||
+              isGenericFallbackImage(candidate),
+          );
+        const refreshQuery = needsRefresh ? "&refresh=1" : "";
         const response = await fetch(
-          `/api/games/display?appIds=${appId}&variant=${variant}`,
+          `/api/games/display?appIds=${appId}&variant=${variant}${refreshQuery}`,
           { cache: "no-store" },
         );
 
@@ -136,18 +155,23 @@ export function SteamGameImageByAppId({
     return () => {
       cancelled = true;
     };
-  }, [appId, variant]);
+  }, [appId, initialCandidates, refreshAttempt, variant]);
 
   const candidates = useMemo(() => {
     const localCandidates = buildSteamGameImageCandidates(appId, {
       variant,
       preferredUrls,
       capsuleFilename,
-      storedImageUrls: initialCandidates,
+      storedImageUrls: initialCandidates.filter(isTrustedStoredGameImageUrl),
     }).filter((candidate) => !isGenericFallbackImage(candidate));
 
     const merged = mergeCandidateLists(
-      resolvedCandidates,
+      resolvedCandidates.filter(isTrustedStoredGameImageUrl),
+      resolvedCandidates.filter(
+        (candidate) =>
+          isUsableGameImageUrl(candidate) &&
+          !isTrustedStoredGameImageUrl(candidate),
+      ),
       initialCandidates.filter(isUsableGameImageUrl),
       localCandidates,
     );
@@ -170,15 +194,14 @@ export function SteamGameImageByAppId({
     variant,
   ]);
 
-  useEffect(() => {
-    setCandidateIndex(0);
-  }, [candidates]);
-
-  const activeUrl = candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE;
+  const activeUrl =
+    loadedUrl && candidates.includes(loadedUrl)
+      ? loadedUrl
+      : (candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE);
 
   const image = (
     <Image
-      key={activeUrl}
+      key={`${appId}:${activeUrl}`}
       src={activeUrl}
       alt={alt}
       fill
@@ -187,6 +210,10 @@ export function SteamGameImageByAppId({
       priority={priority}
       className={className}
       onLoad={() => {
+        if (!isGenericFallbackImage(activeUrl)) {
+          setLoadedUrl(activeUrl);
+        }
+
         if (
           imageCacheRole &&
           Number.isInteger(appId) &&
@@ -197,8 +224,17 @@ export function SteamGameImageByAppId({
         }
       }}
       onError={() => {
+        if (loadedUrl === activeUrl) {
+          setLoadedUrl(null);
+        }
+
         if (candidateIndex + 1 < candidates.length) {
           setCandidateIndex((currentIndex) => currentIndex + 1);
+          return;
+        }
+
+        if (refreshAttempt === 0) {
+          setRefreshAttempt(1);
         }
       }}
     />

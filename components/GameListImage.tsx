@@ -105,6 +105,14 @@ export function GameListImage({
   const [candidateIndex, setCandidateIndex] = useState(0);
   const [resolvedCandidates, setResolvedCandidates] = useState<string[]>([]);
   const [refreshAttempt, setRefreshAttempt] = useState(0);
+  const [loadedUrl, setLoadedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoadedUrl(null);
+    setCandidateIndex(0);
+    setResolvedCandidates([]);
+    setRefreshAttempt(0);
+  }, [appId]);
 
   const needsInitialRefresh = useMemo(
     () =>
@@ -152,7 +160,6 @@ export function GameListImage({
 
         if (fetchedCandidates.length > 0) {
           setResolvedCandidates(fetchedCandidates);
-          setCandidateIndex(0);
         }
       } catch {
         // Keep local Steam candidate chain.
@@ -221,15 +228,14 @@ export function GameListImage({
     resolvedCandidates,
   ]);
 
-  useEffect(() => {
-    setCandidateIndex(0);
-  }, [candidates]);
-
-  const activeUrl = candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE;
+  const activeUrl =
+    loadedUrl && candidates.includes(loadedUrl)
+      ? loadedUrl
+      : (candidates[candidateIndex] ?? DEFAULT_GAME_FALLBACK_IMAGE);
 
   return (
     <Image
-      key={activeUrl}
+      key={`${appId}:${activeUrl}`}
       src={activeUrl}
       alt={alt}
       fill
@@ -237,7 +243,16 @@ export function GameListImage({
       unoptimized
       sizes={sizes}
       className={className}
+      onLoad={() => {
+        if (!isGenericFallbackImage(activeUrl)) {
+          setLoadedUrl(activeUrl);
+        }
+      }}
       onError={() => {
+        if (loadedUrl === activeUrl) {
+          setLoadedUrl(null);
+        }
+
         if (candidateIndex + 1 < candidates.length) {
           setCandidateIndex((currentIndex) => currentIndex + 1);
           return;

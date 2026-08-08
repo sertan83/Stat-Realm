@@ -28,6 +28,7 @@ export async function loadCommunityRatingsPage(): Promise<CommunityRatingsPageDa
   ).map((entry) => ({
     appId: entry.appId,
     gameName: entry.gameName,
+    imageUrl: entry.imageUrl,
     imageCandidates: entry.imageCandidates,
     averageRating: entry.averageRating,
     totalRatings: entry.totalRatings,
