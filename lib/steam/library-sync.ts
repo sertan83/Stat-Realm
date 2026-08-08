@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { SteamProfile } from "@/lib/auth/steam";
-import { commitUserSyncSnapshot, getStatRealmUser, getUserAchievementHistory } from "@/lib/db";
+import { commitUserSyncSnapshot, getStatRealmUser, getUserAchievementHistory, getUserLibrary } from "@/lib/db";
 import type { StatRealmUserStats, UserLibraryGame } from "@/lib/db/types";
 import { GAME_NAME_LOADING_LABEL } from "@/lib/game-metadata/constants";
 import { resolveGameMetadataBatch } from "@/lib/steam/game-metadata";
@@ -25,9 +25,23 @@ import { createEmptyUserStats } from "@/lib/user/synced-statistics";
 function toUserLibraryGames(
   games: SteamOwnedGame[],
   achievementSummary: Awaited<ReturnType<typeof getAchievementLibrarySummary>>,
+  storedLibraryByAppId: Map<number, UserLibraryGame>,
 ): UserLibraryGame[] {
   return games.map((game) => {
     const progress = achievementSummary.progressByAppId.get(game.appid) ?? null;
+    const storedGame = storedLibraryByAppId.get(game.appid);
+    const achievementsUnlocked =
+      progress?.unlocked ?? storedGame?.achievementsUnlocked ?? null;
+    const achievementsTotal =
+      progress?.total ?? storedGame?.achievementsTotal ?? null;
+    const completionPercentage =
+      progress && progress.total > 0
+        ? progress.percentage
+        : storedGame?.completionPercentage ?? null;
+    const perfectGame =
+      progress && progress.total > 0
+        ? progress.unlocked === progress.total
+        : storedGame?.perfectGame ?? null;
 
     return {
       appId: game.appid,
@@ -38,13 +52,10 @@ function toUserLibraryGames(
         typeof game.rtime_last_played === "number" && game.rtime_last_played > 0
           ? game.rtime_last_played
           : null,
-      achievementsUnlocked: progress?.unlocked ?? null,
-      achievementsTotal: progress?.total ?? null,
-      completionPercentage:
-        progress && progress.total > 0 ? progress.percentage : null,
-      perfectGame: progress
-        ? progress.total > 0 && progress.unlocked === progress.total
-        : null,
+      achievementsUnlocked,
+      achievementsTotal,
+      completionPercentage,
+      perfectGame,
     };
   });
 }
@@ -104,6 +115,30 @@ function buildSyncedUserStats(
   };
 }
 
+function preserveStoredAchievementStats(
+  stats: StatRealmUserStats,
+  existingStats: StatRealmUserStats | null | undefined,
+  achievementSummary: Awaited<ReturnType<typeof getAchievementLibrarySummary>>,
+): StatRealmUserStats {
+  if (
+    achievementSummary.totalsStatus === "complete" ||
+    existingStats?.achievementTotalsStatus !== "complete"
+  ) {
+    return stats;
+  }
+
+  return {
+    ...stats,
+    totalUnlockedAchievements: existingStats.totalUnlockedAchievements,
+    totalAvailableAchievements: existingStats.totalAvailableAchievements,
+    achievementCompletionRate: existingStats.achievementCompletionRate,
+    perfectGames: existingStats.perfectGames,
+    averageAchievementRarity: existingStats.averageAchievementRarity,
+    achievementTotalsStatus: existingStats.achievementTotalsStatus,
+    achievementRarityStatus: existingStats.achievementRarityStatus,
+  };
+}
+
 export async function syncUserSteamLibrary(
   steamId: string,
   options?: {
@@ -134,34 +169,56 @@ export async function syncUserSteamLibrary(
     }
   }
 
-  const [profile, steamLevel, storedAchievementHistory] = await Promise.all([
+  const [profile, steamLevel, storedAchievementHistory, storedLibrary] =
+    await Promise.all([
     options?.profile === undefined
       ? getAuthenticatedSteamProfile(steamId)
       : Promise.resolve(options.profile),
     getSteamLevel(steamId).catch(() => null),
     getUserAchievementHistory(steamId),
+    getUserLibrary(steamId),
   ]);
+  const existingUser = await getStatRealmUser(steamId);
+  const storedContext = {
+    storedLibrary,
+    storedHistory: storedAchievementHistory,
+    storedStats: existingUser?.stats ?? null,
+    lastSyncedAt: existingUser?.lastSyncedAt ?? null,
+  };
   const forceAchievementRefresh =
     options?.forceAchievementRefresh === true ||
-    shouldRefreshAchievementHistory(steamId, storedAchievementHistory.length);
+    shouldRefreshAchievementHistory(
+      steamId,
+      storedAchievementHistory.length,
+      existingUser?.lastSyncedAt,
+    );
   const achievementSummary = await getAchievementLibrarySummary(
     steamId,
     ownedLibrary,
-    { forceRefresh: forceAchievementRefresh },
+    {
+      forceRefresh: forceAchievementRefresh,
+      storedContext,
+    },
+  );
+  const storedLibraryByAppId = new Map(
+    storedLibrary.map((game) => [game.appId, game]),
   );
   const libraryGames = await resolveLibraryGameNames(
-    toUserLibraryGames(ownedLibrary, achievementSummary),
+    toUserLibraryGames(ownedLibrary, achievementSummary, storedLibraryByAppId),
     steamId,
   );
-  const stats = buildSyncedUserStats(
-    libraryGames,
-    gameCount,
+  const stats = preserveStoredAchievementStats(
+    buildSyncedUserStats(
+      libraryGames,
+      gameCount,
+      achievementSummary,
+      steamLevel,
+      profile?.loccountrycode ?? null,
+    ),
+    existingUser?.stats,
     achievementSummary,
-    steamLevel,
-    profile?.loccountrycode ?? null,
   );
   const profileFields = profile ? steamProfileToStoredFields(profile) : null;
-  const existingUser = await getStatRealmUser(steamId);
   const achievementHistory = buildSyncSnapshotAchievementHistory(
     achievementSummary,
   );

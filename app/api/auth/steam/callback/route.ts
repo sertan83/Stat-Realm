@@ -7,7 +7,6 @@ import {
   STEAM_OPENID_STATE_COOKIE,
   verifySteamAssertion,
 } from "@/lib/auth/steam";
-import { invalidateAchievementLibraryCache } from "@/lib/steam/achievement-sync";
 import { invalidateGenreCache } from "@/lib/steam/genre-sync";
 import { recordStatRealmSteamLogin } from "@/lib/db";
 import { syncUserSteamLibrary } from "@/lib/steam/library-sync";
@@ -61,7 +60,6 @@ export async function GET(request: NextRequest) {
   console.timeEnd(loginTimingLabel("callback", "clearOpenIdCookie", steamId));
 
   console.time(loginTimingLabel("callback", "invalidateCaches", steamId));
-  invalidateAchievementLibraryCache(steamId);
   invalidateGenreCache(steamId);
   console.timeEnd(loginTimingLabel("callback", "invalidateCaches", steamId));
 
@@ -82,7 +80,6 @@ export async function GET(request: NextRequest) {
         );
         await syncUserSteamLibrary(steamId, {
           profile,
-          forceAchievementRefresh: true,
           recordLogin: true,
         });
         console.timeEnd(
